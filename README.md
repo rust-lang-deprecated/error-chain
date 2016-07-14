@@ -1,3 +1,6 @@
+[![Build Status](https://api.travis-ci.org/brson/error-chain.svg?branch=master)](https://travis-ci.org/brson/error-chain)
+[![Latest Version](https://img.shields.io/crates/v/error-chain.svg)](https://crates.io/crates/error-chain)
+
 # error-chain - Consistent error handling for Rust
 
 The [error-chain crate](https://crates.io/crates/error-chain)
