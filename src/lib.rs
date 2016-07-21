@@ -67,6 +67,8 @@
 //! error_chain! {
 //!     // The type defined for this error. These are the conventional
 //!     // and recommended names, but they can be arbitrarily chosen.
+//!     // It is also possible to leave this block out entirely, or
+//!     // leave it empty, and these names will be used automatically.
 //!     types {
 //!         Error, ErrorKind, ChainErr, Result;
 //!     }
@@ -256,6 +258,77 @@ mod quick_error;
 
 #[macro_export]
 macro_rules! error_chain {
+    (
+        links {
+            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+        }
+
+        foreign_links {
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident,
+               $foreign_link_desc:expr;  ) *
+        }
+
+        errors {
+            $( $error_chunks:tt ) *
+        }
+
+    ) => (
+        error_chain! {
+            types {
+                Error, ErrorKind, ChainErr, Result;
+            }
+
+            links {
+                $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+            }
+
+            foreign_links {
+                $( $foreign_link_error_path:path, $foreign_link_variant:ident,
+                   $foreign_link_desc:expr;  ) *
+            }
+
+            errors {
+                $( $error_chunks:tt ) *
+            }
+        }
+    );
+    (
+        types {
+        }
+
+        links {
+            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+        }
+
+        foreign_links {
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident,
+               $foreign_link_desc:expr;  ) *
+        }
+
+        errors {
+            $( $error_chunks:tt ) *
+        }
+
+    ) => (
+        error_chain! {
+            types {
+                Error, ErrorKind, ChainErr, Result;
+            }
+
+            links {
+                $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+            }
+
+            foreign_links {
+                $( $foreign_link_error_path:path, $foreign_link_variant:ident,
+                   $foreign_link_desc:expr;  ) *
+            }
+
+            errors {
+                $( $error_chunks:tt ) *
+            }
+        }
+    );
     (
         types {
             $error_name:ident, $error_kind_name:ident,
@@ -488,7 +561,6 @@ use std::iter::Iterator;
 pub struct ErrorChainIter<'a>(pub Option<&'a StdError>);
 
 impl<'a> Iterator for ErrorChainIter<'a> {
-
     type Item = &'a StdError;
 
     fn next<'b>(&'b mut self) -> Option<&'a StdError> {
@@ -497,8 +569,7 @@ impl<'a> Iterator for ErrorChainIter<'a> {
                 self.0 = e.cause();
                 Some(e)
             }
-            None => None
+            None => None,
         }
     }
 }
-

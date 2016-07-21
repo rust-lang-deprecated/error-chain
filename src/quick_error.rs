@@ -16,7 +16,7 @@ macro_rules! quick_error {
             items [] buf []
             queue [ $($chunks)* ]);
     };
-    // Queue is empty, can do the work
+// Queue is empty, can do the work
     (SORT [enum $name:ident $( #[$meta:meta] )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -55,7 +55,7 @@ macro_rules! quick_error {
             quick_error!(ERROR_CHECK $imode $($ifuncs)*);
         )*
     };
-    // Add meta to buffer
+// Add meta to buffer
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -68,7 +68,7 @@ macro_rules! quick_error {
             buf [$( #[$bmeta] )* #[$qmeta] ]
             queue [$( $tail )*]);
     };
-    // Add ident to buffer
+// Add ident to buffer
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -82,7 +82,7 @@ macro_rules! quick_error {
             buf [$(#[$bmeta])* => $qitem : UNIT [ ] ]
             queue [$( $tail )*]);
     };
-    // Flush buffer on meta after ident
+// Flush buffer on meta after ident
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -100,7 +100,7 @@ macro_rules! quick_error {
             buf [ #[$qmeta] ]
             queue [$( $tail )*]);
     };
-    // Add tuple enum-variant
+// Add tuple enum-variant
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -114,7 +114,7 @@ macro_rules! quick_error {
             queue [$( $tail )*]
         );
     };
-    // Add struct enum-variant - e.g. { descr: &'static str }
+// Add struct enum-variant - e.g. { descr: &'static str }
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -127,7 +127,7 @@ macro_rules! quick_error {
             buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),*] ]
             queue [$( $tail )*]);
     };
-    // Add struct enum-variant, with excess comma - e.g. { descr: &'static str, }
+// Add struct enum-variant, with excess comma - e.g. { descr: &'static str, }
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -140,7 +140,7 @@ macro_rules! quick_error {
             buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),*] ]
             queue [$( $tail )*]);
     };
-    // Add braces and flush always on braces
+// Add braces and flush always on braces
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -155,7 +155,7 @@ macro_rules! quick_error {
             buf [ ]
             queue [$( $tail )*]);
     };
-    // Flush buffer on double ident
+// Flush buffer on double ident
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -170,7 +170,7 @@ macro_rules! quick_error {
             buf [ => $qitem : UNIT [ ] ]
             queue [$( $tail )*]);
     };
-    // Flush buffer on end
+// Flush buffer on end
     (SORT [$( $def:tt )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -185,7 +185,7 @@ macro_rules! quick_error {
             buf [ ]
             queue [ ]);
     };
-    // Public enum (Queue Empty)
+// Public enum (Queue Empty)
     (ENUM_DEFINITION [pub enum $name:ident $( #[$meta:meta] )*]
         body [$($( #[$imeta:meta] )*
             => $iitem:ident ($(($( $ttyp:ty ),+))*) {$({$( $svar:ident: $styp:ty ),*})*} )* ]
@@ -199,7 +199,7 @@ macro_rules! quick_error {
             )*
         }
     };
-    // Private enum (Queue Empty)
+// Private enum (Queue Empty)
     (ENUM_DEFINITION [enum $name:ident $( #[$meta:meta] )*]
         body [$($( #[$imeta:meta] )*
             => $iitem:ident ($(($( $ttyp:ty ),+))*) {$({$( $svar:ident: $styp:ty ),*})*} )* ]
@@ -213,7 +213,7 @@ macro_rules! quick_error {
             )*
         }
     };
-    // Unit variant
+// Unit variant
     (ENUM_DEFINITION [$( $def:tt )*]
         body [$($( #[$imeta:meta] )*
             => $iitem:ident ($(($( $ttyp:ty ),+))*) {$({$( $svar:ident: $styp:ty ),*})*} )* ]
@@ -226,7 +226,7 @@ macro_rules! quick_error {
             queue [ $($queue)* ]
         );
     };
-    // Tuple variant
+// Tuple variant
     (ENUM_DEFINITION [$( $def:tt )*]
         body [$($( #[$imeta:meta] )*
             => $iitem:ident ($(($( $ttyp:ty ),+))*) {$({$( $svar:ident: $styp:ty ),*})*} )* ]
@@ -239,7 +239,7 @@ macro_rules! quick_error {
             queue [ $($queue)* ]
         );
     };
-    // Struct variant
+// Struct variant
     (ENUM_DEFINITION [$( $def:tt )*]
         body [$($( #[$imeta:meta] )*
             => $iitem:ident ($(($( $ttyp:ty ),+))*) {$({$( $svar:ident: $styp:ty ),*})*} )* ]
@@ -277,35 +277,35 @@ macro_rules! quick_error {
                 }
             }
         }
-        /*#[allow(unused)]
-        impl ::std::error::Error for $name {
-            fn description(&self) -> &str {
-                match *self {
-                    $(
-                        quick_error!(ITEM_PATTERN
-                            $name $item: $imode [$( ref $var ),*]
-                        ) => {
-                            quick_error!(FIND_DESCRIPTION_IMPL
-                                $item: $imode self fmt [$( $var ),*]
-                                {$( $funcs )*})
-                        }
-                    )*
-                }
-            }
-            fn cause(&self) -> Option<&::std::error::Error> {
-                match *self {
-                    $(
-                        quick_error!(ITEM_PATTERN
-                            $name $item: $imode [$( ref $var ),*]
-                        ) => {
-                            quick_error!(FIND_CAUSE_IMPL
-                                $item: $imode [$( $var ),*]
-                                {$( $funcs )*})
-                        }
-                    )*
-                }
-            }
-        }*/
+// #[allow(unused)]
+// impl ::std::error::Error for $name {
+// fn description(&self) -> &str {
+// match *self {
+// $(
+// quick_error!(ITEM_PATTERN
+// $name $item: $imode [$( ref $var ),*]
+// ) => {
+// quick_error!(FIND_DESCRIPTION_IMPL
+// $item: $imode self fmt [$( $var ),*]
+// {$( $funcs )*})
+// }
+// )*
+// }
+// }
+// fn cause(&self) -> Option<&::std::error::Error> {
+// match *self {
+// $(
+// quick_error!(ITEM_PATTERN
+// $name $item: $imode [$( ref $var ),*]
+// ) => {
+// quick_error!(FIND_CAUSE_IMPL
+// $item: $imode [$( $var ),*]
+// {$( $funcs )*})
+// }
+// )*
+// }
+// }
+// }
         #[allow(unused)]
         impl $name {
             pub fn description(&self) -> &str {
@@ -493,10 +493,10 @@ macro_rules! quick_error {
     ) => {
         $name::$item {$( ref $var ),*}
     };
-    // This one should match all allowed sequences in "funcs" but not match
-    // anything else.
-    // This is to contrast FIND_* clauses which just find stuff they need and
-    // skip everything else completely
+// This one should match all allowed sequences in "funcs" but not match
+// anything else.
+// This is to contrast FIND_* clauses which just find stuff they need and
+// skip everything else completely
     (ERROR_CHECK $imode:tt display($self_:tt) -> ($( $exprs:tt )*) $( $tail:tt )*)
     => { quick_error!(ERROR_CHECK $imode $($tail)*); };
     (ERROR_CHECK $imode:tt display($pattern: expr) $( $tail:tt )*)
@@ -516,6 +516,6 @@ macro_rules! quick_error {
     (ERROR_CHECK STRUCT from($fvar:ident: $ftyp:ty) -> {$( $v:ident: $e:expr ),*} $( $tail:tt )*)
     => { quick_error!(ERROR_CHECK STRUCT $($tail)*); };
     (ERROR_CHECK $imode:tt ) => {};
-    // Utility functions
+// Utility functions
     (IDENT $ident:ident) => { $ident }
 }
