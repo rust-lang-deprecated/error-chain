@@ -81,7 +81,7 @@
 //! mod errors;
 //! ```
 //!
-//! Add a module called errors to your crate and put this inside:
+//! Add a file for that module called `errors.rs` and put this inside:
 //!
 //! ```rust
 //! error_chain! {
