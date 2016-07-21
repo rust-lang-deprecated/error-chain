@@ -64,26 +64,26 @@
 //!
 //! Write this at the top of your crate:
 //!
-//! ```rust
+//! ```ignore
 //! #![recursion_limit = "1024"];
 //! ```
 //!
 //! Again near the top of your crate, import the `error_chain` crate and its macros:
 //!
-//! ```rust
+//! ```ignore
 //! #[macro_use]
 //! extern crate error_chain;
 //! ```
 //!
 //! Add an `errors` module to your crate:
 //!
-//! ```rust
+//! ```ignore
 //! mod errors;
 //! ```
 //!
 //! Add a file for that module called `errors.rs` and put this inside:
 //!
-//! ```rust
+//! ```ignore
 //! error_chain! {
 //!     links { }
 //!
@@ -96,14 +96,14 @@
 //! That's the setup. Now when writing modules for your crate,
 //! import everything from the `errors` module:
 //!
-//! ```rust
+//! ```ignore
 //! use errors::*;
 //! ```
 //!
 //! Create functions that return `Result`, which is defined my
 //! the `error_chain!` macro, and start chaining errors!
 //!
-//! ```rust
+//! ```ignore
 //! fn do_error_prone_work() -> Result<()> {
 //!     let file = try!(File::open("foo").chain_err(|| "couldn't open file"));
 //!     try!(file.write_str("important").chain_err(|| "couldn't write file"));
