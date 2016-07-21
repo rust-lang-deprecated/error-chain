@@ -54,6 +54,64 @@
 //! * Because the error type contains `std::error::Error + Send + 'static` objects,
 //!   it can't implement `PartialEq` for easy comparisons.
 //!
+//! ## Quick start
+//!
+//! Add this to Cargo.toml, under `[dependencies]`:
+//!
+//! ```toml
+//! error-chain = "0.2"
+//! ```
+//!
+//! Write this at the top of your crate:
+//!
+//! ```rust
+//! #![recursion_limit = "1024"];
+//! ```
+//!
+//! Again near the top of your crate, import the `error_chain` crate and its macros:
+//!
+//! ```rust
+//! #[macro_use]
+//! extern crate error_chain;
+//! ```
+//!
+//! Add an `errors` module to your crate:
+//!
+//! ```rust
+//! mod errors;
+//! ```
+//!
+//! Add a module called errors to your crate and put this inside:
+//!
+//! ```rust
+//! error_chain! {
+//!     links { }
+//!
+//!     foreign_links { }
+//!
+//!     errors { }
+//! }
+//! ```
+//!
+//! That's the setup. Now when writing modules for your crate,
+//! import everything from the `errors` module:
+//!
+//! ```rust
+//! use errors::*;
+//! ```
+//!
+//! Create functions that return `Result`, which is defined my
+//! the `error_chain!` macro, and start chaining errors!
+//!
+//! ```rust
+//! fn do_error_prone_work() -> Result<()> {
+//!     let file = try!(File::open("foo").chain_err(|| "couldn't open file"));
+//!     try!(file.write_str("important").chain_err(|| "couldn't write file"));
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
 //! ## Declaring error types
 //!
 //! Generally, you define one family of error types per crate, though
