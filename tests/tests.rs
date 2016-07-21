@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 #[macro_use]
 extern crate error_chain;
 
@@ -37,5 +39,39 @@ fn smoke_test_3() {
         foreign_links { }
 
         errors { }                
+    }
+}
+
+#[test]
+fn smoke_test_4() {
+    error_chain! {
+        links { }
+
+        foreign_links { }
+
+        errors {
+            HttpStatus(e: u32) {
+                description("http request returned an unsuccessful status code")
+                display("http request returned an unsuccessful status code: {}", e)
+            }
+        }
+    }
+}
+
+#[test]
+fn smoke_test_5() {
+    error_chain! {
+        types { }
+
+        links { }
+
+        foreign_links { }
+
+        errors {
+            HttpStatus(e: u32) {
+                description("http request returned an unsuccessful status code")
+                display("http request returned an unsuccessful status code: {}", e)
+            }
+        }
     }
 }

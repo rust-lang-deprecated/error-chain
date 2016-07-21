@@ -279,16 +279,16 @@ macro_rules! error_chain {
             }
 
             links {
-                $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+                $( $link_error_path, $link_kind_path, $link_variant;  ) *
             }
 
             foreign_links {
-                $( $foreign_link_error_path:path, $foreign_link_variant:ident,
-                   $foreign_link_desc:expr;  ) *
+                $( $foreign_link_error_path, $foreign_link_variant,
+                   $foreign_link_desc;  ) *
             }
 
             errors {
-                $( $error_chunks:tt ) *
+                $( $error_chunks ) *
             }
         }
     );
@@ -316,16 +316,16 @@ macro_rules! error_chain {
             }
 
             links {
-                $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+                $( $link_error_path, $link_kind_path, $link_variant;  ) *
             }
 
             foreign_links {
-                $( $foreign_link_error_path:path, $foreign_link_variant:ident,
-                   $foreign_link_desc:expr;  ) *
+                $( $foreign_link_error_path, $foreign_link_variant,
+                   $foreign_link_desc;  ) *
             }
 
             errors {
-                $( $error_chunks:tt ) *
+                $( $error_chunks ) *
             }
         }
     );
