@@ -100,7 +100,7 @@
 //! use errors::*;
 //! ```
 //!
-//! Create functions that return `Result`, which is defined my
+//! Create functions that return `Result`, which is defined by
 //! the `error_chain!` macro, and start chaining errors!
 //!
 //! ```ignore
