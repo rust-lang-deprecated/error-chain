@@ -444,7 +444,16 @@ macro_rules! error_chain {
             fn cause(&self) -> Option<&::std::error::Error> {
                 match (self.1).0 {
                     Some(ref c) => Some(&**c),
-                    None => None
+                    None => {
+                        match self.0 {
+                            $(
+                                $error_kind_name::$foreign_link_variant(ref foreign_err) => {
+                                    foreign_err.cause()
+                                }
+                            ) *
+                            _ => None
+                        }
+                    }
                 }
             }
         }
@@ -467,9 +476,8 @@ macro_rules! error_chain {
             impl From<$foreign_link_error_path> for $error_name {
                 fn from(e: $foreign_link_error_path) -> Self {
                     $error_name(
-                        $error_kind_name::$foreign_link_variant,
-                        (Some(Box::new(e)),
-                         ::std::sync::Arc::new($crate::Backtrace::new())))
+                        $error_kind_name::$foreign_link_variant(e),
+                        (None, ::std::sync::Arc::new($crate::Backtrace::new())))
                 }
             }
         ) *
@@ -516,8 +524,9 @@ macro_rules! error_chain {
                 ) *
 
                 $(
-                    $foreign_link_variant {
+                    $foreign_link_variant(err: $foreign_link_error_path) {
                         description(&$foreign_link_desc)
+                        display("{}", err)
                     }
                 ) *
 
