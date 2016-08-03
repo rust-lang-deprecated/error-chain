@@ -145,13 +145,13 @@
 //!
 //!     // Automatic conversions between this error chain and other
 //!     // error types not defined by the `error_chain!`. These will be
-//!     // boxed as the error cause and wrapped in a new error with,
-//!     // in this case, the `ErrorKind::Temp` variant.
+//!     // wrapped in a new error with, in this case, the
+//!     // `ErrorKind::Temp` variant. The description and cause will
+//!     // forward to the description and cause of the original error.
 //!     //
 //!     // This section can be empty.
 //!     foreign_links {
-//!         temp::Error, Temp,
-//!         "temporary file error";
+//!         temp::Error, Temp;
 //!     }
 //!
 //!     // Define additional `ErrorKind` variants. The syntax here is
@@ -327,8 +327,7 @@ macro_rules! error_chain {
         }
 
         foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident,
-               $foreign_link_desc:expr;  ) *
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  )*
         }
 
         errors {
@@ -346,8 +345,7 @@ macro_rules! error_chain {
             }
 
             foreign_links {
-                $( $foreign_link_error_path, $foreign_link_variant,
-                   $foreign_link_desc;  ) *
+                $( $foreign_link_error_path, $foreign_link_variant;  ) *
             }
 
             errors {
@@ -367,8 +365,7 @@ macro_rules! error_chain {
         }
 
         foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident,
-               $foreign_link_desc:expr;  ) *
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  )*
         }
 
         errors {
@@ -494,7 +491,7 @@ macro_rules! error_chain {
 
                 $(
                     $foreign_link_variant(err: $foreign_link_error_path) {
-                        description(&$foreign_link_desc)
+                        description(err.description())
                         display("{}", err)
                     }
                 ) *
@@ -606,8 +603,7 @@ macro_rules! error_chain {
         } ) *
 
         $( foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident,
-               $foreign_link_desc:expr;  ) *
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  ) *
         } ) *
 
         $( errors {
@@ -627,8 +623,7 @@ macro_rules! error_chain {
             }
 
             foreign_links {
-                $( $( $foreign_link_error_path, $foreign_link_variant,
-                   $foreign_link_desc;  ) * ) *
+                $( $( $foreign_link_error_path, $foreign_link_variant;  ) * ) *
             }
 
             errors {

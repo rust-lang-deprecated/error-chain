@@ -124,13 +124,13 @@ error_chain! {
 
     // Automatic conversions between this error chain and other
     // error types not defined by the `error_chain!`. These will be
-    // boxed as the error cause and wrapped in a new error with,
-    // in this case, the `ErrorKind::Temp` variant.
+    // wrapped in a new error with, in this case, the
+    // `ErrorKind::Temp` variant. The description and cause will
+    // forward to the description and cause of the original error.
     //
     // This section can be empty.
     foreign_links {
-        temp::Error, Temp,
-        "temporary file error";
+        temp::Error, Temp;
     }
 
     // Define additional `ErrorKind` variants. The syntax here is
