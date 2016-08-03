@@ -316,40 +316,8 @@ mod quick_error;
 
 #[macro_export]
 macro_rules! error_chain {
-    (
-        links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
-        }
 
-        foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident,
-               $foreign_link_desc:expr;  ) *
-        }
-
-        errors {
-            $( $error_chunks:tt ) *
-        }
-
-    ) => (
-        error_chain! {
-            types {
-                Error, ErrorKind, ChainErr, Result;
-            }
-
-            links {
-                $( $link_error_path, $link_kind_path, $link_variant;  ) *
-            }
-
-            foreign_links {
-                $( $foreign_link_error_path, $foreign_link_variant,
-                   $foreign_link_desc;  ) *
-            }
-
-            errors {
-                $( $error_chunks ) *
-            }
-        }
-    );
+    // Provide default for types block
     (
         types {
         }
@@ -387,6 +355,7 @@ macro_rules! error_chain {
             }
         }
     );
+
     (
         types {
             $error_name:ident, $error_kind_name:ident,
@@ -619,6 +588,54 @@ macro_rules! error_chain {
 
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
+
+    // Allow missing sections
+    // There should only ever be zero or one of each section, but there's currently no
+    // way to express that in a macro
+    (
+
+        $( types {
+            $(
+                $error_name:ident, $error_kind_name:ident,
+                $chain_error_name:ident, $result_name:ident;
+            ) *
+        } ) *
+
+        $( links {
+            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+        } ) *
+
+        $( foreign_links {
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident,
+               $foreign_link_desc:expr;  ) *
+        } ) *
+
+        $( errors {
+            $( $error_chunks:tt ) *
+        } ) *
+    ) => (
+        error_chain! {
+            types {
+                $( $(
+                    $error_name, $error_kind_name,
+                    $chain_error_name, $result_name;
+                ) * ) *
+            }
+
+            links {
+                $( $( $link_error_path, $link_kind_path, $link_variant;  ) * ) *
+            }
+
+            foreign_links {
+                $( $( $foreign_link_error_path, $foreign_link_variant,
+                   $foreign_link_desc;  ) * ) *
+            }
+
+            errors {
+                $( $( $error_chunks ) * ) *
+            }
+        }
+    );
 }
 
 
