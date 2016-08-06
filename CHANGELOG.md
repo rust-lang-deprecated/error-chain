@@ -1,3 +1,10 @@
+# 0.4.0
+
+- [Remove the foreign link description and forward to the foreign error](https://github.com/brson/error-chain/pull/19)
+- [Allow missing sections](https://github.com/brson/error-chain/pull/17)
+
+Contributors: Brian Anderson, Taylor Cramer
+
 # 0.3.0
 
 - [Forward Display implementation for foreign errors](https://github.com/brson/error-chain/pull/13)
