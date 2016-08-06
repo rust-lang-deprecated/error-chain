@@ -59,7 +59,7 @@
 //! Add this to Cargo.toml, under `[dependencies]`:
 //!
 //! ```toml
-//! error-chain = "0.2"
+//! error-chain = "0.4"
 //! ```
 //!
 //! Write this at the top of your crate:
