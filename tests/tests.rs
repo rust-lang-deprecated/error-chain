@@ -112,7 +112,6 @@ fn empty() {
 #[cfg(test)]
 mod foreign_link_test {
 
-    use std::error::Error as StdError;
     use std::fmt;
 
     // Note: foreign errors must be `pub` because they appear in the
@@ -122,12 +121,12 @@ mod foreign_link_test {
         cause: ForeignErrorCause
     }
 
-    impl StdError for ForeignError {
+    impl ::std::error::Error for ForeignError {
         fn description(&self) -> &'static str {
             "Foreign error description"
         }
 
-        fn cause(&self) -> Option<&StdError> { Some(&self.cause) }
+        fn cause(&self) -> Option<&::std::error::Error> { Some(&self.cause) }
     }
 
     impl fmt::Display for ForeignError {
@@ -139,12 +138,12 @@ mod foreign_link_test {
     #[derive(Debug)]
     pub struct ForeignErrorCause {}
 
-    impl StdError for ForeignErrorCause {
+    impl ::std::error::Error for ForeignErrorCause {
         fn description(&self) -> &'static str {
             "Foreign error cause description"
         }
 
-        fn cause(&self) -> Option<&StdError> { None }
+        fn cause(&self) -> Option<&::std::error::Error> { None }
     }
 
     impl fmt::Display for ForeignErrorCause {
@@ -178,7 +177,7 @@ mod foreign_link_test {
         let chained_error = try_foreign_error().err().unwrap();
         assert_eq!(
             format!("{}", ForeignErrorCause{}),
-            format!("{}", chained_error.cause().unwrap())
+            format!("{}", ::std::error::Error::cause(&chained_error).unwrap())
         );
     }
 
@@ -195,7 +194,7 @@ mod foreign_link_test {
             format!("{}", error_iter.next().unwrap())
         );
         assert_eq!(
-            format!("{:?}", None as Option<&StdError>),
+            format!("{:?}", None as Option<&::std::error::Error>),
             format!("{:?}", error_iter.next())
         );
     }
