@@ -16,9 +16,9 @@ script:
 - |
   travis-cargo build &&
   travis-cargo test &&
-  travis-cargo --only stable doc
+  travis-cargo --only nightly doc
 after_success:
-- travis-cargo --only stable doc-upload
+- travis-cargo --only nightly doc-upload
 env:
   global:
   - secure: TODO
