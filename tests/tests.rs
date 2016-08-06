@@ -104,6 +104,11 @@ fn smoke_test_7() {
     }
 }
 
+#[test]
+fn empty() {
+    error_chain! { }
+}
+
 #[cfg(test)]
 mod foreign_link_test {
 

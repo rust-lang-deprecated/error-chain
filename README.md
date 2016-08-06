@@ -44,13 +44,7 @@ mod errors;
 Add a file for that module called `errors.rs` and put this inside:
 
 ```rust
-error_chain! {
-    links { }
-
-    foreign_links { }
-
-    errors { }
-}
+error_chain! { }
 ```
 
 That's the setup. Now when writing modules for your crate,

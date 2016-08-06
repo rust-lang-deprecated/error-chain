@@ -84,13 +84,7 @@
 //! Add a file for that module called `errors.rs` and put this inside:
 //!
 //! ```ignore
-//! error_chain! {
-//!     links { }
-//!
-//!     foreign_links { }
-//!
-//!     errors { }
-//! }
+//! error_chain! { }
 //! ```
 //!
 //! That's the setup. Now when writing modules for your crate,
@@ -165,6 +159,9 @@
 //!     }
 //! }
 //! ```
+//!
+//! Each section, `types`, `links`, `foreign_links`, and `errors` may
+//! be omitted if it is empty.
 //!
 //! This populates the module with a number of definitions,
 //! the most important of which are the `Error` type
