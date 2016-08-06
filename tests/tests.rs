@@ -154,7 +154,7 @@ mod foreign_link_test {
         }
         links {}
         foreign_links {
-            ForeignError, Foreign, "some foreign error";
+            ForeignError, Foreign;
         }
         errors {}
     }
