@@ -313,44 +313,6 @@ mod quick_error;
 
 #[macro_export]
 macro_rules! error_chain {
-
-    // Provide default for types block
-    (
-        types {
-        }
-
-        links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
-        }
-
-        foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  )*
-        }
-
-        errors {
-            $( $error_chunks:tt ) *
-        }
-
-    ) => (
-        error_chain! {
-            types {
-                Error, ErrorKind, ChainErr, Result;
-            }
-
-            links {
-                $( $link_error_path, $link_kind_path, $link_variant;  ) *
-            }
-
-            foreign_links {
-                $( $foreign_link_error_path, $foreign_link_variant;  ) *
-            }
-
-            errors {
-                $( $error_chunks ) *
-            }
-        }
-    );
-
     (
         types {
             $error_name:ident, $error_kind_name:ident,
@@ -583,17 +545,18 @@ macro_rules! error_chain {
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
 
-    // Allow missing sections
-    // There should only ever be zero or one of each section, but there's currently no
-    // way to express that in a macro
+    // Handle missing sections, or missing type names in types { }
+    //
+    // Macros cannot specify "zero or one repetitions" at the moment, so we allow
+    // repeating sections. Only for the `types` section this makes no sense, which
+    // is the reason for the three separate cases.
+    //
+    // Case 1: types fully specified
     (
-
-        $( types {
-            $(
-                $error_name:ident, $error_kind_name:ident,
-                $chain_error_name:ident, $result_name:ident;
-            ) *
-        } ) *
+        types {
+            $error_name:ident, $error_kind_name:ident,
+            $chain_error_name:ident, $result_name:ident;
+        }
 
         $( links {
             $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
@@ -609,11 +572,72 @@ macro_rules! error_chain {
     ) => (
         error_chain! {
             types {
-                $( $(
-                    $error_name, $error_kind_name,
-                    $chain_error_name, $result_name;
-                ) * ) *
+                $error_name, $error_kind_name, $chain_error_name, $result_name;
             }
+
+            links {
+                $( $( $link_error_path, $link_kind_path, $link_variant;  ) * ) *
+            }
+
+            foreign_links {
+                $( $( $foreign_link_error_path, $foreign_link_variant;  ) * ) *
+            }
+
+            errors {
+                $( $( $error_chunks ) * ) *
+            }
+        }
+    );
+    // Case 2: types section present, but empty
+    (
+        types { }
+
+        $( links {
+            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+        } ) *
+
+        $( foreign_links {
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  ) *
+        } ) *
+
+        $( errors {
+            $( $error_chunks:tt ) *
+        } ) *
+    ) => (
+        error_chain! {
+            types {
+                Error, ErrorKind, ChainErr, Result;
+            }
+
+            links {
+                $( $( $link_error_path, $link_kind_path, $link_variant;  ) * ) *
+            }
+
+            foreign_links {
+                $( $( $foreign_link_error_path, $foreign_link_variant;  ) * ) *
+            }
+
+            errors {
+                $( $( $error_chunks ) * ) *
+            }
+        }
+    );
+    // Case 3: types section not present
+    (
+        $( links {
+            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+        } ) *
+
+        $( foreign_links {
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  ) *
+        } ) *
+
+        $( errors {
+            $( $error_chunks:tt ) *
+        } ) *
+    ) => (
+        error_chain! {
+            types { }
 
             links {
                 $( $( $link_error_path, $link_kind_path, $link_variant;  ) * ) *
