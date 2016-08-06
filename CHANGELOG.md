@@ -1,4 +1,10 @@
-# 0.4.0
+# 0.4.1
+
+- [Fixes a problem with resolving methods of the standard Error type](https://github.com/brson/error-chain/pull/22)
+
+Contributors: Brian Anderson
+
+# 0.4.0 (yanked)
 
 - [Remove the foreign link description and forward to the foreign error](https://github.com/brson/error-chain/pull/19)
 - [Allow missing sections](https://github.com/brson/error-chain/pull/17)
