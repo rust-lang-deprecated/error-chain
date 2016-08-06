@@ -76,6 +76,34 @@ fn smoke_test_5() {
     }
 }
 
+#[test]
+fn smoke_test_6() {
+    error_chain! {
+        errors {
+            HttpStatus(e: u32) {
+                description("http request returned an unsuccessful status code")
+                display("http request returned an unsuccessful status code: {}", e)
+            }
+        }
+    }
+}
+
+#[test]
+fn smoke_test_7() {
+    error_chain! {
+        types { }
+
+        foreign_links { }
+
+        errors {
+            HttpStatus(e: u32) {
+                description("http request returned an unsuccessful status code")
+                display("http request returned an unsuccessful status code: {}", e)
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod foreign_link_test {
 
