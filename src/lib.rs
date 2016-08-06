@@ -481,7 +481,7 @@ macro_rules! error_chain {
 
                 $(
                     $link_variant(e: $link_kind_path) {
-                        description(::std::error::Error::description(e))
+                        description(e.description())
                         display("{}", e)
                     }
                 ) *
