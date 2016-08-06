@@ -1,6 +1,12 @@
-# 0.4.1
+# 0.4.2
 
-- [Fixes a problem with resolving methods of the standard Error type](https://github.com/brson/error-chain/pull/22)
+- [Fix the resolution of the ErrorKind description method](https://github.com/brson/error-chain/pull/24)
+
+Contributors: Brian Anderson
+
+# 0.4.1 (yanked)
+
+- [Fix a problem with resolving methods of the standard Error type](https://github.com/brson/error-chain/pull/22)
 
 Contributors: Brian Anderson
 
