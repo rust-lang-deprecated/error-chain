@@ -105,6 +105,26 @@ fn smoke_test_7() {
 }
 
 #[test]
+fn smoke_test_8() {
+    error_chain! {
+        types { }
+
+        links { }
+        links { }
+
+        foreign_links { }
+        foreign_links { }
+
+        errors {
+            FileNotFound
+        }
+        errors {
+            AccessDenied
+        }
+    }
+}
+
+#[test]
 fn empty() {
     error_chain! { };
 }
