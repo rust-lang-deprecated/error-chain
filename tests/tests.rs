@@ -15,7 +15,7 @@ fn smoke_test_1() {
         foreign_links { }
 
         errors { }
-    }
+    };
 }
 
 #[test]
@@ -28,7 +28,7 @@ fn smoke_test_2() {
         foreign_links { }
 
         errors { }
-    }
+    };
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn smoke_test_3() {
         foreign_links { }
 
         errors { }
-    }
+    };
 }
 
 #[test]
@@ -55,7 +55,7 @@ fn smoke_test_4() {
                 display("http request returned an unsuccessful status code: {}", e)
             }
         }
-    }
+    };
 }
 
 #[test]
@@ -73,7 +73,7 @@ fn smoke_test_5() {
                 display("http request returned an unsuccessful status code: {}", e)
             }
         }
-    }
+    };
 }
 
 #[test]
@@ -85,7 +85,7 @@ fn smoke_test_6() {
                 display("http request returned an unsuccessful status code: {}", e)
             }
         }
-    }
+    };
 }
 
 #[test]
@@ -101,12 +101,12 @@ fn smoke_test_7() {
                 display("http request returned an unsuccessful status code: {}", e)
             }
         }
-    }
+    };
 }
 
 #[test]
 fn empty() {
-    error_chain! { }
+    error_chain! { };
 }
 
 #[cfg(test)]
