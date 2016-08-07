@@ -121,7 +121,7 @@ fn smoke_test_8() {
         errors {
             AccessDenied
         }
-    }
+    };
 }
 
 #[test]
