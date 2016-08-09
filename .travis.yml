@@ -19,8 +19,11 @@ script:
   travis-cargo build &&
   travis-cargo test &&
   travis-cargo --only nightly doc
-after_success:
-- travis-cargo --only nightly doc-upload
+deploy:
+  provider: script
+  script: travis-cargo --only nightly doc-upload
+  on:
+    tags: true
 env:
   global:
   - TRAVIS_CARGO_NIGHTLY_FEATURE=""
