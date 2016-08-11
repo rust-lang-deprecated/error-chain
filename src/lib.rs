@@ -12,7 +12,7 @@
 //!   consistent way - `From` conversion behavior is never specified
 //!   explicitly.
 //! * Errors implement Send.
-//! * Errors carry backtraces.
+//! * Errors can carry backtraces.
 //!
 //! Similar to other libraries like [error-type] and [quick-error], this
 //! library defines a macro, `error_chain!` that declares the types
@@ -40,9 +40,9 @@
 //!   errors.
 //! * It provides automatic `From` conversions between any other error
 //!   type that hides the type of the other error in the `cause` box.
-//! * It collects a single backtrace at the earliest opportunity and
-//!   propagates it down the stack through `From` and `ChainErr`
-//!   conversions.
+//! * If `RUST_BACKTRACE` is enabled, it collects a single backtrace at
+//!   the earliest opportunity and propagates it down the stack through
+//!   `From` and `ChainErr` conversions.
 //!
 //! To accomplish its goals it makes some tradeoffs:
 //!
@@ -175,13 +175,13 @@
 //! #[derive(Debug)]
 //! pub struct Error(pub ErrorKind,
 //!                  pub Option<Box<StdError + Send>>,
-//!                  pub Arc<error_chain::Backtrace>);
+//!                  pub Option<Arc<error_chain::Backtrace>>);
 //!
 //! impl Error {
 //!     pub fn kind(&self) -> &ErrorKind { ... }
 //!     pub fn into_kind(self) -> ErrorKind { ... }
 //!     pub fn iter(&self) -> error_chain::ErrorChainIter { ... }
-//!     pub fn backtrace(&self) -> &error_chain::Backtrace { ... }
+//!     pub fn backtrace(&self) -> Option<&error_chain::Backtrace> { ... }
 //! }
 //!
 //! impl StdError for Error { ... }
@@ -293,10 +293,11 @@
 //!
 //! ## Backtraces
 //!
-//! The earliest non-foreign error to be generated creates a single
-//! backtrace, which is passed through all `From` conversions and
-//! `chain_err` invocations of compatible types. To read the backtrace
-//! just call the `backtrace()` method.
+//! If the `RUST_BACKTRACE` environment variable is set to anything
+//! but ``0``, the earliest non-foreign error to be generated creates
+//! a single backtrace, which is passed through all `From` conversions
+//! and `chain_err` invocations of compatible types. To read the
+//! backtrace just call the `backtrace()` method.
 //!
 //! ## Iteration
 //!
@@ -343,7 +344,7 @@ macro_rules! error_chain {
         #[derive(Debug)]
         pub struct $error_name(pub $error_kind_name,
                                pub (Option<Box<::std::error::Error + Send>>,
-                                    ::std::sync::Arc<$crate::Backtrace>));
+                                    Option<::std::sync::Arc<$crate::Backtrace>>));
 
         #[allow(unused)]
         impl $error_name {
@@ -359,8 +360,8 @@ macro_rules! error_chain {
                 $crate::ErrorChainIter(Some(self))
             }
 
-            pub fn backtrace(&self) -> &$crate::Backtrace {
-                &(self.1).1
+            pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
+                (self.1).1.as_ref().map(|v| &**v)
             }
         }
 
@@ -402,7 +403,7 @@ macro_rules! error_chain {
                 fn from(e: $foreign_link_error_path) -> Self {
                     $error_name(
                         $error_kind_name::$foreign_link_variant(e),
-                        (None, ::std::sync::Arc::new($crate::Backtrace::new())))
+                        (None, $crate::make_backtrace()))
                 }
             }
         ) *
@@ -410,21 +411,21 @@ macro_rules! error_chain {
         impl From<$error_kind_name> for $error_name {
             fn from(e: $error_kind_name) -> Self {
                 $error_name(e,
-                            (None, ::std::sync::Arc::new($crate::Backtrace::new())))
+                            (None, $crate::make_backtrace()))
             }
         }
 
         impl<'a> From<&'a str> for $error_name {
             fn from(s: &'a str) -> Self {
                 $error_name(s.into(),
-                            (None, ::std::sync::Arc::new($crate::Backtrace::new())))
+                            (None, $crate::make_backtrace()))
             }
         }
 
         impl From<String> for $error_name {
             fn from(s: String) -> Self {
                 $error_name(s.into(),
-                            (None, ::std::sync::Arc::new($crate::Backtrace::new())))
+                            (None, $crate::make_backtrace()))
             }
         }
 
@@ -500,7 +501,7 @@ macro_rules! error_chain {
                     let e = Box::new(e) as Box<::std::error::Error + Send + 'static>;
                     let (e, backtrace) = backtrace_from_box(e);
                     let backtrace = backtrace.unwrap_or_else(
-                        || ::std::sync::Arc::new($crate::Backtrace::new()));
+                        || $crate::make_backtrace());
 
                     $error_name(callback().into(), (Some(e), backtrace))
                 })
@@ -513,7 +514,7 @@ macro_rules! error_chain {
         // machinery to make it work.
         fn backtrace_from_box(mut e: Box<::std::error::Error + Send + 'static>)
                               -> (Box<::std::error::Error + Send + 'static>,
-                                  Option<::std::sync::Arc<$crate::Backtrace>>) {
+                                  Option<Option<::std::sync::Arc<$crate::Backtrace>>>) {
             let mut backtrace = None;
 
             e = match e.downcast::<$error_name>() {
@@ -657,6 +658,7 @@ macro_rules! error_chain {
 
 use std::error::Error as StdError;
 use std::iter::Iterator;
+use std::sync::Arc;
 
 pub struct ErrorChainIter<'a>(pub Option<&'a StdError>);
 
@@ -671,5 +673,15 @@ impl<'a> Iterator for ErrorChainIter<'a> {
             }
             None => None,
         }
+    }
+}
+
+/// Returns a backtrace of the current call stack if `RUST_BACKTRACE`
+/// is set to anything but ``0``, and `None` otherwise.  This is used
+/// in the generated error implementations.
+pub fn make_backtrace() -> Option<Arc<Backtrace>> {
+    match std::env::var_os("RUST_BACKTRACE") {
+        Some(ref val) if val != "0" => Some(Arc::new(Backtrace::new())),
+        _ => None
     }
 }

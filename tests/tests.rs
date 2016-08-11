@@ -129,6 +129,33 @@ fn empty() {
     error_chain! { };
 }
 
+#[test]
+fn has_backtrace_depending_on_env() {
+    use std::env;
+
+    error_chain! {
+        types {}
+        links {}
+        foreign_links {}
+        errors {
+            MyError
+        }
+    }
+
+    // missing RUST_BACKTRACE and RUST_BACKTRACE=0
+    env::remove_var("RUST_BACKTRACE");
+    let err = Error::from(ErrorKind::MyError);
+    assert!(err.backtrace().is_none());
+    env::set_var("RUST_BACKTRACE", "0");
+    let err = Error::from(ErrorKind::MyError);
+    assert!(err.backtrace().is_none());
+
+    // RUST_BACKTRACE set to anything but 0
+    env::set_var("RUST_BACKTRACE", "yes");
+    let err = Error::from(ErrorKind::MyError);
+    assert!(err.backtrace().is_some());
+}
+
 #[cfg(test)]
 mod foreign_link_test {
 

@@ -10,7 +10,7 @@ provides a few unique features:
   "chain" errors with the `chain_err` method.
 * Introducing new errors is trivial. Simple errors can be introduced
   at the error site with just a string.
-* Errors create and propagate backtraces.
+* Errors can create and propagate backtraces.
 
 [Documentation](http://brson.github.io/error-chain/index.html).
 
