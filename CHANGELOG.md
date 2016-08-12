@@ -1,3 +1,12 @@
+# 0.5.0
+
+- [Only generate backtraces with RUST_BACKTRACE set](https://github.com/brson/error-chain/pull/27)
+- [Fixup matching, disallow repeating "types" section](https://github.com/brson/error-chain/pull/26)
+- [Fix tests on stable/beta](https://github.com/brson/error-chain/pull/28)
+- [Only deploy docs when tagged](https://github.com/brson/error-chain/pull/30)
+
+Contributors: benaryorg, Brian Anderson, Georg Brandl
+
 # 0.4.2
 
 - [Fix the resolution of the ErrorKind description method](https://github.com/brson/error-chain/pull/24)
