@@ -500,8 +500,7 @@ macro_rules! error_chain {
                 self.map_err(move |e| {
                     let e = Box::new(e) as Box<::std::error::Error + Send + 'static>;
                     let (e, backtrace) = backtrace_from_box(e);
-                    let backtrace = backtrace.unwrap_or_else(
-                        || $crate::make_backtrace());
+                    let backtrace = backtrace.unwrap_or_else($crate::make_backtrace);
 
                     $error_name(callback().into(), (Some(e), backtrace))
                 })
