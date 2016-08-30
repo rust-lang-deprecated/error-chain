@@ -65,7 +65,7 @@
 //! Write this at the top of your crate:
 //!
 //! ```ignore
-//! #![recursion_limit = "1024"];
+//! #![recursion_limit = "1024"]
 //! ```
 //!
 //! Again near the top of your crate, import the `error_chain` crate and its macros:
