@@ -59,13 +59,13 @@
 //! Add this to Cargo.toml, under `[dependencies]`:
 //!
 //! ```toml
-//! error-chain = "0.4"
+//! error-chain = "0.5"
 //! ```
 //!
 //! Write this at the top of your crate:
 //!
 //! ```ignore
-//! #![recursion_limit = "1024"];
+//! #![recursion_limit = "1024"]
 //! ```
 //!
 //! Again near the top of your crate, import the `error_chain` crate and its macros:
@@ -100,7 +100,7 @@
 //! ```ignore
 //! fn do_error_prone_work() -> Result<()> {
 //!     let file = try!(File::open("foo").chain_err(|| "couldn't open file"));
-//!     try!(file.write_str("important").chain_err(|| "couldn't write file"));
+//!     try!(file.write_all("important".as_bytes()).chain_err(|| "couldn't write file"));
 //!
 //!     Ok(())
 //! }
