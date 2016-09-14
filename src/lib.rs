@@ -133,8 +133,8 @@
 //!     //
 //!     // This section can be empty.
 //!     links {
-//!         rustup_dist::Error, rustup_dist::ErrorKind, Dist;
-//!         rustup_utils::Error, rustup_utils::ErrorKind, Utils;
+//!         ::rustup_dist::Error, rustup_dist::ErrorKind, Dist;
+//!         ::rustup_utils::Error, rustup_utils::ErrorKind, Utils;
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -145,7 +145,7 @@
 //!     //
 //!     // This section can be empty.
 //!     foreign_links {
-//!         temp::Error, Temp;
+//!         ::temp::Error, Temp;
 //!     }
 //!
 //!     // Define additional `ErrorKind` variants. The syntax here is
