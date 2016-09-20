@@ -306,9 +306,14 @@
 //! [error-type]: https://github.com/DanielKeep/rust-error-type
 //! [quick-error]: https://github.com/tailhook/quick-error
 
+#[cfg(feature="backtrace")]
 extern crate backtrace;
 
+#[cfg(feature="backtrace")]
 pub use backtrace::Backtrace;
+
+#[cfg(not(feature="backtrace"))]
+pub type Backtrace = ();
 
 mod quick_error;
 
@@ -678,9 +683,15 @@ impl<'a> Iterator for ErrorChainIter<'a> {
 /// Returns a backtrace of the current call stack if `RUST_BACKTRACE`
 /// is set to anything but ``0``, and `None` otherwise.  This is used
 /// in the generated error implementations.
+#[cfg(feature = "backtrace")]
 pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     match std::env::var_os("RUST_BACKTRACE") {
         Some(ref val) if val != "0" => Some(Arc::new(Backtrace::new())),
         _ => None
     }
+}
+
+#[cfg(not(feature = "backtrace"))]
+pub fn make_backtrace() -> Option<Arc<Backtrace>> {
+    None
 }
