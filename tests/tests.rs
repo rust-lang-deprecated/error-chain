@@ -129,6 +129,7 @@ fn empty() {
     error_chain! { };
 }
 
+#[cfg(feature = "backtrace")]
 #[test]
 fn has_backtrace_depending_on_env() {
     use std::env;
