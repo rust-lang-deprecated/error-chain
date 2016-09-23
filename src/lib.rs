@@ -306,9 +306,8 @@
 //! [error-type]: https://github.com/DanielKeep/rust-error-type
 //! [quick-error]: https://github.com/tailhook/quick-error
 
+#[cfg(feature="backtrace")]
 extern crate backtrace;
-
-pub use backtrace::Backtrace;
 
 mod quick_error;
 
@@ -344,7 +343,7 @@ macro_rules! error_chain {
         #[derive(Debug)]
         pub struct $error_name(pub $error_kind_name,
                                pub (Option<Box<::std::error::Error + Send>>,
-                                    Option<::std::sync::Arc<$crate::Backtrace>>));
+                                    $crate::BacktraceHolder));
 
         #[allow(unused)]
         impl $error_name {
@@ -360,6 +359,7 @@ macro_rules! error_chain {
                 $crate::ErrorChainIter(Some(self))
             }
 
+            #[cfg(feature="backtrace")]
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
                 (self.1).1.as_ref().map(|v| &**v)
             }
@@ -513,7 +513,7 @@ macro_rules! error_chain {
         // machinery to make it work.
         fn backtrace_from_box(mut e: Box<::std::error::Error + Send + 'static>)
                               -> (Box<::std::error::Error + Send + 'static>,
-                                  Option<Option<::std::sync::Arc<$crate::Backtrace>>>) {
+                                  Option<$crate::BacktraceHolder>) {
             let mut backtrace = None;
 
             e = match e.downcast::<$error_name>() {
@@ -657,7 +657,6 @@ macro_rules! error_chain {
 
 use std::error::Error as StdError;
 use std::iter::Iterator;
-use std::sync::Arc;
 
 pub struct ErrorChainIter<'a>(pub Option<&'a StdError>);
 
@@ -675,12 +674,31 @@ impl<'a> Iterator for ErrorChainIter<'a> {
     }
 }
 
+/// Holds an optional backtrace (`backtrace` feature is on).
+#[cfg(feature="backtrace")]
+pub type BacktraceHolder = Option<::std::sync::Arc<backtrace::Backtrace>>;
+
+#[cfg(feature="backtrace")]
+pub use backtrace::Backtrace;
+
+/// Placeholder for backtrace information (`backtrace` feature is off).
+#[cfg(not(feature="backtrace"))]
+pub type BacktraceHolder = ();
+
+
 /// Returns a backtrace of the current call stack if `RUST_BACKTRACE`
 /// is set to anything but ``0``, and `None` otherwise.  This is used
 /// in the generated error implementations.
-pub fn make_backtrace() -> Option<Arc<Backtrace>> {
+#[cfg(feature = "backtrace")]
+pub fn make_backtrace() -> BacktraceHolder {
     match std::env::var_os("RUST_BACKTRACE") {
-        Some(ref val) if val != "0" => Some(Arc::new(Backtrace::new())),
+        Some(ref val) if val != "0" => Some(::std::sync::Arc::new(backtrace::Backtrace::new())),
         _ => None
     }
+}
+
+/// Noop implementation for make_backtrace (`backtrace` feature is off).
+#[cfg(not(feature = "backtrace"))]
+pub fn make_backtrace() -> BacktraceHolder {
+    ()
 }
