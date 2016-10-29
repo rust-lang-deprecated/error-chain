@@ -306,7 +306,7 @@ macro_rules! quick_error {
                 }
             }
         }*/
-        #[allow(unused)]
+        #[allow(unused, missing_docs)]
         impl $name {
             pub fn description(&self) -> &str {
                 match *self {
