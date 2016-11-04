@@ -253,3 +253,36 @@ mod foreign_link_test {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod attributes_test {
+    #[allow(unused_imports)]
+    use std::io;
+
+    mod inner {
+        error_chain! {
+
+        }
+    }
+
+    error_chain! {
+        types {
+            Error, ErrorKind, ErrorChain, Result;
+        }
+
+        links {
+            inner::Error, inner::ErrorKind, Inner, #[cfg(not(test))];
+        }
+
+        foreign_links {
+            io::Error, Io, #[cfg(not(test))];
+        }
+
+        errors {
+            #[cfg(not(test))]
+            AnError {
+
+            }
+        }
+    }
+}

@@ -131,10 +131,12 @@
 //!     // the `rustup_dist::ErrorKind`, with conversions from
 //!     // `rustup_dist::Error`.
 //!     //
+//!     // Optionally, some attributes can be added to a variant.
+//!     //
 //!     // This section can be empty.
 //!     links {
 //!         rustup_dist::Error, rustup_dist::ErrorKind, Dist;
-//!         rustup_utils::Error, rustup_utils::ErrorKind, Utils;
+//!         rustup_utils::Error, rustup_utils::ErrorKind, Utils, #[cfg(unix)];
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -143,9 +145,12 @@
 //!     // `ErrorKind::Temp` variant. The description and cause will
 //!     // forward to the description and cause of the original error.
 //!     //
+//!     // Optionally, some attributes can be added to a variant.
+//!     //
 //!     // This section can be empty.
 //!     foreign_links {
 //!         temp::Error, Temp;
+//!         io::Error, Io, #[cfg(unix)];
 //!     }
 //!
 //!     // Define additional `ErrorKind` variants. The syntax here is
@@ -321,11 +326,11 @@ macro_rules! error_chain {
         }
 
         links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident $(, #[$meta_links:meta])*; ) *
         }
 
         foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  )*
+            $( $foreign_link_error_path:path, $foreign_link_variant:ident $(, #[$meta_foreign_links:meta])*; )*
         }
 
         errors {
@@ -373,6 +378,7 @@ macro_rules! error_chain {
                     None => {
                         match self.0 {
                             $(
+                                $(#[$meta_foreign_links])*
                                 $error_kind_name::$foreign_link_variant(ref foreign_err) => {
                                     foreign_err.cause()
                                 }
@@ -391,6 +397,7 @@ macro_rules! error_chain {
         }
 
         $(
+            $(#[$meta_links])*
             impl From<$link_error_path> for $error_name {
                 fn from(e: $link_error_path) -> Self {
                     $error_name($error_kind_name::$link_variant(e.0), e.1)
@@ -399,6 +406,7 @@ macro_rules! error_chain {
         ) *
 
         $(
+            $(#[$meta_foreign_links])*
             impl From<$foreign_link_error_path> for $error_name {
                 fn from(e: $foreign_link_error_path) -> Self {
                     $error_name(
@@ -443,6 +451,7 @@ macro_rules! error_chain {
                 }
 
                 $(
+                    $(#[$meta_links])*
                     $link_variant(e: $link_kind_path) {
                         description(e.description())
                         display("{}", e)
@@ -450,6 +459,7 @@ macro_rules! error_chain {
                 ) *
 
                 $(
+                    $(#[$meta_foreign_links])*
                     $foreign_link_variant(err: $foreign_link_error_path) {
                         description(::std::error::Error::description(err))
                         display("{}", err)
@@ -461,6 +471,7 @@ macro_rules! error_chain {
         }
 
         $(
+            $(#[$meta_links])*
             impl From<$link_kind_path> for $error_kind_name {
                 fn from(e: $link_kind_path) -> Self {
                     $error_kind_name::$link_variant(e)
@@ -559,11 +570,11 @@ macro_rules! error_chain {
         }
 
         $( links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+            $( $link_chunks:tt ) *
         } ) *
 
         $( foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  ) *
+            $( $foreign_link_chunks:tt ) *
         } ) *
 
         $( errors {
@@ -576,11 +587,11 @@ macro_rules! error_chain {
             }
 
             links {
-                $( $( $link_error_path, $link_kind_path, $link_variant;  ) * ) *
+                $( $( $link_chunks ) * ) *
             }
 
             foreign_links {
-                $( $( $foreign_link_error_path, $foreign_link_variant;  ) * ) *
+                $( $( $foreign_link_chunks ) * ) *
             }
 
             errors {
@@ -593,11 +604,11 @@ macro_rules! error_chain {
         types { }
 
         $( links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+            $( $link_chunks:tt ) *
         } ) *
 
         $( foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  ) *
+            $( $foreign_link_chunks:tt ) *
         } ) *
 
         $( errors {
@@ -610,11 +621,11 @@ macro_rules! error_chain {
             }
 
             links {
-                $( $( $link_error_path, $link_kind_path, $link_variant;  ) * ) *
+                $( $( $link_chunks ) * ) *
             }
 
             foreign_links {
-                $( $( $foreign_link_error_path, $foreign_link_variant;  ) * ) *
+                $( $( $foreign_link_chunks ) * ) *
             }
 
             errors {
@@ -625,11 +636,11 @@ macro_rules! error_chain {
     // Case 3: types section not present
     (
         $( links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident;  ) *
+            $( $link_chunks:tt ) *
         } ) *
 
         $( foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident;  ) *
+            $( $foreign_link_chunks:tt ) *
         } ) *
 
         $( errors {
@@ -640,11 +651,11 @@ macro_rules! error_chain {
             types { }
 
             links {
-                $( $( $link_error_path, $link_kind_path, $link_variant;  ) * ) *
+                $( $( $link_chunks ) * ) *
             }
 
             foreign_links {
-                $( $( $foreign_link_error_path, $foreign_link_variant;  ) * ) *
+                $( $( $foreign_link_chunks ) * ) *
             }
 
             errors {
