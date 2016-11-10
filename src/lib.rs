@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! A library for consistent and reliable error handling
 //!
 //! This crate defines an opinionated strategy for error handling in Rust,
@@ -317,6 +319,8 @@
 extern crate backtrace;
 
 use std::error;
+use std::iter::Iterator;
+use std::sync::Arc;
 
 #[cfg(feature = "backtrace")]
 pub use backtrace::Backtrace;
@@ -348,27 +352,28 @@ macro_rules! error_chain {
     ) => {
 
 
-        // The Error type
-        // --------------
-
-        // This has a simple structure to support pattern matching
-        // during error handling. The second field is internal state
-        // that is mostly irrelevant for error handling purposes.
+        /// The Error type
+        ///
+        /// This has a simple structure to support pattern matching
+        /// during error handling. The second field is internal state
+        /// that is mostly irrelevant for error handling purposes.
         #[derive(Debug)]
         pub struct $error_name(pub $error_kind_name,
                                pub (Option<Box<::std::error::Error + Send>>,
                                     Option<::std::sync::Arc<$crate::Backtrace>>));
 
-        #[allow(unused)]
         impl $error_name {
+            /// Returns the kind of the error.
             pub fn kind(&self) -> &$error_kind_name {
                 &self.0
             }
 
+            /// Iterates over the error chain.
             pub fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ErrorChainIter(Some(self))
             }
 
+            /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
                 (self.1).1.as_ref().map(|v| &**v)
             }
@@ -504,10 +509,6 @@ macro_rules! error_chain {
                 $error_name(kind, backtrace)
             }
 
-            // Use downcasts to extract the backtrace from types we know,
-            // to avoid generating a new one. It would be better to not
-            // define this in the macro, but types need some additional
-            // machinery to make it work.
             fn backtrace_from_box(mut e: Box<::std::error::Error + Send + 'static>)
                                   -> (Box<::std::error::Error + Send + 'static>,
                                       Option<Option<::std::sync::Arc<$crate::Backtrace>>>) {
@@ -651,17 +652,13 @@ macro_rules! error_chain {
     );
 }
 
-
-use std::error::Error as StdError;
-use std::iter::Iterator;
-use std::sync::Arc;
-
-pub struct ErrorChainIter<'a>(pub Option<&'a StdError>);
+/// Iterator over the error chain.
+pub struct ErrorChainIter<'a>(pub Option<&'a error::Error>);
 
 impl<'a> Iterator for ErrorChainIter<'a> {
-    type Item = &'a StdError;
+    type Item = &'a error::Error;
 
-    fn next<'b>(&'b mut self) -> Option<&'a StdError> {
+    fn next<'b>(&'b mut self) -> Option<&'a error::Error> {
         match self.0.take() {
             Some(e) => {
                 self.0 = e.cause();
@@ -688,13 +685,21 @@ pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     None
 }
 
+/// This trait is an implementation detail, you should have to implement or
+/// use it.
 pub trait Error: error::Error + Send + 'static {
+    /// Associated kind type.
     type ErrorKind;
-    fn new(kind: Self::ErrorKind, backtrace: (Option<Box<error::Error + Send + 'static>>,
-                          Option<Arc<Backtrace>>)) -> Self;
+    /// Creates an error from it's parts.
+    fn new(kind: Self::ErrorKind,
+           state: (Option<Box<error::Error + Send + 'static>>,
+                   Option<Arc<Backtrace>>)) -> Self;
+    /// Use downcasts to extract the backtrace from types we know,
+    /// to avoid generating a new one. It would be better to not
+    /// define this in the macro, but types need some additional
+    /// machinery to make it work.
     fn backtrace_from_box(e: Box<error::Error + Send + 'static>)
-                          -> (Box<error::Error + Send + 'static>,
-                              Option<Option<Arc<Backtrace>>>);
+        -> (Box<error::Error + Send + 'static>, Option<Option<Arc<Backtrace>>>);
 }
 
 /// Additionnal methods for `Result`, for easy interaction with this crate.
