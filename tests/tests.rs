@@ -130,6 +130,7 @@ fn empty() {
 }
 
 #[test]
+#[cfg(feature = "backtrace")]
 fn has_backtrace_depending_on_env() {
     use std::env;
 
