@@ -166,6 +166,19 @@ fn chain_err() {
     let _: Result<()> = Err("".into()).chain_err(|| "");
 }
 
+#[test]
+fn links() {
+    mod test {
+        error_chain! {}
+    }
+
+    error_chain! {
+        links {
+            test::Error, Test;
+        }
+    }
+}
+
 #[cfg(test)]
 mod foreign_link_test {
 
@@ -277,11 +290,11 @@ mod attributes_test {
 
     error_chain! {
         types {
-            Error, ErrorKind, ErrorChain, Result;
+            Error, ErrorKind, Result;
         }
 
         links {
-            inner::Error, inner::ErrorKind, Inner, #[cfg(not(test))];
+            inner::Error, Inner, #[cfg(not(test))];
         }
 
         foreign_links {

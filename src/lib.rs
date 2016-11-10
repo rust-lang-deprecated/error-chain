@@ -135,8 +135,8 @@
 //!     //
 //!     // This section can be empty.
 //!     links {
-//!         ::rustup_dist::Error, rustup_dist::ErrorKind, Dist;
-//!         ::rustup_utils::Error, rustup_utils::ErrorKind, Utils, #[cfg(unix)];
+//!         ::rustup_dist::Error, Dist;
+//!         ::rustup_utils::Error, Utils, #[cfg(unix)];
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -334,7 +334,7 @@ macro_rules! error_chain {
         }
 
         links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident $(, #[$meta_links:meta])*; ) *
+            $( $link_error_path:path, $link_variant:ident $(, #[$meta_links:meta])*; ) *
         }
 
         foreign_links {
@@ -457,7 +457,7 @@ macro_rules! error_chain {
 
                 $(
                     $(#[$meta_links])*
-                    $link_variant(e: $link_kind_path) {
+                    $link_variant(e: <$link_error_path as $crate::Error>::ErrorKind) {
                         description(e.description())
                         display("{}", e)
                     }
@@ -477,8 +477,8 @@ macro_rules! error_chain {
 
         $(
             $(#[$meta_links])*
-            impl From<$link_kind_path> for $error_kind_name {
-                fn from(e: $link_kind_path) -> Self {
+            impl From<<$link_error_path as $crate::Error>::ErrorKind> for $error_kind_name {
+                fn from(e: <$link_error_path as $crate::Error>::ErrorKind) -> Self {
                     $error_kind_name::$link_variant(e)
                 }
             }
