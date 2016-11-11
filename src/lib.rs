@@ -673,6 +673,7 @@ impl<'a> Iterator for ErrorChainIter<'a> {
 /// is set to anything but ``0``, and `None` otherwise.  This is used
 /// in the generated error implementations.
 #[cfg(feature = "backtrace")]
+#[doc(hidden)]
 pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     match std::env::var_os("RUST_BACKTRACE") {
         Some(ref val) if val != "0" => Some(Arc::new(Backtrace::new())),
@@ -681,12 +682,13 @@ pub fn make_backtrace() -> Option<Arc<Backtrace>> {
 }
 
 #[cfg(not(feature = "backtrace"))]
+#[doc(hidden)]
 pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     None
 }
 
-/// This trait is an implementation detail, you should have to implement or
-/// use it.
+/// This trait is an implementation detail which must be implemented on each
+/// ErrorKind. We can't do it globally since each ErrorKind is different.
 pub trait Error: error::Error + Send + 'static {
     /// Associated kind type.
     type ErrorKind;
