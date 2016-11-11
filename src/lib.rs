@@ -364,10 +364,6 @@ macro_rules! error_chain {
                 &self.0
             }
 
-            pub fn into_kind(self) -> $error_kind_name {
-                self.0
-            }
-
             pub fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ErrorChainIter(Some(self))
             }
@@ -444,6 +440,14 @@ macro_rules! error_chain {
             }
         }
 
+        impl ::std::ops::Deref for $error_name {
+            type Target = $error_kind_name;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+
 
         // The ErrorKind type
         // --------------
@@ -495,6 +499,12 @@ macro_rules! error_chain {
         impl From<String> for $error_kind_name {
             fn from(s: String) -> Self {
                 $error_kind_name::Msg(s)
+            }
+        }
+
+        impl From<$error_name> for $error_kind_name {
+            fn from(e: $error_name) -> Self {
+                e.0
             }
         }
 
