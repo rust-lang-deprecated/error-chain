@@ -509,32 +509,19 @@ macro_rules! error_chain {
                 $error_name(kind, backtrace)
             }
 
-            fn backtrace_from_box(mut e: Box<::std::error::Error + Send + 'static>)
-                                  -> (Box<::std::error::Error + Send + 'static>,
-                                      Option<Option<::std::sync::Arc<$crate::Backtrace>>>) {
-                let mut backtrace = None;
-
-                e = match e.downcast::<$error_name>() {
-                    Err(e) => e,
-                    Ok(e) => {
-                        backtrace = Some((e.1).1.clone());
-                        e as Box<::std::error::Error + Send + 'static>
-                    }
-                };
-
+            fn backtrace_from_box(e: &(::std::error::Error + Send + 'static))
+                -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
+                if let Some(e) = e.downcast_ref::<$error_name>() {
+                    Some((e.1).1.clone())
+                }
                 $(
-
-                    e = match e.downcast::<$link_error_path>() {
-                        Err(e) => e,
-                        Ok(e) => {
-                            backtrace = Some((e.1).1.clone());
-                            e as Box<::std::error::Error + Send + 'static>
-                        }
-                    };
-
+                    else if let Some(e) = e.downcast_ref::<$link_error_path>() {
+                        Some((e.1).1.clone())
+                    }
                 ) *
-
-                (e, backtrace)
+                else {
+                    None
+                }
             }
         }
 
@@ -700,8 +687,8 @@ pub trait Error: error::Error + Send + 'static {
     /// to avoid generating a new one. It would be better to not
     /// define this in the macro, but types need some additional
     /// machinery to make it work.
-    fn backtrace_from_box(e: Box<error::Error + Send + 'static>)
-        -> (Box<error::Error + Send + 'static>, Option<Option<Arc<Backtrace>>>);
+    fn backtrace_from_box(e: &(error::Error + Send + 'static))
+        -> Option<Option<Arc<Backtrace>>>;
 }
 
 /// Additionnal methods for `Result`, for easy interaction with this crate.
@@ -720,11 +707,10 @@ impl<T, E> ResultExt<T, E> for Result<T, E> where E: Error {
         where F: FnOnce() -> EK,
         EK: Into<E::ErrorKind> {
         self.map_err(move |e| {
-            let e = Box::new(e) as Box<error::Error + Send + 'static>;
-            let (e, backtrace) = E::backtrace_from_box(e);
-            let backtrace = backtrace.unwrap_or_else(make_backtrace);
+            let backtrace =
+                E::backtrace_from_box(&e).unwrap_or_else(make_backtrace);
 
-            E::new(callback().into(), (Some(e), backtrace))
+            E::new(callback().into(), (Some(Box::new(e)), backtrace))
         })
     }
 }
