@@ -462,7 +462,7 @@ macro_rules! error_chain {
 
                 $(
                     $(#[$meta_links])*
-                    $link_variant(e: <$link_error_path as $crate::Error>::ErrorKind) {
+                    $link_variant(e: <$link_error_path as $crate::ChainedError>::ErrorKind) {
                         description(e.description())
                         display("{}", e)
                     }
@@ -482,8 +482,8 @@ macro_rules! error_chain {
 
         $(
             $(#[$meta_links])*
-            impl From<<$link_error_path as $crate::Error>::ErrorKind> for $error_kind_name {
-                fn from(e: <$link_error_path as $crate::Error>::ErrorKind) -> Self {
+            impl From<<$link_error_path as $crate::ChainedError>::ErrorKind> for $error_kind_name {
+                fn from(e: <$link_error_path as $crate::ChainedError>::ErrorKind) -> Self {
                     $error_kind_name::$link_variant(e)
                 }
             }
@@ -501,7 +501,7 @@ macro_rules! error_chain {
             }
         }
 
-        impl $crate::Error for $error_name {
+        impl $crate::ChainedError for $error_name {
             type ErrorKind = $error_kind_name;
 
             fn new(kind: $error_kind_name, backtrace: (Option<Box<::std::error::Error + Send + 'static>>,
@@ -509,7 +509,7 @@ macro_rules! error_chain {
                 $error_name(kind, backtrace)
             }
 
-            fn backtrace_from_box(e: &(::std::error::Error + Send + 'static))
+            fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
                 -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
                 if let Some(e) = e.downcast_ref::<$error_name>() {
                     Some((e.1).1.clone())
@@ -676,7 +676,7 @@ pub fn make_backtrace() -> Option<Arc<Backtrace>> {
 
 /// This trait is an implementation detail which must be implemented on each
 /// ErrorKind. We can't do it globally since each ErrorKind is different.
-pub trait Error: error::Error + Send + 'static {
+pub trait ChainedError: error::Error + Send + 'static {
     /// Associated kind type.
     type ErrorKind;
     /// Creates an error from it's parts.
@@ -687,12 +687,12 @@ pub trait Error: error::Error + Send + 'static {
     /// to avoid generating a new one. It would be better to not
     /// define this in the macro, but types need some additional
     /// machinery to make it work.
-    fn backtrace_from_box(e: &(error::Error + Send + 'static))
+    fn extract_backtrace(e: &(error::Error + Send + 'static))
         -> Option<Option<Arc<Backtrace>>>;
 }
 
 /// Additionnal methods for `Result`, for easy interaction with this crate.
-pub trait ResultExt<T, E: Error> {
+pub trait ResultExt<T, E: ChainedError> {
     /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
     /// which returns *some type that can be converted to `ErrorKind`*, boxes
     /// the original error to store as the cause, then returns a new error
@@ -702,13 +702,13 @@ pub trait ResultExt<T, E: Error> {
         EK: Into<E::ErrorKind>;
 }
 
-impl<T, E> ResultExt<T, E> for Result<T, E> where E: Error {
+impl<T, E> ResultExt<T, E> for Result<T, E> where E: ChainedError {
     fn chain_err<F, EK>(self, callback: F) -> Result<T, E>
         where F: FnOnce() -> EK,
         EK: Into<E::ErrorKind> {
         self.map_err(move |e| {
             let backtrace =
-                E::backtrace_from_box(&e).unwrap_or_else(make_backtrace);
+                E::extract_backtrace(&e).unwrap_or_else(make_backtrace);
 
             E::new(callback().into(), (Some(Box::new(e)), backtrace))
         })
