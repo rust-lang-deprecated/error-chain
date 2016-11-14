@@ -135,8 +135,8 @@
 //!     //
 //!     // This section can be empty.
 //!     links {
-//!         rustup_dist::Error, rustup_dist::ErrorKind, Dist;
-//!         rustup_utils::Error, rustup_utils::ErrorKind, Utils, #[cfg(unix)];
+//!         ::rustup_dist::Error, rustup_dist::ErrorKind, Dist;
+//!         ::rustup_utils::Error, rustup_utils::ErrorKind, Utils, #[cfg(unix)];
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -149,7 +149,7 @@
 //!     //
 //!     // This section can be empty.
 //!     foreign_links {
-//!         temp::Error, Temp;
+//!         ::temp::Error, Temp;
 //!         io::Error, Io, #[cfg(unix)];
 //!     }
 //!
