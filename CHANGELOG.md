@@ -1,3 +1,9 @@
+# Unreleased
+
+- Conditional compilation for error variants.
+- Backtrace generation is now a feature.
+- More standard trait implementations for extra convenience.
+
 # 0.5.0
 
 - [Only generate backtraces with RUST_BACKTRACE set](https://github.com/brson/error-chain/pull/27)
