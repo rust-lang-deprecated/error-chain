@@ -353,12 +353,13 @@ macro_rules! error_chain {
         // This has a simple structure to support pattern matching
         // during error handling. The second field is internal state
         // that is mostly irrelevant for error handling purposes.
+        #[allow(missing_docs)]
         #[derive(Debug)]
         pub struct $error_name(pub $error_kind_name,
                                pub (Option<Box<::std::error::Error + Send>>,
                                     Option<::std::sync::Arc<$crate::Backtrace>>));
 
-        #[allow(unused)]
+        #[allow(unused, missing_docs)]
         impl $error_name {
             pub fn kind(&self) -> &$error_kind_name {
                 &self.0
@@ -449,6 +450,7 @@ macro_rules! error_chain {
         // --------------
 
         quick_error! {
+            #[allow(missing_docs)]
             #[derive(Debug)]
             pub enum $error_kind_name {
 
@@ -502,6 +504,7 @@ macro_rules! error_chain {
         // The ChainErr trait
         // ------------------
 
+        #[allow(missing_docs)]
         pub trait $chain_error_name<T> {
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
@@ -560,6 +563,7 @@ macro_rules! error_chain {
         // The Result type
         // ---------------
 
+        #[allow(missing_docs)]
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
 
