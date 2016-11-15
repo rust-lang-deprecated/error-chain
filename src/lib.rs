@@ -452,6 +452,7 @@ macro_rules! error_chain {
         // --------------
 
         quick_error! {
+            /// The kind of an error
             #[derive(Debug)]
             pub enum $error_kind_name {
 
@@ -528,6 +529,7 @@ macro_rules! error_chain {
         // The Result type
         // ---------------
 
+        /// Convenient wrapper around std::Result.
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
 
