@@ -1,0 +1,7 @@
+[package]
+name = "test-doc"
+version = "0.1.0"
+authors = ["yamakaky"]
+
+[dependencies]
+error-chain = { path = ".." }
