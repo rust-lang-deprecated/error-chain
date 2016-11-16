@@ -359,8 +359,7 @@ macro_rules! error_chain {
         /// that is mostly irrelevant for error handling purposes.
         #[derive(Debug)]
         pub struct $error_name(pub $error_kind_name,
-                               pub (Option<Box<::std::error::Error + Send>>,
-                                    Option<::std::sync::Arc<$crate::Backtrace>>));
+                               pub $crate::State);
 
         impl $error_name {
             /// Returns the kind of the error.
@@ -375,14 +374,14 @@ macro_rules! error_chain {
 
             /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
-                (self.1).1.as_ref().map(|v| &**v)
+                self.1.backtrace.as_ref().map(|v| &**v)
             }
         }
 
         impl ::std::error::Error for $error_name {
             fn description(&self) -> &str { self.0.description() }
             fn cause(&self) -> Option<&::std::error::Error> {
-                match (self.1).0 {
+                match self.1.next_error {
                     Some(ref c) => Some(&**c),
                     None => {
                         match self.0 {
@@ -420,29 +419,26 @@ macro_rules! error_chain {
                 fn from(e: $foreign_link_error_path) -> Self {
                     $error_name(
                         $error_kind_name::$foreign_link_variant(e),
-                        (None, $crate::make_backtrace()))
+                        $crate::State::default())
                 }
             }
         ) *
 
         impl From<$error_kind_name> for $error_name {
             fn from(e: $error_kind_name) -> Self {
-                $error_name(e,
-                            (None, $crate::make_backtrace()))
+                $error_name(e, $crate::State::default())
             }
         }
 
         impl<'a> From<&'a str> for $error_name {
             fn from(s: &'a str) -> Self {
-                $error_name(s.into(),
-                            (None, $crate::make_backtrace()))
+                $error_name(s.into(), $crate::State::default())
             }
         }
 
         impl From<String> for $error_name {
             fn from(s: String) -> Self {
-                $error_name(s.into(),
-                            (None, $crate::make_backtrace()))
+                $error_name(s.into(), $crate::State::default())
             }
         }
 
@@ -518,19 +514,18 @@ macro_rules! error_chain {
         impl $crate::ChainedError for $error_name {
             type ErrorKind = $error_kind_name;
 
-            fn new(kind: $error_kind_name, backtrace: (Option<Box<::std::error::Error + Send + 'static>>,
-                                  Option<::std::sync::Arc<$crate::Backtrace>>)) -> $error_name {
-                $error_name(kind, backtrace)
+            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
+                $error_name(kind, state)
             }
 
             fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
                 -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
                 if let Some(e) = e.downcast_ref::<$error_name>() {
-                    Some((e.1).1.clone())
+                    Some(e.1.backtrace.clone())
                 }
                 $(
                     else if let Some(e) = e.downcast_ref::<$link_error_path>() {
-                        Some((e.1).1.clone())
+                        Some(e.1.backtrace.clone())
                     }
                 ) *
                 else {
@@ -695,9 +690,7 @@ pub trait ChainedError: error::Error + Send + 'static {
     /// Associated kind type.
     type ErrorKind;
     /// Creates an error from it's parts.
-    fn new(kind: Self::ErrorKind,
-           state: (Option<Box<error::Error + Send + 'static>>,
-                   Option<Arc<Backtrace>>)) -> Self;
+    fn new(kind: Self::ErrorKind, state: State) -> Self;
     /// Use downcasts to extract the backtrace from types we know,
     /// to avoid generating a new one. It would be better to not
     /// define this in the macro, but types need some additional
@@ -725,7 +718,28 @@ impl<T, E> ResultExt<T, E> for Result<T, E> where E: ChainedError {
             let backtrace =
                 E::extract_backtrace(&e).unwrap_or_else(make_backtrace);
 
-            E::new(callback().into(), (Some(Box::new(e)), backtrace))
+            E::new(callback().into(), State {
+                next_error: Some(Box::new(e)),
+                backtrace: backtrace,
+             })
         })
+    }
+}
+
+/// Common state between errors.
+#[derive(Debug)]
+pub struct State {
+    /// Next error in the error chain.
+    pub next_error: Option<Box<error::Error + Send>>,
+    /// Backtrace for the current error.
+    pub backtrace: Option<Arc<Backtrace>>,
+}
+
+impl Default for State {
+    fn default() -> State {
+        State {
+            next_error: None,
+            backtrace: make_backtrace(),
+        }
     }
 }

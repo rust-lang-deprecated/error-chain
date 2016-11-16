@@ -6,6 +6,7 @@
 - Remove ChainErr.
 - Remove need to specify `ErrorKind` in `links {}`.
 - Add ResultExt trait.
+- Error.1 is a struct instead of a tuple.
 
 # 0.5.0
 
