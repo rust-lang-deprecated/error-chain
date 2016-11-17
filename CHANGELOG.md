@@ -7,6 +7,7 @@
 - Remove need to specify `ErrorKind` in `links {}`.
 - Add ResultExt trait.
 - Error.1 is a struct instead of a tuple.
+- Error is now a struct.
 
 # 0.5.0
 

@@ -356,15 +356,25 @@ macro_rules! error_chain {
         /// during error handling. The second field is internal state
         /// that is mostly irrelevant for error handling purposes.
         #[derive(Debug)]
-        pub struct $error_name(pub $error_kind_name,
-                               pub $crate::State);
+        pub struct $error_name {
+            pub kind: $error_kind_name,
+            pub state: $crate::State,
+        }
 
         impl_error!($error_name $error_kind_name $($link_error_path)*);
 
         impl $error_name {
+            /// Constructs an error from a kind.
+            pub fn from_kind(kind: $error_kind_name) -> $error_name {
+                $error_name {
+                    kind: kind,
+                    state: $crate::State::default(),
+                }
+            }
+
             /// Returns the kind of the error.
             pub fn kind(&self) -> &$error_kind_name {
-                &self.0
+                &self.kind
             }
 
             /// Iterates over the error chain.
@@ -374,12 +384,15 @@ macro_rules! error_chain {
         }
 
         impl ::std::error::Error for $error_name {
-            fn description(&self) -> &str { self.0.description() }
+            fn description(&self) -> &str {
+                self.kind.description()
+            }
+
             fn cause(&self) -> Option<&::std::error::Error> {
-                match self.1.next_error {
+                match self.state.next_error {
                     Some(ref c) => Some(&**c),
                     None => {
-                        match self.0 {
+                        match self.kind {
                             $(
                                 $(#[$meta_foreign_links])*
                                 $error_kind_name::$foreign_link_variant(ref foreign_err) => {
@@ -395,7 +408,7 @@ macro_rules! error_chain {
 
         impl ::std::fmt::Display for $error_name {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                ::std::fmt::Display::fmt(&self.0, f)
+                ::std::fmt::Display::fmt(&self.kind, f)
             }
         }
 
@@ -403,7 +416,10 @@ macro_rules! error_chain {
             $(#[$meta_links])*
             impl From<$link_error_path> for $error_name {
                 fn from(e: $link_error_path) -> Self {
-                    $error_name($error_kind_name::$link_variant(e.0), e.1)
+                    $error_name {
+                        kind: $error_kind_name::$link_variant(e.kind),
+                        state: e.state,
+                    }
                 }
             }
         ) *
@@ -412,28 +428,28 @@ macro_rules! error_chain {
             $(#[$meta_foreign_links])*
             impl From<$foreign_link_error_path> for $error_name {
                 fn from(e: $foreign_link_error_path) -> Self {
-                    $error_name(
-                        $error_kind_name::$foreign_link_variant(e),
-                        $crate::State::default())
+                    $error_name::from_kind(
+                        $error_kind_name::$foreign_link_variant(e)
+                    )
                 }
             }
         ) *
 
         impl From<$error_kind_name> for $error_name {
             fn from(e: $error_kind_name) -> Self {
-                $error_name(e, $crate::State::default())
+                $error_name::from_kind(e)
             }
         }
 
         impl<'a> From<&'a str> for $error_name {
             fn from(s: &'a str) -> Self {
-                $error_name(s.into(), $crate::State::default())
+                $error_name::from_kind(s.into())
             }
         }
 
         impl From<String> for $error_name {
             fn from(s: String) -> Self {
-                $error_name(s.into(), $crate::State::default())
+                $error_name::from_kind(s.into())
             }
         }
 
@@ -441,7 +457,7 @@ macro_rules! error_chain {
             type Target = $error_kind_name;
 
             fn deref(&self) -> &Self::Target {
-                &self.0
+                &self.kind
             }
         }
 
@@ -502,7 +518,7 @@ macro_rules! error_chain {
 
         impl From<$error_name> for $error_kind_name {
             fn from(e: $error_name) -> Self {
-                e.0
+                e.kind
             }
         }
 
@@ -636,7 +652,7 @@ macro_rules! impl_error {
         impl $error_name {
             /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
-                self.1.backtrace.as_ref().map(|v| &**v)
+                self.state.backtrace.as_ref().map(|v| &**v)
             }
         }
 
@@ -644,17 +660,20 @@ macro_rules! impl_error {
             type ErrorKind = $error_kind_name;
 
             fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
-                $error_name(kind, state)
+                $error_name {
+                    kind: kind,
+                    state: state,
+                }
             }
 
             fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
                 -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
                 if let Some(e) = e.downcast_ref::<$error_name>() {
-                    Some(e.1.backtrace.clone())
+                    Some(e.state.backtrace.clone())
                 }
                 $(
                     else if let Some(e) = e.downcast_ref::<$link_error_path>() {
-                        Some(e.1.backtrace.clone())
+                        Some(e.state.backtrace.clone())
                     }
                 ) *
                 else {
@@ -681,7 +700,10 @@ macro_rules! impl_error {
             type ErrorKind = $error_kind_name;
 
             fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
-                $error_name(kind, state)
+                $error_name {
+                    kind: kind,
+                    state: state,
+                }
             }
         }
     }
