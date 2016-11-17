@@ -320,13 +320,11 @@ extern crate backtrace;
 
 use std::error;
 use std::iter::Iterator;
+#[cfg(feature = "backtrace")]
 use std::sync::Arc;
 
 #[cfg(feature = "backtrace")]
 pub use backtrace::Backtrace;
-#[cfg(not(feature = "backtrace"))]
-#[derive(Debug)]
-pub enum Backtrace {}
 
 mod quick_error;
 
@@ -361,6 +359,8 @@ macro_rules! error_chain {
         pub struct $error_name(pub $error_kind_name,
                                pub $crate::State);
 
+        impl_error!($error_name $error_kind_name $($link_error_path)*);
+
         impl $error_name {
             /// Returns the kind of the error.
             pub fn kind(&self) -> &$error_kind_name {
@@ -370,11 +370,6 @@ macro_rules! error_chain {
             /// Iterates over the error chain.
             pub fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ErrorChainIter(Some(self))
-            }
-
-            /// Returns the backtrace associated with this error.
-            pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
-                self.1.backtrace.as_ref().map(|v| &**v)
             }
         }
 
@@ -511,29 +506,6 @@ macro_rules! error_chain {
             }
         }
 
-        impl $crate::ChainedError for $error_name {
-            type ErrorKind = $error_kind_name;
-
-            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
-                $error_name(kind, state)
-            }
-
-            fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
-                -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
-                if let Some(e) = e.downcast_ref::<$error_name>() {
-                    Some(e.1.backtrace.clone())
-                }
-                $(
-                    else if let Some(e) = e.downcast_ref::<$link_error_path>() {
-                        Some(e.1.backtrace.clone())
-                    }
-                ) *
-                else {
-                    None
-                }
-            }
-        }
-
         // The Result type
         // ---------------
 
@@ -649,6 +621,72 @@ macro_rules! error_chain {
     );
 }
 
+/// Macro used to manage the `backtrace` feature.
+///
+/// See
+/// https://www.reddit.com/r/rust/comments/57virt/hey_rustaceans_got_an_easy_question_ask_here/da5r4ti/?context=3
+/// for more details.
+#[macro_export]
+#[doc(hidden)]
+#[cfg(feature = "backtrace")]
+macro_rules! impl_error {
+    ($error_name: ident
+     $error_kind_name: ident
+     $($link_error_path: path)*) => {
+        impl $error_name {
+            /// Returns the backtrace associated with this error.
+            pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
+                self.1.backtrace.as_ref().map(|v| &**v)
+            }
+        }
+
+        impl $crate::ChainedError for $error_name {
+            type ErrorKind = $error_kind_name;
+
+            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
+                $error_name(kind, state)
+            }
+
+            fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
+                -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
+                if let Some(e) = e.downcast_ref::<$error_name>() {
+                    Some(e.1.backtrace.clone())
+                }
+                $(
+                    else if let Some(e) = e.downcast_ref::<$link_error_path>() {
+                        Some(e.1.backtrace.clone())
+                    }
+                ) *
+                else {
+                    None
+                }
+            }
+        }
+    }
+}
+
+/// Macro used to manage the `backtrace` feature.
+///
+/// See
+/// https://www.reddit.com/r/rust/comments/57virt/hey_rustaceans_got_an_easy_question_ask_here/da5r4ti/?context=3
+/// for more details.
+#[macro_export]
+#[doc(hidden)]
+#[cfg(not(feature = "backtrace"))]
+macro_rules! impl_error {
+    ($error_name: ident
+     $error_kind_name: ident
+     $($link_error_path: path)*) => {
+        impl $crate::ChainedError for $error_name {
+            type ErrorKind = $error_kind_name;
+
+            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
+                $error_name(kind, state)
+            }
+        }
+    }
+}
+
 /// Iterator over the error chain.
 pub struct ErrorChainIter<'a>(pub Option<&'a error::Error>);
 
@@ -678,12 +716,6 @@ pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     }
 }
 
-#[cfg(not(feature = "backtrace"))]
-#[doc(hidden)]
-pub fn make_backtrace() -> Option<Arc<Backtrace>> {
-    None
-}
-
 /// This trait is an implementation detail which must be implemented on each
 /// ErrorKind. We can't do it globally since each ErrorKind is different.
 pub trait ChainedError: error::Error + Send + 'static {
@@ -695,6 +727,7 @@ pub trait ChainedError: error::Error + Send + 'static {
     /// to avoid generating a new one. It would be better to not
     /// define this in the macro, but types need some additional
     /// machinery to make it work.
+    #[cfg(feature = "backtrace")]
     fn extract_backtrace(e: &(error::Error + Send + 'static))
         -> Option<Option<Arc<Backtrace>>>;
 }
@@ -715,16 +748,26 @@ impl<T, E> ResultExt<T, E> for Result<T, E> where E: ChainedError {
         where F: FnOnce() -> EK,
         EK: Into<E::ErrorKind> {
         self.map_err(move |e| {
-            let backtrace =
-                E::extract_backtrace(&e).unwrap_or_else(make_backtrace);
-
-            E::new(callback().into(), State {
-                next_error: Some(Box::new(e)),
-                backtrace: backtrace,
-             })
+            #[cfg(feature = "backtrace")]
+            let ret = {
+                let backtrace = E::extract_backtrace(&e)
+                                  .unwrap_or_else(make_backtrace);
+                E::new(callback().into(), State {
+                    next_error: Some(Box::new(e)),
+                    backtrace: backtrace,
+                })
+            };
+            #[cfg(not(feature = "backtrace"))]
+            let ret = {
+                E::new(callback().into(), State {
+                    next_error: Some(Box::new(e)),
+                })
+            };
+            ret
         })
     }
 }
+
 
 /// Common state between errors.
 #[derive(Debug)]
@@ -732,14 +775,25 @@ pub struct State {
     /// Next error in the error chain.
     pub next_error: Option<Box<error::Error + Send>>,
     /// Backtrace for the current error.
+    #[cfg(feature = "backtrace")]
     pub backtrace: Option<Arc<Backtrace>>,
 }
 
+#[cfg(feature = "backtrace")]
 impl Default for State {
     fn default() -> State {
         State {
             next_error: None,
             backtrace: make_backtrace(),
+        }
+    }
+}
+
+#[cfg(not(feature = "backtrace"))]
+impl Default for State {
+    fn default() -> State {
+        State {
+            next_error: None,
         }
     }
 }
