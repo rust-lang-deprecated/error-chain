@@ -351,19 +351,19 @@ where CE: ChainedError, E: error::Error + Send + 'static {
     fn caused_err<F, EK>(self, callback: F) -> CE
         where F: FnOnce() -> EK, EK: Into<CE::ErrorKind> {
         #[cfg(feature = "backtrace")]
-        let error = {
+        let state = {
             let backtrace = CE::extract_backtrace(&self)
                               .unwrap_or_else(make_backtrace);
-            CE::new(callback().into(), State {
+            State {
                 next_error: Some(Box::new(self)),
                 backtrace: backtrace,
-            })
+            }
         };
         #[cfg(not(feature = "backtrace"))]
-        let error = CE::new(callback().into(), State {
+        let state = State {
             next_error: Some(Box::new(self)),
-        });
-        error
+        };
+        CE::new(callback().into(), state)
     }
 }
 
