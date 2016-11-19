@@ -23,7 +23,7 @@ deploy:
   provider: script
   script: travis-cargo --only nightly doc-upload
   on:
-    tags: true
+    branch: master
 env:
   global:
   - TRAVIS_CARGO_NIGHTLY_FEATURE=""
