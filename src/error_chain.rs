@@ -166,6 +166,7 @@ macro_rules! error_chain_processed {
         quick_error! {
             /// The kind of an error
             #[derive(Debug)]
+            #[allow(missing_docs)]
             pub enum $error_kind_name {
 
                 Msg(s: String) {
