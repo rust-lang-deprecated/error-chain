@@ -7,7 +7,7 @@ extern crate error_chain;
 fn smoke_test_1() {
     error_chain! {
         types {
-            Error, ErrorKind, ChainErr, Result;
+            Error, ErrorKind, Result;
         }
 
         links { }
@@ -157,6 +157,28 @@ fn has_backtrace_depending_on_env() {
     assert!(err.backtrace().is_some());
 }
 
+#[test]
+fn chain_err() {
+    use error_chain::ResultExt;
+
+    error_chain! {}
+
+    let _: Result<()> = Err("".into()).chain_err(|| "");
+}
+
+#[test]
+fn links() {
+    mod test {
+        error_chain! {}
+    }
+
+    error_chain! {
+        links {
+            test::Error, Test;
+        }
+    }
+}
+
 #[cfg(test)]
 mod foreign_link_test {
 
@@ -202,7 +224,7 @@ mod foreign_link_test {
 
     error_chain! {
         types{
-            Error, ErrorKind, ChainErr, Result;
+            Error, ErrorKind, Result;
         }
         links {}
         foreign_links {
@@ -268,11 +290,11 @@ mod attributes_test {
 
     error_chain! {
         types {
-            Error, ErrorKind, ErrorChain, Result;
+            Error, ErrorKind, Result;
         }
 
         links {
-            inner::Error, inner::ErrorKind, Inner, #[cfg(not(test))];
+            inner::Error, Inner, #[cfg(not(test))];
         }
 
         foreign_links {

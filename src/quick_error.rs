@@ -309,6 +309,7 @@ macro_rules! quick_error {
         }*/
         #[allow(unused)]
         impl $name {
+            /// A string describing the error kind.
             pub fn description(&self) -> &str {
                 match *self {
                     $(

@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! A library for consistent and reliable error handling
 //!
 //! This crate defines an opinionated strategy for error handling in Rust,
@@ -29,8 +31,8 @@
 //!   optional, boxed `std::error::Error + Send + 'static` object
 //!   (which defines the `cause`, and establishes the links in the
 //!   error chain), and a `Backtrace`.
-//! * The macro additionally defines a trait, by convention called
-//!   `ChainErr`, that defines a `chain_err` method. This method
+//! * This crate additionally defines the  trait ResultExt
+//!   that defines a `chain_err` method. This method
 //!   on all `std::error::Error + Send + 'static` types extends
 //!   the error chain by boxing the current error into an opaque
 //!   object and putting it inside a new concrete error.
@@ -42,7 +44,7 @@
 //!   type that hides the type of the other error in the `cause` box.
 //! * If `RUST_BACKTRACE` is enabled, it collects a single backtrace at
 //!   the earliest opportunity and propagates it down the stack through
-//!   `From` and `ChainErr` conversions.
+//!   `From` and `ResultExt` conversions.
 //!
 //! To accomplish its goals it makes some tradeoffs:
 //!
@@ -122,7 +124,7 @@
 //!     // It is also possible to leave this block out entirely, or
 //!     // leave it empty, and these names will be used automatically.
 //!     types {
-//!         Error, ErrorKind, ChainErr, Result;
+//!         Error, ErrorKind, Result;
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -135,8 +137,8 @@
 //!     //
 //!     // This section can be empty.
 //!     links {
-//!         ::rustup_dist::Error, rustup_dist::ErrorKind, Dist;
-//!         ::rustup_utils::Error, rustup_utils::ErrorKind, Utils, #[cfg(unix)];
+//!         ::rustup_dist::Error, Dist;
+//!         ::rustup_utils::Error, Utils, #[cfg(unix)];
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -265,7 +267,7 @@
 //! To extend the error chain:
 //!
 //! ```ignore
-//! use errors::ChainErr;
+//! use error_chain::ResultExt;
 //! try!(do_something().chain_err(|| "something went wrong"));
 //! ```
 //!
@@ -316,6 +318,10 @@
 #[cfg(feature = "backtrace")]
 extern crate backtrace;
 
+use std::error;
+use std::iter::Iterator;
+use std::sync::Arc;
+
 #[cfg(feature = "backtrace")]
 pub use backtrace::Backtrace;
 #[cfg(not(feature = "backtrace"))]
@@ -328,12 +334,11 @@ mod quick_error;
 macro_rules! error_chain {
     (
         types {
-            $error_name:ident, $error_kind_name:ident,
-            $chain_error_name:ident, $result_name:ident;
+            $error_name:ident, $error_kind_name:ident, $result_name:ident;
         }
 
         links {
-            $( $link_error_path:path, $link_kind_path:path, $link_variant:ident $(, #[$meta_links:meta])*; ) *
+            $( $link_error_path:path, $link_variant:ident $(, #[$meta_links:meta])*; ) *
         }
 
         foreign_links {
@@ -347,27 +352,28 @@ macro_rules! error_chain {
     ) => {
 
 
-        // The Error type
-        // --------------
-
-        // This has a simple structure to support pattern matching
-        // during error handling. The second field is internal state
-        // that is mostly irrelevant for error handling purposes.
+        /// The Error type
+        ///
+        /// This has a simple structure to support pattern matching
+        /// during error handling. The second field is internal state
+        /// that is mostly irrelevant for error handling purposes.
         #[derive(Debug)]
         pub struct $error_name(pub $error_kind_name,
                                pub (Option<Box<::std::error::Error + Send>>,
                                     Option<::std::sync::Arc<$crate::Backtrace>>));
 
-        #[allow(unused)]
         impl $error_name {
+            /// Returns the kind of the error.
             pub fn kind(&self) -> &$error_kind_name {
                 &self.0
             }
 
+            /// Iterates over the error chain.
             pub fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ErrorChainIter(Some(self))
             }
 
+            /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
                 (self.1).1.as_ref().map(|v| &**v)
             }
@@ -446,6 +452,7 @@ macro_rules! error_chain {
         // --------------
 
         quick_error! {
+            /// The kind of an error
             #[derive(Debug)]
             pub enum $error_kind_name {
 
@@ -456,7 +463,7 @@ macro_rules! error_chain {
 
                 $(
                     $(#[$meta_links])*
-                    $link_variant(e: $link_kind_path) {
+                    $link_variant(e: <$link_error_path as $crate::ChainedError>::ErrorKind) {
                         description(e.description())
                         display("{}", e)
                     }
@@ -476,8 +483,8 @@ macro_rules! error_chain {
 
         $(
             $(#[$meta_links])*
-            impl From<$link_kind_path> for $error_kind_name {
-                fn from(e: $link_kind_path) -> Self {
+            impl From<<$link_error_path as $crate::ChainedError>::ErrorKind> for $error_kind_name {
+                fn from(e: <$link_error_path as $crate::ChainedError>::ErrorKind) -> Self {
                     $error_kind_name::$link_variant(e)
                 }
             }
@@ -495,68 +502,34 @@ macro_rules! error_chain {
             }
         }
 
+        impl $crate::ChainedError for $error_name {
+            type ErrorKind = $error_kind_name;
 
-        // The ChainErr trait
-        // ------------------
-
-        pub trait $chain_error_name<T> {
-            fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
-                where F: FnOnce() -> EK,
-                      EK: Into<$error_kind_name>;
-        }
-
-        impl<T, E> $chain_error_name<T> for ::std::result::Result<T, E>
-            where E: ::std::error::Error + Send + 'static
-        {
-            fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
-                where F: FnOnce() -> EK,
-                      EK: Into<$error_kind_name>
-            {
-                self.map_err(move |e| {
-                    let e = Box::new(e) as Box<::std::error::Error + Send + 'static>;
-                    let (e, backtrace) = backtrace_from_box(e);
-                    let backtrace = backtrace.unwrap_or_else($crate::make_backtrace);
-
-                    $error_name(callback().into(), (Some(e), backtrace))
-                })
+            fn new(kind: $error_kind_name, backtrace: (Option<Box<::std::error::Error + Send + 'static>>,
+                                  Option<::std::sync::Arc<$crate::Backtrace>>)) -> $error_name {
+                $error_name(kind, backtrace)
             }
-        }
 
-        // Use downcasts to extract the backtrace from types we know,
-        // to avoid generating a new one. It would be better to not
-        // define this in the macro, but types need some additional
-        // machinery to make it work.
-        fn backtrace_from_box(mut e: Box<::std::error::Error + Send + 'static>)
-                              -> (Box<::std::error::Error + Send + 'static>,
-                                  Option<Option<::std::sync::Arc<$crate::Backtrace>>>) {
-            let mut backtrace = None;
-
-            e = match e.downcast::<$error_name>() {
-                Err(e) => e,
-                Ok(e) => {
-                    backtrace = Some((e.1).1.clone());
-                    e as Box<::std::error::Error + Send + 'static>
+            fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
+                -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
+                if let Some(e) = e.downcast_ref::<$error_name>() {
+                    Some((e.1).1.clone())
                 }
-            };
-
-            $(
-
-                e = match e.downcast::<$link_error_path>() {
-                    Err(e) => e,
-                    Ok(e) => {
-                        backtrace = Some((e.1).1.clone());
-                        e as Box<::std::error::Error + Send + 'static>
+                $(
+                    else if let Some(e) = e.downcast_ref::<$link_error_path>() {
+                        Some((e.1).1.clone())
                     }
-                };
-
-            ) *
-
-            (e, backtrace)
+                ) *
+                else {
+                    None
+                }
+            }
         }
 
         // The Result type
         // ---------------
 
+        /// Convenient wrapper around std::Result.
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
 
@@ -569,8 +542,7 @@ macro_rules! error_chain {
     // Case 1: types fully specified
     (
         types {
-            $error_name:ident, $error_kind_name:ident,
-            $chain_error_name:ident, $result_name:ident;
+            $error_name:ident, $error_kind_name:ident, $result_name:ident;
         }
 
         $( links {
@@ -587,7 +559,7 @@ macro_rules! error_chain {
     ) => (
         error_chain! {
             types {
-                $error_name, $error_kind_name, $chain_error_name, $result_name;
+                $error_name, $error_kind_name, $result_name;
             }
 
             links {
@@ -621,7 +593,7 @@ macro_rules! error_chain {
     ) => (
         error_chain! {
             types {
-                Error, ErrorKind, ChainErr, Result;
+                Error, ErrorKind, Result;
             }
 
             links {
@@ -669,17 +641,13 @@ macro_rules! error_chain {
     );
 }
 
-
-use std::error::Error as StdError;
-use std::iter::Iterator;
-use std::sync::Arc;
-
-pub struct ErrorChainIter<'a>(pub Option<&'a StdError>);
+/// Iterator over the error chain.
+pub struct ErrorChainIter<'a>(pub Option<&'a error::Error>);
 
 impl<'a> Iterator for ErrorChainIter<'a> {
-    type Item = &'a StdError;
+    type Item = &'a error::Error;
 
-    fn next<'b>(&'b mut self) -> Option<&'a StdError> {
+    fn next<'b>(&'b mut self) -> Option<&'a error::Error> {
         match self.0.take() {
             Some(e) => {
                 self.0 = e.cause();
@@ -694,6 +662,7 @@ impl<'a> Iterator for ErrorChainIter<'a> {
 /// is set to anything but ``0``, and `None` otherwise.  This is used
 /// in the generated error implementations.
 #[cfg(feature = "backtrace")]
+#[doc(hidden)]
 pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     match std::env::var_os("RUST_BACKTRACE") {
         Some(ref val) if val != "0" => Some(Arc::new(Backtrace::new())),
@@ -702,6 +671,48 @@ pub fn make_backtrace() -> Option<Arc<Backtrace>> {
 }
 
 #[cfg(not(feature = "backtrace"))]
+#[doc(hidden)]
 pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     None
+}
+
+/// This trait is an implementation detail which must be implemented on each
+/// ErrorKind. We can't do it globally since each ErrorKind is different.
+pub trait ChainedError: error::Error + Send + 'static {
+    /// Associated kind type.
+    type ErrorKind;
+    /// Creates an error from it's parts.
+    fn new(kind: Self::ErrorKind,
+           state: (Option<Box<error::Error + Send + 'static>>,
+                   Option<Arc<Backtrace>>)) -> Self;
+    /// Use downcasts to extract the backtrace from types we know,
+    /// to avoid generating a new one. It would be better to not
+    /// define this in the macro, but types need some additional
+    /// machinery to make it work.
+    fn extract_backtrace(e: &(error::Error + Send + 'static))
+        -> Option<Option<Arc<Backtrace>>>;
+}
+
+/// Additionnal methods for `Result`, for easy interaction with this crate.
+pub trait ResultExt<T, E: ChainedError> {
+    /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
+    /// which returns *some type that can be converted to `ErrorKind`*, boxes
+    /// the original error to store as the cause, then returns a new error
+    /// containing the original error.
+    fn chain_err<F, EK>(self, callback: F) -> Result<T, E>
+        where F: FnOnce() -> EK,
+        EK: Into<E::ErrorKind>;
+}
+
+impl<T, E> ResultExt<T, E> for Result<T, E> where E: ChainedError {
+    fn chain_err<F, EK>(self, callback: F) -> Result<T, E>
+        where F: FnOnce() -> EK,
+        EK: Into<E::ErrorKind> {
+        self.map_err(move |e| {
+            let backtrace =
+                E::extract_backtrace(&e).unwrap_or_else(make_backtrace);
+
+            E::new(callback().into(), (Some(Box::new(e)), backtrace))
+        })
+    }
 }

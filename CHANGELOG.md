@@ -3,6 +3,9 @@
 - Conditional compilation for error variants.
 - Backtrace generation is now a feature.
 - More standard trait implementations for extra convenience.
+- Remove ChainErr.
+- Remove need to specify `ErrorKind` in `links {}`.
+- Add ResultExt trait.
 
 # 0.5.0
 
