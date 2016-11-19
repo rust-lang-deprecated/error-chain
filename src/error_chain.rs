@@ -1,3 +1,4 @@
+/// Prefer to use `error_chain` instead of this macro.
 #[macro_export]
 macro_rules! error_chain_processed {
     // Default values for `types`.
