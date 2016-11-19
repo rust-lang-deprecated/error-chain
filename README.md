@@ -13,6 +13,7 @@ provides a few unique features:
 * Errors can create and propagate backtraces.
 
 [Documentation (crates.io)](https://docs.rs/error-chain).
+
 [Documentation (master)](https://brson.github.io/error-chain).
 
 ## Quick start
