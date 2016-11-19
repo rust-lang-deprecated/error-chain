@@ -27,7 +27,9 @@ macro_rules! error_chain {
         /// that is mostly irrelevant for error handling purposes.
         #[derive(Debug)]
         pub struct $error_name {
+            /// The kind of the error.
             pub kind: $error_kind_name,
+            /// Contains the error chain and the backtrace.
             pub state: $crate::State,
         }
 
@@ -192,10 +194,7 @@ macro_rules! error_chain {
             }
         }
 
-        // The Result type
-        // ---------------
-
-        /// Convenient wrapper around std::Result.
+        /// Convenient wrapper around `std::Result`.
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
 

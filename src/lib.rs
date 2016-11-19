@@ -31,7 +31,7 @@
 //!   optional, boxed `std::error::Error + Send + 'static` object
 //!   (which defines the `cause`, and establishes the links in the
 //!   error chain), and a `Backtrace`.
-//! * This crate additionally defines the  trait ResultExt
+//! * This crate additionally defines the  trait `ResultExt`
 //!   that defines a `chain_err` method. This method
 //!   on all `std::error::Error + Send + 'static` types extends
 //!   the error chain by boxing the current error into an opaque
@@ -213,7 +213,7 @@
 //!
 //! Both types come with a variety of `From` conversions as well:
 //! `Error` can be created from `ErrorKind`, `&str` and `String`,
-//! and the "link" and "foreign_link" error types. `ErrorKind`
+//! and the `links` and `foreign_links` error types. `ErrorKind`
 //! can be created from the corresponding `ErrorKind`s of the link
 //! types, as well as from `&str` and `String`.
 //!
