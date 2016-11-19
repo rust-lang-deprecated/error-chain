@@ -127,6 +127,12 @@
 //!         Error, ErrorKind, Result;
 //!     }
 //!
+//!     // Without the `Result` wrapper:
+//!     //
+//!     // types {
+//!     //     Error, ErrorKind;
+//!     // }
+//!
 //!     // Automatic conversions between this error chain and other
 //!     // error chains. In this case, it will e.g. generate an
 //!     // `ErrorKind` variant called `Dist` which in turn contains

@@ -17,6 +17,21 @@ macro_rules! error_chain_processed {
         types {
             $error_name:ident, $error_kind_name:ident, $result_name:ident;
         }
+        $( $rest: tt )*
+    ) => {
+        error_chain_processed! {
+            types {
+                $error_name, $error_kind_name;
+            }
+            $( $rest )*
+        }
+        /// Convenient wrapper around `std::Result`.
+        pub type $result_name<T> = ::std::result::Result<T, $error_name>;
+    };
+    (
+        types {
+            $error_name:ident, $error_kind_name:ident;
+        }
 
         links {
             $( $link_error_path:path, $link_variant:ident $(, #[$meta_links:meta])*; ) *
@@ -204,9 +219,6 @@ macro_rules! error_chain_processed {
                 e.kind
             }
         }
-
-        /// Convenient wrapper around `std::Result`.
-        pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
 }
 

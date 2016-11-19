@@ -389,3 +389,23 @@ mod attributes_test {
         }
     }
 }
+
+#[test]
+fn with_result() {
+    error_chain! {
+        types {
+            Error, ErrorKind, Result;
+        }
+    }
+    let _: Result<()> = Ok(());
+}
+
+#[test]
+fn without_result() {
+    error_chain! {
+        types {
+            Error, ErrorKind;
+        }
+    }
+    let _: Result<(), ()> = Ok(());
+}

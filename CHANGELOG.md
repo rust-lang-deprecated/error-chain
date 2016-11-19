@@ -10,6 +10,7 @@
 - Error is now a struct.
 - The declarations order is more flexible.
 - Way better error reporting when there is a syntax error in the macro call.
+- `Result` generation can be disabled.
 
 # 0.5.0
 
