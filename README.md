@@ -12,7 +12,8 @@ provides a few unique features:
   at the error site with just a string.
 * Errors can create and propagate backtraces.
 
-[Documentation](http://brson.github.io/error-chain/index.html).
+[Documentation (crates.io)](https://docs.rs/error-chain).
+[Documentation (master)](https://brson.github.io/error-chain).
 
 ## Quick start
 
