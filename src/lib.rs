@@ -432,9 +432,16 @@ macro_rules! error_chain {
             }
         }
 
-        impl<S: Into<String>> From<S> for $error_name {
-            fn from(s: S) -> Self {
-                $error_name(s.into().into(),
+        impl<'a> From<&'a str> for $error_name {
+            fn from(s: &'a str) -> Self {
+                $error_name(s.into(),
+                            (None, $crate::make_backtrace()))
+            }
+        }
+
+        impl From<String> for $error_name {
+            fn from(s: String) -> Self {
+                $error_name(s.into(),
                             (None, $crate::make_backtrace()))
             }
         }
@@ -490,9 +497,15 @@ macro_rules! error_chain {
             }
         ) *
 
-        impl<S: Into<String>> From<S> for $error_kind_name {
-            fn from(s: S) -> Self {
-                $error_kind_name::Msg(s.into())
+        impl<'a> From<&'a str> for $error_kind_name {
+            fn from(s: &'a str) -> Self {
+                $error_kind_name::Msg(s.to_string())
+            }
+        }
+
+        impl From<String> for $error_kind_name {
+            fn from(s: String) -> Self {
+                $error_kind_name::Msg(s)
             }
         }
 
