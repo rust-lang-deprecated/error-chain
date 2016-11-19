@@ -125,6 +125,76 @@ fn smoke_test_8() {
 }
 
 #[test]
+fn order_test_1() {
+    error_chain! { types { } links { } foreign_links { } errors { } };
+}
+
+#[test]
+fn order_test_2() {
+    error_chain! { links { } types { } foreign_links { } errors { } };
+}
+
+#[test]
+fn order_test_3() {
+    error_chain! { foreign_links { }  links { }  errors { } types { } };
+}
+
+#[test]
+fn order_test_4() {
+    error_chain! { errors { } types { } foreign_links { } };
+}
+
+#[test]
+fn order_test_5() {
+    error_chain! { foreign_links { } types { }  };
+}
+
+#[test]
+fn order_test_6() {
+    error_chain! {
+        links { }
+
+        errors {
+            HttpStatus(e: u32) {
+                description("http request returned an unsuccessful status code")
+                display("http request returned an unsuccessful status code: {}", e)
+            }
+        }
+
+
+        foreign_links { }
+    };
+}
+
+#[test]
+fn order_test_7() {
+    error_chain! {
+        links { }
+
+        foreign_links { }
+
+        types {
+            Error, ErrorKind, Result;
+        }
+    };
+}
+
+
+#[test]
+fn order_test_8() {
+    error_chain! {
+        links { }
+
+        foreign_links { }
+        foreign_links { }
+
+        types {
+            Error, ErrorKind, Result;
+        }
+    };
+}
+
+#[test]
 fn empty() {
     error_chain! { };
 }

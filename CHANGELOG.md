@@ -8,6 +8,7 @@
 - Add ResultExt trait.
 - Error.1 is a struct instead of a tuple.
 - Error is now a struct.
+- The declarations order is more flexible.
 
 # 0.5.0
 

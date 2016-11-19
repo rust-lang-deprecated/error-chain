@@ -1,6 +1,7 @@
 #[macro_export]
 macro_rules! error_chain {
     (
+        $( @processed )*
         types {
             $error_name:ident, $error_kind_name:ident, $result_name:ident;
         }
@@ -18,8 +19,6 @@ macro_rules! error_chain {
         }
 
     ) => {
-
-
         /// The Error type
         ///
         /// This has a simple structure to support pattern matching
@@ -206,6 +205,7 @@ macro_rules! error_chain {
     //
     // Case 1: types fully specified
     (
+        $( @processed )*
         types {
             $error_name:ident, $error_kind_name:ident, $result_name:ident;
         }
@@ -223,6 +223,7 @@ macro_rules! error_chain {
         } ) *
     ) => (
         error_chain! {
+            @processed
             types {
                 $error_name, $error_kind_name, $result_name;
             }
@@ -242,6 +243,7 @@ macro_rules! error_chain {
     );
     // Case 2: types section present, but empty
     (
+        $( @processed )*
         types { }
 
         $( links {
@@ -257,6 +259,7 @@ macro_rules! error_chain {
         } ) *
     ) => (
         error_chain! {
+            @processed
             types {
                 Error, ErrorKind, Result;
             }
@@ -276,6 +279,7 @@ macro_rules! error_chain {
     );
     // Case 3: types section not present
     (
+        $( @processed )*
         $( links {
             $( $link_chunks:tt ) *
         } ) *
@@ -289,6 +293,7 @@ macro_rules! error_chain {
         } ) *
     ) => (
         error_chain! {
+            @processed
             types { }
 
             links {
@@ -304,6 +309,71 @@ macro_rules! error_chain {
             }
         }
     );
+    (
+        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        types $content:tt
+        $( $tail:tt )*
+    ) => {
+        error_chain! {
+            @processing ($content, $b, $c, $d)
+            $($tail)*
+        }
+    };
+    (
+        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        links $content:tt
+        $( $tail:tt )*
+    ) => {
+        error_chain! {
+            @processing ($a, $content, $c, $d)
+            $($tail)*
+        }
+    };
+    (
+        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        foreign_links $content:tt
+        $( $tail:tt )*
+    ) => {
+        error_chain! {
+            @processing ($a, $b, $content, $d)
+            $($tail)*
+        }
+    };
+    (
+        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        errors $content:tt
+        $( $tail:tt )*
+    ) => {
+        error_chain! {
+            @processing ($a, $b, $c, $content)
+            $($tail)*
+        }
+    };
+    (
+        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+    ) => {
+        error_chain! {
+            @processed
+            types $a
+            links $b
+            foreign_links $c
+            errors $d
+        }
+    };
+    (
+        @processed
+        $( $block_name:ident $block_content:tt )*
+    ) => {
+        !!!!!parse error!!!!!
+    };
+    (
+        $( $block_name:ident $block_content:tt )*
+    ) => {
+        error_chain! {
+            @processing ({}, {}, {}, {})
+            $($block_name $block_content)+
+        }
+    };
 }
 
 /// Macro used to manage the `backtrace` feature.
