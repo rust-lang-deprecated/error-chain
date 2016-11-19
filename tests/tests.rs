@@ -236,11 +236,20 @@ fn has_backtrace_depending_on_env() {
 
 #[test]
 fn chain_err() {
+    use std::fmt;
     use error_chain::ResultExt;
 
-    error_chain! {}
+    error_chain! {
+        foreign_links {
+            fmt::Error, Fmt;
+        }
+        errors {
+            Test
+        }
+    }
 
-    let _: Result<()> = Err("".into()).chain_err(|| "");
+    let _: Result<()> = Err(fmt::Error).chain_err(|| "");
+    let _: Result<()> = Err(ErrorKind::Test).chain_err(|| "");
 }
 
 #[test]

@@ -379,32 +379,33 @@ pub trait ChainedError: error::Error + Send + 'static {
 }
 
 /// Additionnal methods for `Result`, for easy interaction with this crate.
-pub trait ResultExt<T, E: ChainedError> {
+pub trait ResultExt<T, E, CE: ChainedError> {
     /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
     /// which returns *some type that can be converted to `ErrorKind`*, boxes
     /// the original error to store as the cause, then returns a new error
     /// containing the original error.
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, E>
+    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
-        EK: Into<E::ErrorKind>;
+        EK: Into<CE::ErrorKind>;
 }
 
-impl<T, E> ResultExt<T, E> for Result<T, E> where E: ChainedError {
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, E>
+impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: Into<CE> {
+    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
-        EK: Into<E::ErrorKind> {
+        EK: Into<CE::ErrorKind> {
         self.map_err(move |e| {
+            let e = e.into();
             #[cfg(feature = "backtrace")]
             let error = {
-                let backtrace = E::extract_backtrace(&e)
+                let backtrace = CE::extract_backtrace(&e)
                                   .unwrap_or_else(make_backtrace);
-                E::new(callback().into(), State {
+                CE::new(callback().into(), State {
                     next_error: Some(Box::new(e)),
                     backtrace: backtrace,
                 })
             };
             #[cfg(not(feature = "backtrace"))]
-            let error = E::new(callback().into(), State {
+            let error = CE::new(callback().into(), State {
                 next_error: Some(Box::new(e)),
             });
             error
