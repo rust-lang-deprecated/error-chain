@@ -213,6 +213,8 @@ fn has_backtrace_depending_on_env() {
         }
     }
 
+    let original_value = env::var_os("RUST_BACKTRACE");
+
     // missing RUST_BACKTRACE and RUST_BACKTRACE=0
     env::remove_var("RUST_BACKTRACE");
     let err = Error::from(ErrorKind::MyError);
@@ -225,6 +227,10 @@ fn has_backtrace_depending_on_env() {
     env::set_var("RUST_BACKTRACE", "yes");
     let err = Error::from(ErrorKind::MyError);
     assert!(err.backtrace().is_some());
+
+    if let Some(var) = original_value {
+        env::set_var("RUST_BACKTRACE", var);
+    }
 }
 
 #[test]
