@@ -229,6 +229,7 @@ mod foreign_link_test {
         links {}
         foreign_links {
             ForeignError, Foreign;
+            ::std::io::Error, Io;
         }
         errors {}
     }
