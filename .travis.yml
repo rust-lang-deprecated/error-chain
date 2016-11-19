@@ -21,7 +21,6 @@ before_script:
 script:
 - cargo build --verbose $FEATURES
 - cargo test --verbose $FEATURES
-- cd test-doc && cargo build
 
 after_success:
 - travis-cargo --only stable doc
