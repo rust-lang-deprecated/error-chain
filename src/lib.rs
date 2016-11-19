@@ -389,7 +389,7 @@ impl<T, E> ResultExt<T, E> for Result<T, E> where E: ChainedError {
         EK: Into<E::ErrorKind> {
         self.map_err(move |e| {
             #[cfg(feature = "backtrace")]
-            let ret = {
+            let error = {
                 let backtrace = E::extract_backtrace(&e)
                                   .unwrap_or_else(make_backtrace);
                 E::new(callback().into(), State {
@@ -398,12 +398,10 @@ impl<T, E> ResultExt<T, E> for Result<T, E> where E: ChainedError {
                 })
             };
             #[cfg(not(feature = "backtrace"))]
-            let ret = {
-                E::new(callback().into(), State {
-                    next_error: Some(Box::new(e)),
-                })
-            };
-            ret
+            let error = E::new(callback().into(), State {
+                next_error: Some(Box::new(e)),
+            });
+            error
         })
     }
 }
@@ -419,21 +417,17 @@ pub struct State {
     pub backtrace: Option<Arc<Backtrace>>,
 }
 
-#[cfg(feature = "backtrace")]
 impl Default for State {
     fn default() -> State {
-        State {
+        #[cfg(feature = "backtrace")]
+        let state = State {
             next_error: None,
             backtrace: make_backtrace(),
-        }
-    }
-}
-
-#[cfg(not(feature = "backtrace"))]
-impl Default for State {
-    fn default() -> State {
-        State {
+        };
+        #[cfg(not(feature = "backtrace"))]
+        let state = State {
             next_error: None,
-        }
+        };
+        state
     }
 }
