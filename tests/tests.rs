@@ -407,3 +407,23 @@ fn without_result() {
     }
     let _: Result<(), ()> = Ok(());
 }
+
+#[test]
+fn documentation() {
+    mod inner {
+        error_chain! {}
+    }
+
+    error_chain! {
+        links {
+            inner::Error, Inner, #[doc = "Doc"];
+        }
+        foreign_links {
+            ::std::io::Error, Io, #[doc = "Doc"];
+        }
+        errors {
+            /// Doc
+            Variant
+        }
+    }
+}

@@ -12,9 +12,13 @@ pub mod doc {
 
     error_chain! {
         links {
-            inner::Error, Test;
+            inner::Error, Test, #[doc = "Doc"];
+        }
+        foreign_links {
+            ::std::io::Error, Io, #[doc = "Io"];
         }
         errors {
+            /// Doc
             Test2 {
 
             }
