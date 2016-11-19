@@ -228,7 +228,7 @@ macro_rules! error_chain_processed {
 #[macro_export]
 macro_rules! error_chain_processing {
     (
-        ($a:tt, $b:tt, $c:tt, $d:tt)
+        ({}, $b:tt, $c:tt, $d:tt)
         types $content:tt
         $( $tail:tt )*
     ) => {
@@ -238,7 +238,7 @@ macro_rules! error_chain_processing {
         }
     };
     (
-        ($a:tt, $b:tt, $c:tt, $d:tt)
+        ($a:tt, {}, $c:tt, $d:tt)
         links $content:tt
         $( $tail:tt )*
     ) => {
@@ -248,7 +248,7 @@ macro_rules! error_chain_processing {
         }
     };
     (
-        ($a:tt, $b:tt, $c:tt, $d:tt)
+        ($a:tt, $b:tt, {}, $d:tt)
         foreign_links $content:tt
         $( $tail:tt )*
     ) => {
@@ -258,7 +258,7 @@ macro_rules! error_chain_processing {
         }
     };
     (
-        ($a:tt, $b:tt, $c:tt, $d:tt)
+        ($a:tt, $b:tt, $c:tt, {})
         errors $content:tt
         $( $tail:tt )*
     ) => {

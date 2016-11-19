@@ -11,6 +11,7 @@
 - The declarations order is more flexible.
 - Way better error reporting when there is a syntax error in the macro call.
 - `Result` generation can be disabled.
+- At most one declaration of each type can be present.
 
 # 0.5.0
 

@@ -120,8 +120,6 @@ fn smoke_test_8() {
 
         errors {
             FileNotFound
-        }
-        errors {
             AccessDenied
         }
     };
