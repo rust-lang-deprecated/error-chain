@@ -1,4 +1,7 @@
 // From https://github.com/tailhook/quick-error
+// Changes:
+//   - replace `impl Error` by `impl Item::description`
+//   - $imeta
 
 #[macro_export]
 macro_rules! quick_error {
