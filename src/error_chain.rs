@@ -59,7 +59,9 @@ macro_rules! error_chain_processed {
             pub state: $crate::State,
         }
 
-        impl_error!($error_name $error_kind_name $($link_error_path)*);
+        impl_error!($error_name
+                    $error_kind_name
+                    $([$link_error_path, $(#[$meta_links])*])*);
 
         impl $error_name {
             /// Constructs an error from a kind.
@@ -300,7 +302,7 @@ macro_rules! error_chain {
 macro_rules! impl_error {
     ($error_name: ident
      $error_kind_name: ident
-     $($link_error_path: path)*) => {
+     $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
         impl $error_name {
             /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
@@ -321,16 +323,17 @@ macro_rules! impl_error {
             fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
                 -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
                 if let Some(e) = e.downcast_ref::<$error_name>() {
-                    Some(e.state.backtrace.clone())
+                    return Some(e.state.backtrace.clone());
                 }
                 $(
-                    else if let Some(e) = e.downcast_ref::<$link_error_path>() {
-                        Some(e.state.backtrace.clone())
+                    $( #[$meta_links] )*
+                    {
+                        if let Some(e) = e.downcast_ref::<$link_error_path>() {
+                            return Some(e.state.backtrace.clone());
+                        }
                     }
                 ) *
-                else {
-                    None
-                }
+                None
             }
         }
     }
@@ -347,7 +350,7 @@ macro_rules! impl_error {
 macro_rules! impl_error {
     ($error_name: ident
      $error_kind_name: ident
-     $($link_error_path: path)*) => {
+     $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
         impl $crate::ChainedError for $error_name {
             type ErrorKind = $error_kind_name;
 

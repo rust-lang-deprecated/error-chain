@@ -369,6 +369,7 @@ mod attributes_test {
     #[allow(unused_imports)]
     use std::io;
 
+    #[cfg(not(test))]
     mod inner {
         error_chain! {
 
