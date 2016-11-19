@@ -1,4 +1,7 @@
 #![allow(dead_code)]
+//#![feature(trace_macros)]
+//
+//trace_macros!(true);
 
 #[macro_use]
 extern crate error_chain;

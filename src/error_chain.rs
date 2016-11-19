@@ -1,7 +1,24 @@
 #[macro_export]
 macro_rules! error_chain {
     (
-        $( @processed )*
+        @processed
+        types {}
+        links $b:tt
+        foreign_links $c:tt
+        errors $d:tt
+    ) => {
+        error_chain! {
+            @processed
+            types {
+                Error, ErrorKind, Result;
+            }
+            links $b
+            foreign_links $c
+            errors $d
+        }
+    };
+    (
+        @processed
         types {
             $error_name:ident, $error_kind_name:ident, $result_name:ident;
         }
@@ -196,119 +213,12 @@ macro_rules! error_chain {
         /// Convenient wrapper around `std::Result`.
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
-
-    // Handle missing sections, or missing type names in types { }
-    //
-    // Macros cannot specify "zero or one repetitions" at the moment, so we allow
-    // repeating sections. Only for the `types` section this makes no sense, which
-    // is the reason for the three separate cases.
-    //
-    // Case 1: types fully specified
     (
-        $( @processed )*
-        types {
-            $error_name:ident, $error_kind_name:ident, $result_name:ident;
-        }
-
-        $( links {
-            $( $link_chunks:tt ) *
-        } ) *
-
-        $( foreign_links {
-            $( $foreign_link_chunks:tt ) *
-        } ) *
-
-        $( errors {
-            $( $error_chunks:tt ) *
-        } ) *
-    ) => (
-        error_chain! {
-            @processed
-            types {
-                $error_name, $error_kind_name, $result_name;
-            }
-
-            links {
-                $( $( $link_chunks ) * ) *
-            }
-
-            foreign_links {
-                $( $( $foreign_link_chunks ) * ) *
-            }
-
-            errors {
-                $( $( $error_chunks ) * ) *
-            }
-        }
-    );
-    // Case 2: types section present, but empty
-    (
-        $( @processed )*
-        types { }
-
-        $( links {
-            $( $link_chunks:tt ) *
-        } ) *
-
-        $( foreign_links {
-            $( $foreign_link_chunks:tt ) *
-        } ) *
-
-        $( errors {
-            $( $error_chunks:tt ) *
-        } ) *
-    ) => (
-        error_chain! {
-            @processed
-            types {
-                Error, ErrorKind, Result;
-            }
-
-            links {
-                $( $( $link_chunks ) * ) *
-            }
-
-            foreign_links {
-                $( $( $foreign_link_chunks ) * ) *
-            }
-
-            errors {
-                $( $( $error_chunks ) * ) *
-            }
-        }
-    );
-    // Case 3: types section not present
-    (
-        $( @processed )*
-        $( links {
-            $( $link_chunks:tt ) *
-        } ) *
-
-        $( foreign_links {
-            $( $foreign_link_chunks:tt ) *
-        } ) *
-
-        $( errors {
-            $( $error_chunks:tt ) *
-        } ) *
-    ) => (
-        error_chain! {
-            @processed
-            types { }
-
-            links {
-                $( $( $link_chunks ) * ) *
-            }
-
-            foreign_links {
-                $( $( $foreign_link_chunks ) * ) *
-            }
-
-            errors {
-                $( $( $error_chunks ) * ) *
-            }
-        }
-    );
+        @processed
+        $( $block_name:ident $block_content:tt )*
+    ) => {
+        !!!!!parse error!!!!!
+    };
     (
         @processing ($a:tt, $b:tt, $c:tt, $d:tt)
         types $content:tt
@@ -361,17 +271,11 @@ macro_rules! error_chain {
         }
     };
     (
-        @processed
-        $( $block_name:ident $block_content:tt )*
-    ) => {
-        !!!!!parse error!!!!!
-    };
-    (
         $( $block_name:ident $block_content:tt )*
     ) => {
         error_chain! {
             @processing ({}, {}, {}, {})
-            $($block_name $block_content)+
+            $($block_name $block_content)*
         }
     };
 }
