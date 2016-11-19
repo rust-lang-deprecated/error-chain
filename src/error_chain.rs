@@ -1,24 +1,18 @@
 #[macro_export]
-macro_rules! error_chain {
+macro_rules! error_chain_processed {
+    // Default values for `types`.
     (
-        @processed
         types {}
-        links $b:tt
-        foreign_links $c:tt
-        errors $d:tt
+        $( $rest: tt )*
     ) => {
-        error_chain! {
-            @processed
+        error_chain_processed! {
             types {
                 Error, ErrorKind, Result;
             }
-            links $b
-            foreign_links $c
-            errors $d
+            $( $rest )*
         }
     };
     (
-        @processed
         types {
             $error_name:ident, $error_kind_name:ident, $result_name:ident;
         }
@@ -213,69 +207,70 @@ macro_rules! error_chain {
         /// Convenient wrapper around `std::Result`.
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
+}
+
+/// Internal macro used for reordering of the fields.
+#[doc(hidden)]
+#[macro_export]
+macro_rules! error_chain_processing {
     (
-        @processed
-        $( $block_name:ident $block_content:tt )*
-    ) => {
-        !!!!!parse error!!!!!
-    };
-    (
-        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        ($a:tt, $b:tt, $c:tt, $d:tt)
         types $content:tt
         $( $tail:tt )*
     ) => {
-        error_chain! {
-            @processing ($content, $b, $c, $d)
+        error_chain_processing! {
+            ($content, $b, $c, $d)
             $($tail)*
         }
     };
     (
-        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        ($a:tt, $b:tt, $c:tt, $d:tt)
         links $content:tt
         $( $tail:tt )*
     ) => {
-        error_chain! {
-            @processing ($a, $content, $c, $d)
+        error_chain_processing! {
+            ($a, $content, $c, $d)
             $($tail)*
         }
     };
     (
-        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        ($a:tt, $b:tt, $c:tt, $d:tt)
         foreign_links $content:tt
         $( $tail:tt )*
     ) => {
-        error_chain! {
-            @processing ($a, $b, $content, $d)
+        error_chain_processing! {
+            ($a, $b, $content, $d)
             $($tail)*
         }
     };
     (
-        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
+        ($a:tt, $b:tt, $c:tt, $d:tt)
         errors $content:tt
         $( $tail:tt )*
     ) => {
-        error_chain! {
-            @processing ($a, $b, $c, $content)
+        error_chain_processing! {
+            ($a, $b, $c, $content)
             $($tail)*
         }
     };
-    (
-        @processing ($a:tt, $b:tt, $c:tt, $d:tt)
-    ) => {
-        error_chain! {
-            @processed
+    ( ($a:tt, $b:tt, $c:tt, $d:tt) ) => {
+        error_chain_processed! {
             types $a
             links $b
             foreign_links $c
             errors $d
         }
     };
-    (
-        $( $block_name:ident $block_content:tt )*
-    ) => {
-        error_chain! {
-            @processing ({}, {}, {}, {})
-            $($block_name $block_content)*
+}
+
+/// This macro is used for handling of duplicated and out-of-order fields. For
+/// the exact rules, see `error_chain_processed`.
+#[macro_export]
+macro_rules! error_chain {
+    ( $( $block_name:ident { $( $block_content:tt )* } )* ) => {
+        error_chain_processing! {
+            ({}, {}, {}, {})
+            $($block_name { $( $block_content )* })*
         }
     };
 }
