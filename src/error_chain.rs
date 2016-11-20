@@ -50,13 +50,16 @@ macro_rules! error_chain_processed {
         }
 
     ) => {
-        /// The Error type
+        /// The Error type.
         ///
-        /// This has a simple structure to support pattern matching
-        /// during error handling. The second field is internal state
-        /// that is mostly irrelevant for error handling purposes.
+        /// This struct is made of three things:
+        ///
+        /// - an `ErrorKind` which is used to determine the type of the error.
+        /// - a backtrace, generated when the error is created.
+        /// - an error chain, used for the implementation of `Error::cause()`.
         #[derive(Debug)]
         pub struct $error_name {
+            // The members must be `pub` for `links`.
             /// The kind of the error.
             #[doc(hidden)]
             pub kind: $error_kind_name,
@@ -82,7 +85,7 @@ macro_rules! error_chain_processed {
 
         #[allow(dead_code)]
         impl $error_name {
-            /// Constructs an error from a kind.
+            /// Constructs an error from a kind, and generates a backtrace.
             pub fn from_kind(kind: $error_kind_name) -> $error_name {
                 $error_name {
                     kind: kind,
@@ -189,7 +192,7 @@ macro_rules! error_chain_processed {
         // --------------
 
         quick_error! {
-            /// The kind of an error
+            /// The kind of an error.
             #[derive(Debug)]
             pub enum $error_kind_name {
 

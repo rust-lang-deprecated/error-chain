@@ -272,7 +272,7 @@ mod error_chain;
 #[cfg(feature = "example_generated")]
 pub mod example_generated;
 
-/// Iterator over the error chain.
+/// Iterator over the error chain using the `Error::cause()` method.
 pub struct ErrorChainIter<'a>(pub Option<&'a error::Error>);
 
 impl<'a> Iterator for ErrorChainIter<'a> {
