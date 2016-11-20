@@ -65,9 +65,20 @@ macro_rules! error_chain_processed {
             pub state: $crate::State,
         }
 
-        impl_error!($error_name
-                    $error_kind_name
-                    $([$link_error_path, $(#[$meta_links])*])*);
+        impl $crate::ChainedError for $error_name {
+            type ErrorKind = $error_kind_name;
+
+            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
+                $error_name {
+                    kind: kind,
+                    state: state,
+                }
+            }
+
+            impl_extract_backtrace!($error_name
+                                    $error_kind_name
+                                    $([$link_error_path, $(#[$meta_links])*])*);
+        }
 
         #[allow(dead_code)]
         impl $error_name {
@@ -311,35 +322,24 @@ macro_rules! error_chain {
 #[macro_export]
 #[doc(hidden)]
 #[cfg(feature = "backtrace")]
-macro_rules! impl_error {
+macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        impl $crate::ChainedError for $error_name {
-            type ErrorKind = $error_kind_name;
-
-            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
-                $error_name {
-                    kind: kind,
-                    state: state,
-                }
+        fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
+            -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
+            if let Some(e) = e.downcast_ref::<$error_name>() {
+                return Some(e.state.backtrace.clone());
             }
-
-            fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
-                -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
-                if let Some(e) = e.downcast_ref::<$error_name>() {
-                    return Some(e.state.backtrace.clone());
-                }
-                $(
-                    $( #[$meta_links] )*
-                    {
-                        if let Some(e) = e.downcast_ref::<$link_error_path>() {
-                            return Some(e.state.backtrace.clone());
-                        }
+            $(
+                $( #[$meta_links] )*
+                {
+                    if let Some(e) = e.downcast_ref::<$link_error_path>() {
+                        return Some(e.state.backtrace.clone());
                     }
-                ) *
-                None
-            }
+                }
+            ) *
+            None
         }
     }
 }
@@ -352,19 +352,8 @@ macro_rules! impl_error {
 #[macro_export]
 #[doc(hidden)]
 #[cfg(not(feature = "backtrace"))]
-macro_rules! impl_error {
+macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
-     $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        impl $crate::ChainedError for $error_name {
-            type ErrorKind = $error_kind_name;
-
-            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
-                $error_name {
-                    kind: kind,
-                    state: state,
-                }
-            }
-        }
-    }
+     $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {}
 }
