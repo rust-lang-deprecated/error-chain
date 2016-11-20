@@ -1,3 +1,7 @@
+# Unreleased
+
+- New `Variant(Error) #[attrs]` for `links` and `foreign_links`.
+
 # 0.6.0
 
 - Conditional compilation for error variants.

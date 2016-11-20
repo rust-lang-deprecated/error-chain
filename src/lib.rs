@@ -117,7 +117,12 @@
 //! Assuming you are using crate-level error types, typically you will
 //! define an `errors` module and inside it call `error_chain!`:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! mod other_error {
+//!     error_chain! {}
+//! }
+//!
 //! error_chain! {
 //!     // The type defined for this error. These are the conventional
 //!     // and recommended names, but they can be arbitrarily chosen.
@@ -143,8 +148,7 @@
 //!     //
 //!     // This section can be empty.
 //!     links {
-//!         ::rustup_dist::Error, Dist;
-//!         ::rustup_utils::Error, Utils, #[cfg(unix)];
+//!         Another(other_error::Error) #[cfg(unix)];
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -157,8 +161,8 @@
 //!     //
 //!     // This section can be empty.
 //!     foreign_links {
-//!         ::temp::Error, Temp;
-//!         io::Error, Io, #[cfg(unix)];
+//!         Fmt(::std::fmt::Error);
+//!         Io(::std::io::Error) #[cfg(unix)];
 //!     }
 //!
 //!     // Define additional `ErrorKind` variants. The syntax here is
@@ -171,6 +175,8 @@
 //!         }
 //!     }
 //! }
+//!
+//! # fn main() {}
 //! ```
 //!
 //! Each section, `types`, `links`, `foreign_links`, and `errors` may

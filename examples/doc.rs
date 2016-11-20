@@ -13,10 +13,10 @@ pub mod inner {
 
 error_chain! {
     links {
-        inner::Error, Test, #[doc = "Doc"];
+        Inner(inner::Error) #[doc = "Doc"];
     }
     foreign_links {
-        ::std::io::Error, Io, #[doc = "Io"];
+        Io(::std::io::Error) #[doc = "Io"];
     }
     errors {
         /// Doc

@@ -13,6 +13,7 @@ macro_rules! error_chain_processed {
             $( $rest )*
         }
     };
+    // With `Result` wrapper.
     (
         types {
             $error_name:ident, $error_kind_name:ident, $result_name:ident;
@@ -28,17 +29,20 @@ macro_rules! error_chain_processed {
         /// Convenient wrapper around `std::Result`.
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
+    // Without `Result` wrapper.
     (
         types {
             $error_name:ident, $error_kind_name:ident;
         }
 
         links {
-            $( $link_error_path:path, $link_variant:ident $(, #[$meta_links:meta])*; ) *
+            $( $link_variant:ident ( $link_error_path:path )
+               $( #[$meta_links:meta] )*; ) *
         }
 
         foreign_links {
-            $( $foreign_link_error_path:path, $foreign_link_variant:ident $(, #[$meta_foreign_links:meta])*; )*
+            $( $foreign_link_variant:ident ( $foreign_link_error_path:path )
+               $( #[$meta_foreign_links:meta] )*; )*
         }
 
         errors {

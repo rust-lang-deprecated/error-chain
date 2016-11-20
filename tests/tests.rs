@@ -241,7 +241,7 @@ fn chain_err() {
 
     error_chain! {
         foreign_links {
-            fmt::Error, Fmt;
+            Fmt(fmt::Error);
         }
         errors {
             Test
@@ -260,7 +260,7 @@ fn links() {
 
     error_chain! {
         links {
-            test::Error, Test;
+            Test(test::Error);
         }
     }
 }
@@ -314,8 +314,8 @@ mod foreign_link_test {
         }
         links {}
         foreign_links {
-            ForeignError, Foreign;
-            ::std::io::Error, Io;
+            Foreign(ForeignError);
+            Io(::std::io::Error);
         }
         errors {}
     }
@@ -382,11 +382,11 @@ mod attributes_test {
         }
 
         links {
-            inner::Error, Inner, #[cfg(not(test))];
+            Inner(inner::Error) #[cfg(not(test))];
         }
 
         foreign_links {
-            io::Error, Io, #[cfg(not(test))];
+            Io(io::Error) #[cfg(not(test))];
         }
 
         errors {
@@ -426,10 +426,10 @@ fn documentation() {
 
     error_chain! {
         links {
-            inner::Error, Inner, #[doc = "Doc"];
+            Inner(inner::Error) #[doc = "Doc"];
         }
         foreign_links {
-            ::std::io::Error, Io, #[doc = "Doc"];
+            Io(::std::io::Error) #[doc = "Doc"];
         }
         errors {
             /// Doc
