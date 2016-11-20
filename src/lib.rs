@@ -355,6 +355,7 @@ impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: I
 
 /// Common state between errors.
 #[derive(Debug)]
+#[doc(hidden)]
 pub struct State {
     /// Next error in the error chain.
     pub next_error: Option<Box<error::Error + Send>>,
