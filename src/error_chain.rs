@@ -86,6 +86,11 @@ macro_rules! error_chain_processed {
             pub fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ErrorChainIter(Some(self))
             }
+
+            /// Returns the backtrace associated with this error.
+            pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
+                self.state.backtrace()
+            }
         }
 
         impl ::std::error::Error for $error_name {
@@ -308,13 +313,6 @@ macro_rules! impl_error {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        impl $error_name {
-            /// Returns the backtrace associated with this error.
-            pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
-                self.state.backtrace.as_ref().map(|v| &**v)
-            }
-        }
-
         impl $crate::ChainedError for $error_name {
             type ErrorKind = $error_kind_name;
 

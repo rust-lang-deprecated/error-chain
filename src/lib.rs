@@ -261,6 +261,9 @@ use std::sync::Arc;
 
 #[cfg(feature = "backtrace")]
 pub use backtrace::Backtrace;
+#[cfg(not(feature = "backtrace"))]
+/// Dummy type used when the `backtrace` feature is disabled.
+pub type Backtrace = ();
 
 #[macro_use]
 mod quick_error;
@@ -368,6 +371,17 @@ impl Default for State {
             next_error: None,
         };
         state
+    }
+}
+
+impl State {
+    /// Returns the inner backtrace if present.
+    pub fn backtrace(&self) -> Option<&Backtrace> {
+        #[cfg(feature = "backtrace")]
+        let b = self.backtrace.as_ref().map(|v| &**v);
+        #[cfg(not(feature = "backtrace"))]
+        let b = None;
+        b
     }
 }
 
