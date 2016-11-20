@@ -66,15 +66,17 @@
 //!
 //! Write this at the top of your crate:
 //!
-//! ```ignore
+//! ```
 //! #![recursion_limit = "1024"]
+//! # fn main() {}
 //! ```
 //!
 //! Again near the top of your crate, import the `error_chain` crate and its macros:
 //!
-//! ```ignore
+//! ```
 //! #[macro_use]
 //! extern crate error_chain;
+//! # fn main() {}
 //! ```
 //!
 //! Add an `errors` module to your crate:
@@ -85,7 +87,9 @@
 //!
 //! Add a file for that module called `errors.rs` and put this inside:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
 //! error_chain! { }
 //! ```
 //!
@@ -100,6 +104,12 @@
 //! the `error_chain!` macro, and start chaining errors!
 //!
 //! ```ignore
+//! # #[macro_use] extern crate error_chain;
+//! # use std::fs::File;
+//! # use std::io::Write;
+//! # use error_chain::ResultExt;
+//! # fn main() {}
+//! # error_chain! {}
 //! fn do_error_prone_work() -> Result<()> {
 //!     let file = try!(File::open("foo").chain_err(|| "couldn't open file"));
 //!     try!(file.write_all("important".as_bytes()).chain_err(|| "couldn't write file"));
@@ -192,9 +202,10 @@
 //! use std::sync::Arc;
 //!
 //! #[derive(Debug)]
-//! pub struct Error(pub ErrorKind,
-//!                  pub Option<Box<StdError + Send>>,
-//!                  pub Option<Arc<error_chain::Backtrace>>);
+//! pub struct Error {
+//!     pub kind: ErrorKind,
+//!     pub state: ::error_chain::State,
+//! }
 //!
 //! impl Error {
 //!     pub fn kind(&self) -> &ErrorKind { ... }
@@ -238,7 +249,10 @@
 //!
 //! Introducing new error chains, with a string message:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! # error_chain! {}
 //! fn foo() -> Result<()> {
 //!     Err("foo error!".into())
 //! }
@@ -246,7 +260,13 @@
 //!
 //! Introducing new error chains, with an `ErrorKind`:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! error_chain! {
+//!     errors { FooError }
+//! }
+//!
 //! fn foo() -> Result<()> {
 //!     Err(ErrorKind::FooError.into())
 //! }
@@ -264,7 +284,10 @@
 //! automatically convert `Err(ErrorKind)` to `Err(Error)`. So the
 //! below is equivalent to the previous:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! # error_chain! { errors { FooError } }
 //! fn foo() -> Result<()> {
 //!     Ok(try!(Err(ErrorKind::FooError)))
 //! }
@@ -278,9 +301,16 @@
 //!
 //! To extend the error chain:
 //!
-//! ```ignore
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! # error_chain! {}
+//! # fn do_something() -> Result<()> { unimplemented!() }
+//! # fn test() -> Result<()> {
 //! use error_chain::ResultExt;
-//! try!(do_something().chain_err(|| "something went wrong"));
+//! let res: Result<()> = do_something().chain_err(|| "something went wrong");
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! `chain_err` can be called on any `Result` type where the contained
