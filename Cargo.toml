@@ -4,14 +4,15 @@ name = "error-chain"
 version = "0.6.0"
 authors = [ "Brian Anderson <banderson@mozilla.com>",
             "Paul Colomiets <paul@colomiets.name>",
-            "Colin Kiegel <kiegel@gmx.de>"]
-description = "Yet another error boilerplate library"
+            "Colin Kiegel <kiegel@gmx.de>",
+            "Yamakaky <yamakaky@yamaworld.fr>"]
+description = "Yet another error boilerplate library."
 
-documentation = "http://brson.github.io/error-chain/index.html"
+documentation = "https://docs.rs/error-chain"
 homepage = "https://github.com/brson/error-chain"
 repository = "https://github.com/brson/error-chain"
 
-license = "MIT OR Apache-2.0"
+license = "MIT/Apache-2.0"
 
 [features]
 default = ["backtrace"]
