@@ -304,11 +304,15 @@ pub fn make_backtrace() -> Option<Arc<Backtrace>> {
 pub trait ChainedError: error::Error + Send + 'static {
     /// Associated kind type.
     type ErrorKind;
+
     /// Creates an error from it's parts.
+    #[doc(hidden)]
     fn new(kind: Self::ErrorKind, state: State) -> Self;
+
     /// Returns the first known backtrace, either from it's State or from one
     /// of the errors from `foreign_links`.
     #[cfg(feature = "backtrace")]
+    #[doc(hidden)]
     fn extract_backtrace(e: &(error::Error + Send + 'static))
         -> Option<Option<Arc<Backtrace>>>;
 }

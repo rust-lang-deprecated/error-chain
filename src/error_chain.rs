@@ -58,8 +58,10 @@ macro_rules! error_chain_processed {
         #[derive(Debug)]
         pub struct $error_name {
             /// The kind of the error.
+            #[doc(hidden)]
             pub kind: $error_kind_name,
             /// Contains the error chain and the backtrace.
+            #[doc(hidden)]
             pub state: $crate::State,
         }
 
