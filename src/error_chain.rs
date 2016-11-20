@@ -67,6 +67,7 @@ macro_rules! error_chain_processed {
                     $error_kind_name
                     $([$link_error_path, $(#[$meta_links])*])*);
 
+        #[allow(dead_code)]
         impl $error_name {
             /// Constructs an error from a kind.
             pub fn from_kind(kind: $error_kind_name) -> $error_name {
