@@ -58,65 +58,7 @@
 //!
 //! ## Quick start
 //!
-//! Add this to Cargo.toml, under `[dependencies]`:
-//!
-//! ```toml
-//! error-chain = "0.5"
-//! ```
-//!
-//! Write this at the top of your crate:
-//!
-//! ```
-//! #![recursion_limit = "1024"]
-//! # fn main() {}
-//! ```
-//!
-//! Again near the top of your crate, import the `error_chain` crate and its macros:
-//!
-//! ```
-//! #[macro_use]
-//! extern crate error_chain;
-//! # fn main() {}
-//! ```
-//!
-//! Add an `errors` module to your crate:
-//!
-//! ```ignore
-//! mod errors;
-//! ```
-//!
-//! Add a file for that module called `errors.rs` and put this inside:
-//!
-//! ```
-//! # #[macro_use] extern crate error_chain;
-//! # fn main() {}
-//! error_chain! { }
-//! ```
-//!
-//! That's the setup. Now when writing modules for your crate,
-//! import everything from the `errors` module:
-//!
-//! ```ignore
-//! use errors::*;
-//! ```
-//!
-//! Create functions that return `Result`, which is defined by
-//! the `error_chain!` macro, and start chaining errors!
-//!
-//! ```ignore
-//! # #[macro_use] extern crate error_chain;
-//! # use std::fs::File;
-//! # use std::io::Write;
-//! # use error_chain::ResultExt;
-//! # fn main() {}
-//! # error_chain! {}
-//! fn do_error_prone_work() -> Result<()> {
-//!     let file = try!(File::open("foo").chain_err(|| "couldn't open file"));
-//!     try!(file.write_all("important".as_bytes()).chain_err(|| "couldn't write file"));
-//!
-//!     Ok(())
-//! }
-//! ```
+//! See https://github.com/brson/error-chain/blob/master/examples/quickstart.rs.
 //!
 //! ## Declaring error types
 //!
