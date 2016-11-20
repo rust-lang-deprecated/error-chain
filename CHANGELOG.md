@@ -1,4 +1,4 @@
-# Unreleased
+# 0.6.0
 
 - Conditional compilation for error variants.
 - Backtrace generation is now a feature.

@@ -1,7 +1,7 @@
+# error-chain - Consistent error handling for Rust
+
 [![Build Status](https://api.travis-ci.org/brson/error-chain.svg?branch=master)](https://travis-ci.org/brson/error-chain)
 [![Latest Version](https://img.shields.io/crates/v/error-chain.svg)](https://crates.io/crates/error-chain)
-
-# error-chain - Consistent error handling for Rust
 
 `error-chain` is a crate for dealing with Rust error boilerplate. It
 provides a few unique features:
@@ -21,7 +21,7 @@ provides a few unique features:
 Add this to Cargo.toml, under `[dependencies]`:
 
 ```toml
-error-chain = "0.5"
+error-chain = "0.6"
 ```
 
 Write this at the top of your crate:
