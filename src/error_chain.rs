@@ -27,7 +27,7 @@ macro_rules! error_chain_processed {
             $( $rest )*
         }
         /// Convenient wrapper around `std::Result`.
-        pub type $result_name<T> = ::std::result::Result<T, $error_name>;
+        pub type $result_name<T> = $crate::Result<T, $error_name>;
     };
     // Without `Result` wrapper.
     (
@@ -109,13 +109,13 @@ macro_rules! error_chain_processed {
             }
         }
 
-        impl ::std::error::Error for $error_name {
+        impl $crate::Error for $error_name {
             fn description(&self) -> &str {
                 self.kind.description()
             }
 
-            fn cause(&self) -> Option<&::std::error::Error> {
-                match self.state.next_error {
+            fn cause(&self) -> Option<&$crate::Error> {
+                match self.state.next_error() {
                     Some(ref c) => Some(&**c),
                     None => {
                         match self.kind {
@@ -132,11 +132,7 @@ macro_rules! error_chain_processed {
             }
         }
 
-        impl ::std::fmt::Display for $error_name {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                ::std::fmt::Display::fmt(&self.kind, f)
-            }
-        }
+        if_alloc!($error_name $error_kind_name);
 
         $(
             $(#[$meta_links])*
@@ -179,14 +175,6 @@ macro_rules! error_chain_processed {
             }
         }
 
-        impl ::std::ops::Deref for $error_name {
-            type Target = $error_kind_name;
-
-            fn deref(&self) -> &Self::Target {
-                &self.kind
-            }
-        }
-
 
         // The ErrorKind type
         // --------------
@@ -213,7 +201,7 @@ macro_rules! error_chain_processed {
                 $(
                     $(#[$meta_foreign_links])*
                     $foreign_link_variant(err: $foreign_link_error_path) {
-                        description(::std::error::Error::description(err))
+                        description($crate::Error::description(err))
                         display("{}", err)
                     }
                 ) *
@@ -329,7 +317,7 @@ macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
+        fn extract_backtrace(e: &($crate::Error + Send + 'static))
             -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
             if let Some(e) = e.downcast_ref::<$error_name>() {
                 return Some(e.state.backtrace.clone());
@@ -359,4 +347,32 @@ macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {}
+}
+
+#[macro_export]
+#[doc(hidden)]
+#[cfg(feature = "alloc")]
+macro_rules! if_alloc {
+    ($error_name:ident $error_kind_name: ident) => {
+        impl ::std::fmt::Display for $error_name {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                ::std::fmt::Display::fmt(&self.kind, f)
+            }
+        }
+
+        impl ::std::ops::Deref for $error_name {
+            type Target = $error_kind_name;
+
+            fn deref(&self) -> &Self::Target {
+                &self.kind
+            }
+        }
+    }
+}
+
+#[macro_export]
+#[doc(hidden)]
+#[cfg(not(feature = "alloc"))]
+macro_rules! if_alloc {
+    ($error_name:ident $error_kind_name: ident) => {}
 }
