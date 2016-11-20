@@ -337,19 +337,19 @@ impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: I
         self.map_err(move |e| {
             let e = e.into();
             #[cfg(feature = "backtrace")]
-            let error = {
+            let state = {
                 let backtrace = CE::extract_backtrace(&e)
                                   .unwrap_or_else(make_backtrace);
-                CE::new(callback().into(), State {
+                State {
                     next_error: Some(Box::new(e)),
                     backtrace: backtrace,
-                })
+                }
             };
             #[cfg(not(feature = "backtrace"))]
-            let error = CE::new(callback().into(), State {
+            let state = State {
                 next_error: Some(Box::new(e)),
-            });
-            error
+            };
+            CE::new(callback().into(), state)
         })
     }
 }
