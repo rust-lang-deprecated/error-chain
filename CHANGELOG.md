@@ -1,3 +1,7 @@
+# 0.6.1
+
+- Fix wrong trait constraint in ResultExt implementation (#66).
+
 # 0.6.0
 
 - Conditional compilation for error variants.
