@@ -249,7 +249,7 @@ fn chain_err() {
     }
 
     let _: Result<()> = Err(fmt::Error).chain_err(|| "");
-    let _: Result<()> = Err(ErrorKind::Test).chain_err(|| "");
+    let _: Result<()> = Err(Error::from_kind(ErrorKind::Test)).chain_err(|| "");
 }
 
 #[test]

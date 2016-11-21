@@ -3,6 +3,10 @@
 - New `Variant(Error) #[attrs]` for `links` and `foreign_links`.
 - Hide implementation details from the doc.
 
+# 0.6.1
+
+- Fix wrong trait constraint in ResultExt implementation (#66).
+
 # 0.6.0
 
 - Conditional compilation for error variants.

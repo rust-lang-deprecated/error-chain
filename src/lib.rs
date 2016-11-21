@@ -330,12 +330,11 @@ pub trait ResultExt<T, E, CE: ChainedError> {
         EK: Into<CE::ErrorKind>;
 }
 
-impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: Into<CE> {
+impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: error::Error + Send + 'static {
     fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
         EK: Into<CE::ErrorKind> {
         self.map_err(move |e| {
-            let e = e.into();
             #[cfg(feature = "backtrace")]
             let state = {
                 let backtrace = CE::extract_backtrace(&e)
