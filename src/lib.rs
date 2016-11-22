@@ -327,11 +327,11 @@ pub trait ResultExt<T, E, CE: ChainedError> {
         EK: Into<CE::ErrorKind>;
 }
 
-impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: error::Error + Send + 'static {
+impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: CausedError<CE> {
     fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
         EK: Into<CE::ErrorKind> {
-        self.map_err(move |e| {
+        self.map_err(|e| {
             e.caused_err(callback)
         })
     }
