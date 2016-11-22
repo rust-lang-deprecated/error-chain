@@ -269,7 +269,7 @@ pub type Backtrace = ();
 mod quick_error;
 #[macro_use]
 mod error_chain;
-#[cfg(feature = "example_generated")]
+#[cfg(feature = "example-generated")]
 pub mod example_generated;
 
 /// Iterator over the error chain using the `Error::cause()` method.
@@ -320,18 +320,18 @@ pub trait ChainedError: error::Error + Send + 'static {
 }
 
 /// Additionnal methods for `Result`, for easy interaction with this crate.
-pub trait ResultExt<T, E, CE: ChainedError> {
+pub trait ResultExt<T, E> {
     /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
     /// which returns *some type that can be converted to `ErrorKind`*, boxes
     /// the original error to store as the cause, then returns a new error
     /// containing the original error.
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
+    fn chain_err<F, EK, CE: ChainedError>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
         EK: Into<CE::ErrorKind>;
 }
 
-impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: error::Error + Send + 'static {
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
+impl<T, E> ResultExt<T, E> for Result<T, E> where E: error::Error + Send + 'static {
+    fn chain_err<F, EK, CE: ChainedError>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
         EK: Into<CE::ErrorKind> {
         self.map_err(move |e| {

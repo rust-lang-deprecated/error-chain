@@ -15,8 +15,9 @@ repository = "https://github.com/brson/error-chain"
 license = "MIT/Apache-2.0"
 
 [features]
-default = ["backtrace", "example_generated"]
-example_generated = []
+default = ["backtrace", "example-generated"]
+example-generated = []
+boxed-error = []
 
 [dependencies]
 backtrace = { version = "0.3", optional = true }
