@@ -437,3 +437,13 @@ fn documentation() {
         }
     }
 }
+
+#[cfg(test)]
+mod multiple_error_same_mod {
+    error_chain! {
+        types {
+            MyError, MyErrorKind, MyResult;
+        }
+    }
+    error_chain! {}
+}
