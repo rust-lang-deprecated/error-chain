@@ -21,6 +21,13 @@ provides a few unique features:
 
 See the [quickstart example](examples/quickstart.rs).
 
+## Features
+
+- `backtrace`: generates backtraces on error creation.
+- `boxed-error`: the error is boxed (see #44).
+- `example-generated`: generates the example in the documentation (should be
+  disabled).
+
 ## License
 
 MIT/Apache-2.0

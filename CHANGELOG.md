@@ -2,6 +2,7 @@
 
 - New `Variant(Error) #[attrs]` for `links` and `foreign_links`.
 - Hide implementation details from the doc.
+- Add `boxed-error` feature (#69).
 
 # 0.6.1
 
