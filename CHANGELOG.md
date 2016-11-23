@@ -2,6 +2,7 @@
 
 - New `Variant(Error) #[attrs]` for `links` and `foreign_links`.
 - Hide implementation details from the doc.
+- Always generate `Error::backtrace`.
 
 # 0.6.1
 
