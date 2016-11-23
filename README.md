@@ -19,7 +19,7 @@ provides a few unique features:
 
 ## Quick start
 
-See https://github.com/brson/error-chain/blob/master/examples/quickstart.rs.
+See the [quickstart example](examples/quickstart.rs).
 
 ## License
 
