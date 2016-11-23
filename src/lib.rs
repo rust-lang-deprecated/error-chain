@@ -319,40 +319,53 @@ pub trait ChainedError: error::Error + Send + 'static {
         -> Option<Option<Arc<Backtrace>>>;
 }
 
-/// Additionnal methods for `Result`, for easy interaction with this crate.
+/// Convenient wrapper around `CausedError`.
 pub trait ResultExt<T, E, CE: ChainedError> {
-    /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
-    /// which returns *some type that can be converted to `ErrorKind`*, boxes
-    /// the original error to store as the cause, then returns a new error
-    /// containing the original error.
+    /// Apply `CausedError::caused_err` to the `Err` variant.
     fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
         EK: Into<CE::ErrorKind>;
 }
 
-impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: error::Error + Send + 'static {
+impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: CausedError<CE> {
     fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
         where F: FnOnce() -> EK,
         EK: Into<CE::ErrorKind> {
-        self.map_err(move |e| {
-            #[cfg(feature = "backtrace")]
-            let state = {
-                let backtrace = CE::extract_backtrace(&e)
-                                  .unwrap_or_else(make_backtrace);
-                State {
-                    next_error: Some(Box::new(e)),
-                    backtrace: backtrace,
-                }
-            };
-            #[cfg(not(feature = "backtrace"))]
-            let state = State {
-                next_error: Some(Box::new(e)),
-            };
-            CE::new(callback().into(), state)
+        self.map_err(|e| {
+            e.caused_err(callback)
         })
     }
 }
 
+/// This trait is implemented for types that can be added in an `Error`.
+pub trait CausedError<CE: ChainedError> {
+    /// Creates a new `ChainedError` with the specified kind and `self` as the
+    /// next error in the chain.
+    fn caused_err<F, EK>(self, callback: F) -> CE
+        where F: FnOnce() -> EK,
+        EK: Into<CE::ErrorKind>;
+}
+
+impl<CE, E> CausedError<CE> for E
+where CE: ChainedError, E: error::Error + Send + 'static {
+    fn caused_err<F, EK>(self, callback: F) -> CE
+        where F: FnOnce() -> EK, EK: Into<CE::ErrorKind> {
+        #[cfg(feature = "backtrace")]
+        let state = {
+            let backtrace = CE::extract_backtrace(&self)
+                              .unwrap_or_else(make_backtrace);
+            State {
+                next_error: Some(Box::new(self)),
+                backtrace: backtrace,
+            }
+        };
+        #[cfg(not(feature = "backtrace"))]
+        let state = State {
+            next_error: Some(Box::new(self)),
+        };
+        CE::new(callback().into(), state)
+    }
+}
 
 /// Common state between errors.
 #[derive(Debug)]

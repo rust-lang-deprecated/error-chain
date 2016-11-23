@@ -437,3 +437,12 @@ fn documentation() {
         }
     }
 }
+
+#[test]
+fn caused_err() {
+    use error_chain::CausedError;
+
+    error_chain! {}
+
+    let _: Error = ::std::fmt::Error.caused_err(|| "test");
+}
