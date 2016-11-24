@@ -316,7 +316,7 @@ pub trait ChainedError: error::Error + Send + 'static {
     #[cfg(feature = "backtrace")]
     #[doc(hidden)]
     fn extract_backtrace(e: &(error::Error + Send + 'static))
-        -> Option<Option<Arc<Backtrace>>>;
+        -> Option<Arc<Backtrace>>;
 }
 
 /// Additionnal methods for `Result`, for easy interaction with this crate.
@@ -338,7 +338,7 @@ impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: e
             #[cfg(feature = "backtrace")]
             let state = {
                 let backtrace = CE::extract_backtrace(&e)
-                                  .unwrap_or_else(make_backtrace);
+                                   .or_else(make_backtrace);
                 State {
                     next_error: Some(Box::new(e)),
                     backtrace: backtrace,

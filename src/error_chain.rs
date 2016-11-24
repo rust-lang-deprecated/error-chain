@@ -330,15 +330,15 @@ macro_rules! impl_extract_backtrace {
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
         fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
-            -> Option<Option<::std::sync::Arc<$crate::Backtrace>>> {
+            -> Option<::std::sync::Arc<$crate::Backtrace>> {
             if let Some(e) = e.downcast_ref::<$error_name>() {
-                return Some(e.state.backtrace.clone());
+                return e.state.backtrace.clone();
             }
             $(
                 $( #[$meta_links] )*
                 {
                     if let Some(e) = e.downcast_ref::<$link_error_path>() {
-                        return Some(e.state.backtrace.clone());
+                        return e.state.backtrace.clone();
                     }
                 }
             ) *
