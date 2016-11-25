@@ -4,6 +4,10 @@
 - Hide implementation details from the doc.
 - Always generate `Error::backtrace`.
 
+# 0.6.2
+
+- Allow dead code.
+
 # 0.6.1
 
 - Fix wrong trait constraint in ResultExt implementation (#66).

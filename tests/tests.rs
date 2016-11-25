@@ -447,3 +447,9 @@ mod multiple_error_same_mod {
     }
     error_chain! {}
 }
+
+#[doc(test)]
+#[deny(dead_code)]
+mod allow_dead_code {
+    error_chain! {}
+}
