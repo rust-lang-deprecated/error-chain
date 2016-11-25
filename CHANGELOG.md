@@ -1,3 +1,7 @@
+# 0.6.2
+
+- Allow dead code.
+
 # 0.6.1
 
 - Fix wrong trait constraint in ResultExt implementation (#66).

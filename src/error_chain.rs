@@ -63,6 +63,7 @@ macro_rules! error_chain_processed {
                     $error_kind_name
                     $([$link_error_path, $(#[$meta_links])*])*);
 
+        #[allow(dead_code)]
         impl $error_name {
             /// Constructs an error from a kind.
             pub fn from_kind(kind: $error_kind_name) -> $error_name {
@@ -303,6 +304,7 @@ macro_rules! impl_error {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
+        #[allow(dead_code)]
         impl $error_name {
             /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {

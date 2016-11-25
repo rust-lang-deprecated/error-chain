@@ -437,3 +437,9 @@ fn documentation() {
         }
     }
 }
+
+#[doc(test)]
+#[deny(dead_code)]
+mod allow_dead_code {
+    error_chain! {}
+}
