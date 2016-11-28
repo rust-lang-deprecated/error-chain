@@ -255,6 +255,7 @@
 extern crate backtrace;
 
 use std::error;
+use std::fmt;
 use std::iter::Iterator;
 #[cfg(feature = "backtrace")]
 use std::sync::Arc;
@@ -271,6 +272,109 @@ mod quick_error;
 mod error_chain;
 #[cfg(feature = "example_generated")]
 pub mod example_generated;
+
+pub trait ErrorKind: fmt::Display + fmt::Debug + Send + 'static {
+    fn description(&self) -> &str;
+}
+
+pub trait IntoChained<Kind> {
+    fn into_raw(self) -> (Kind, Option<State>);
+}
+
+/// po
+#[derive(Debug)]
+pub struct Error<Kind: ErrorKind> {
+    kind: Kind,
+    state: State,
+}
+
+impl<Kind: ErrorKind> IntoChained<Kind> for Error<Kind> {
+    fn into_raw(self) -> (Kind, Option<State>) {
+        (self.kind, Some(self.state))
+    }
+}
+
+impl<Kind: ErrorKind, IC: IntoChained<Kind>> From<IC> for Error<Kind> {
+
+}
+
+impl<Kind: ErrorKind> ChainedError for Error<Kind> {
+    type ErrorKind = Kind;
+
+    fn new(kind: Kind, state: State) -> Self {
+        Error {
+            kind: kind,
+            state: state,
+        }
+    }
+
+    fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
+        -> Option<Arc<Backtrace>> {
+        if let Some(e) = e.downcast_ref::<Self>() {
+            return e.state.backtrace.clone();
+        }
+        //$(
+        //    $( #[$meta_links] )*
+        //    {
+        //        if let Some(e) = e.downcast_ref::<$link_error_path>() {
+        //            return e.state.backtrace.clone();
+        //        }
+        //    }
+        //) *
+        None
+    }
+}
+
+impl<Kind: ErrorKind> Error<Kind> {
+    /// Constructs an error from a kind, and generates a backtrace.
+    pub fn from_kind(kind: Kind) -> Self {
+        Self::new(kind, State::default())
+    }
+
+    /// Returns the kind of the error.
+    pub fn kind(&self) -> &Kind {
+        &self.kind
+    }
+
+    /// Iterates over the error chain.
+    pub fn iter(&self) -> ErrorChainIter {
+        ErrorChainIter(Some(self))
+    }
+
+    /// Returns the backtrace associated with this error.
+    pub fn backtrace(&self) -> Option<&Backtrace> {
+        self.state.backtrace()
+    }
+}
+
+impl<Kind: ErrorKind> ::std::error::Error for Error<Kind> {
+    fn description(&self) -> &str {
+        self.kind.description()
+    }
+
+    fn cause(&self) -> Option<&::std::error::Error> {
+        match self.state.next_error {
+            Some(ref c) => Some(&**c),
+            None => {
+                match self.kind {
+                    //$(
+                    //    $(#[$meta_foreign_links])*
+                    //    $error_kind_name::$foreign_link_variant(ref foreign_err) => {
+                    //        foreign_err.cause()
+                    //    }
+                    //) *
+                    _ => None
+                }
+            }
+        }
+    }
+}
+
+impl<Kind: ErrorKind> fmt::Display for Error<Kind> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.kind, f)
+    }
+}
 
 /// Iterator over the error chain using the `Error::cause()` method.
 pub struct ErrorChainIter<'a>(pub Option<&'a error::Error>);
