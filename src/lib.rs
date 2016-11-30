@@ -100,7 +100,7 @@
 //!     //
 //!     // This section can be empty.
 //!     links {
-//!         Another(other_error::Error) #[cfg(unix)];
+//!         Another(other_error::Error, other_error::ErrorKind) #[cfg(unix)];
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -372,4 +372,9 @@ impl State {
         let b = None;
         b
     }
+}
+
+#[doc(hidden)]
+pub mod mock {
+    error_chain! { }
 }

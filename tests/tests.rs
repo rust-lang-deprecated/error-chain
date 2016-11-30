@@ -259,7 +259,7 @@ fn links() {
 
     error_chain! {
         links {
-            Test(test::Error);
+            Test(test::Error, test::ErrorKind);
         }
     }
 }
@@ -381,7 +381,7 @@ mod attributes_test {
         }
 
         links {
-            Inner(inner::Error) #[cfg(not(test))];
+            Inner(inner::Error, inner::ErrorKind) #[cfg(not(test))];
         }
 
         foreign_links {
@@ -425,7 +425,7 @@ fn documentation() {
 
     error_chain! {
         links {
-            Inner(inner::Error) #[doc = "Doc"];
+            Inner(inner::Error, inner::ErrorKind) #[doc = "Doc"];
         }
         foreign_links {
             Io(::std::io::Error) #[doc = "Doc"];
@@ -451,4 +451,22 @@ mod multiple_error_same_mod {
 #[deny(dead_code)]
 mod allow_dead_code {
     error_chain! {}
+}
+
+// Make sure links actually work!
+#[test]
+fn rustup_regression() {
+    error_chain! {
+        links {
+            Download(error_chain::mock::Error, error_chain::mock::ErrorKind);
+        }
+
+        foreign_links { }
+
+        errors {
+            LocatingWorkingDir {
+                description("could not locate working directory")
+            }
+        }
+    }
 }

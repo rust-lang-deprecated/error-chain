@@ -39,7 +39,7 @@ macro_rules! error_chain_processed {
         }
 
         links {
-            $( $link_variant:ident ( $link_error_path:path )
+            $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path )
                $( #[$meta_links:meta] )*; ) *
         }
 
@@ -204,7 +204,7 @@ macro_rules! error_chain_processed {
 
                 $(
                     $(#[$meta_links])*
-                    $link_variant(e: <$link_error_path as $crate::ChainedError>::ErrorKind) {
+                    $link_variant(e: $link_kind_path) {
                         description(e.description())
                         display("{}", e)
                     }
@@ -224,8 +224,8 @@ macro_rules! error_chain_processed {
 
         $(
             $(#[$meta_links])*
-            impl From<<$link_error_path as $crate::ChainedError>::ErrorKind> for $error_kind_name {
-                fn from(e: <$link_error_path as $crate::ChainedError>::ErrorKind) -> Self {
+            impl From<$link_kind_path> for $error_kind_name {
+                fn from(e: $link_kind_path) -> Self {
                     $error_kind_name::$link_variant(e)
                 }
             }
