@@ -201,7 +201,6 @@
 //! # error_chain! {}
 //! # fn do_something() -> Result<()> { unimplemented!() }
 //! # fn test() -> Result<()> {
-//! use error_chain::ResultExt;
 //! let res: Result<()> = do_something().chain_err(|| "something went wrong");
 //! # Ok(())
 //! # }
@@ -319,41 +318,6 @@ pub trait ChainedError: error::Error + Send + 'static {
         -> Option<Arc<Backtrace>>;
 }
 
-/// Additionnal methods for `Result`, for easy interaction with this crate.
-pub trait ResultExt<T, E, CE: ChainedError> {
-    /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
-    /// which returns *some type that can be converted to `ErrorKind`*, boxes
-    /// the original error to store as the cause, then returns a new error
-    /// containing the original error.
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
-        where F: FnOnce() -> EK,
-        EK: Into<CE::ErrorKind>;
-}
-
-impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: error::Error + Send + 'static {
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
-        where F: FnOnce() -> EK,
-        EK: Into<CE::ErrorKind> {
-        self.map_err(move |e| {
-            #[cfg(feature = "backtrace")]
-            let state = {
-                let backtrace = CE::extract_backtrace(&e)
-                                   .or_else(make_backtrace);
-                State {
-                    next_error: Some(Box::new(e)),
-                    backtrace: backtrace,
-                }
-            };
-            #[cfg(not(feature = "backtrace"))]
-            let state = State {
-                next_error: Some(Box::new(e)),
-            };
-            CE::new(callback().into(), state)
-        })
-    }
-}
-
-
 /// Common state between errors.
 #[derive(Debug)]
 #[doc(hidden)]
@@ -381,6 +345,25 @@ impl Default for State {
 }
 
 impl State {
+    /// Creates a new State type
+    pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
+        #[cfg(feature = "backtrace")]
+        let state = {
+            let backtrace = CE::extract_backtrace(&*e)
+                .or_else(make_backtrace);
+            State {
+                next_error: Some(e),
+                backtrace: backtrace,
+            }
+        };
+        #[cfg(not(feature = "backtrace"))]
+        let state = State {
+            next_error: Some(e),
+        };
+
+        state
+    }
+    
     /// Returns the inner backtrace if present.
     pub fn backtrace(&self) -> Option<&Backtrace> {
         #[cfg(feature = "backtrace")]

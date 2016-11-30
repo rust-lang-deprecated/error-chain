@@ -8,7 +8,7 @@ macro_rules! error_chain_processed {
     ) => {
         error_chain_processed! {
             types {
-                Error, ErrorKind, Result;
+                Error, ErrorKind, ResultExt, Result;
             }
             $( $rest )*
         }
@@ -16,13 +16,15 @@ macro_rules! error_chain_processed {
     // With `Result` wrapper.
     (
         types {
-            $error_name:ident, $error_kind_name:ident, $result_name:ident;
+            $error_name:ident, $error_kind_name:ident,
+            $result_ext_name:ident, $result_name:ident;
         }
         $( $rest: tt )*
     ) => {
         error_chain_processed! {
             types {
-                $error_name, $error_kind_name;
+                $error_name, $error_kind_name,
+                $result_ext_name;
             }
             $( $rest )*
         }
@@ -32,7 +34,8 @@ macro_rules! error_chain_processed {
     // Without `Result` wrapper.
     (
         types {
-            $error_name:ident, $error_kind_name:ident;
+            $error_name:ident, $error_kind_name:ident,
+            $result_ext_name:ident;
         }
 
         links {
@@ -50,8 +53,6 @@ macro_rules! error_chain_processed {
         }
 
     ) => {
-        pub use $crate::ResultExt;
-
         /// The Error type.
         ///
         /// This struct is made of three things:
@@ -247,6 +248,32 @@ macro_rules! error_chain_processed {
                 e.0
             }
         }
+
+        // The ResultExt trait defines the `chain_err` method.
+
+        /// Additionnal methods for `Result`, for easy interaction with this crate.
+        pub trait $result_ext_name<T, E> {
+            /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
+            /// which returns *some type that can be converted to `ErrorKind`*, boxes
+            /// the original error to store as the cause, then returns a new error
+            /// containing the original error.
+            fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
+                where F: FnOnce() -> EK,
+                      EK: Into<$error_kind_name>;
+        }
+
+        impl<T, E> $result_ext_name<T, E> for ::std::result::Result<T, E> where E: ::std::error::Error + Send + 'static {
+            fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
+                where F: FnOnce() -> EK,
+                      EK: Into<$error_kind_name> {
+                self.map_err(move |e| {
+                    let state = $crate::State::new::<$error_name>(Box::new(e), );
+                    $crate::ChainedError::new(callback().into(), state)
+                })
+            }
+        }
+
+
     };
 }
 

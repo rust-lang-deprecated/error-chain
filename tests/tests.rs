@@ -237,7 +237,6 @@ fn has_backtrace_depending_on_env() {
 #[test]
 fn chain_err() {
     use std::fmt;
-    use error_chain::ResultExt;
 
     error_chain! {
         foreign_links {
@@ -310,7 +309,7 @@ mod foreign_link_test {
 
     error_chain! {
         types{
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
         links {}
         foreign_links {
@@ -402,7 +401,7 @@ mod attributes_test {
 fn with_result() {
     error_chain! {
         types {
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
     }
     let _: Result<()> = Ok(());
@@ -412,7 +411,7 @@ fn with_result() {
 fn without_result() {
     error_chain! {
         types {
-            Error, ErrorKind;
+            Error, ErrorKind, ResultExt;
         }
     }
     let _: Result<(), ()> = Ok(());
