@@ -191,6 +191,30 @@
 //! }
 //! ```
 //!
+//! ## The `bail!` early retun macro
+//!
+//! The above method of introducing new errors works but is a little
+//! verbose. Instead we can use the `bail!` macro, which, much like `try!`
+//! and `?`, performs an early return with conversions. With `bail!` the
+//! previous examples look like:
+//!
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! # error_chain! { errors { FooError } }
+//! fn foo() -> Result<()> {
+//!     bail!(ErrorKind::FooError);
+//!
+//!     Ok(())
+//! }
+//!
+//! fn bar() -> Result<()> {
+//!     bail!("bogus!");
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
 //! ## Chaining errors
 //!
 //! To extend the error chain:
@@ -428,6 +452,82 @@ impl State {
         let b = None;
         b
     }
+}
+
+/// Exits a function early with an error
+///
+/// The `bail!` macro provides an easy way to exit a function.
+/// `bail!(expr)` is equivalent to writing.
+///
+/// ```
+/// # #[macro_use] extern crate error_chain;
+/// # error_chain! { }
+/// # fn main() { }
+/// # fn foo() -> Result<()> {
+/// # let expr = "";
+///     return Err(expr.into());
+/// # }
+/// ```
+///
+/// And as shorthand it takes a formatting string ala `println!`:
+///
+/// ```
+/// # #[macro_use] extern crate error_chain;
+/// # error_chain! { }
+/// # fn main() { }
+/// # fn foo() -> Result<()> {
+/// # let n = 0;
+/// bail!("bad number: {}", n);
+/// # }
+/// ```
+///
+/// # Examples
+///
+/// Bailing on a custom error:
+///
+/// ```
+/// # #[macro_use] extern crate error_chain;
+/// # fn main() {}
+/// error_chain! {
+///     errors { FooError }
+/// }
+///
+/// fn foo() -> Result<()> {
+///     if bad_condition() {
+///         bail!(ErrorKind::FooError);
+///     }
+///
+///     Ok(())
+/// }
+///
+/// # fn bad_condition() -> bool { true }
+/// ```
+///
+/// Bailing on a formatted string:
+///
+/// ```
+/// # #[macro_use] extern crate error_chain;
+/// # fn main() {}
+/// error_chain! { }
+///
+/// fn foo() -> Result<()> {
+///     if let Some(bad_num) = bad_condition() {
+///         bail!("so bad: {}", bad_num);
+///     }
+///
+///     Ok(())
+/// }
+///
+/// # fn bad_condition() -> Option<i8> { None }
+/// ```
+#[macro_export]
+macro_rules! bail {
+    ($e:expr) => {
+        return Err($e.into());
+    };
+    ($fmt:expr, $($arg:tt)+) => {
+        return Err(format!($fmt, $($arg)+).into());
+    };
 }
 
 #[doc(hidden)]

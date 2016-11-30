@@ -504,3 +504,22 @@ fn error_first() {
         foreign_links { }
     }
 }
+
+#[test]
+fn bail() {
+    error_chain! {
+        errors { Foo }
+    }
+
+    fn foo() -> Result<()> {
+        Ok(bail!(ErrorKind::Foo))
+    }
+
+    fn bar() -> Result<()> {
+        Ok(bail!("bar"))
+    }
+
+    fn baz() -> Result<()> {
+        Ok(bail!("{}", "baz"))
+    }
+}
