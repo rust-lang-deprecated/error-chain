@@ -31,11 +31,11 @@
 //!   optional, boxed `std::error::Error + Send + 'static` object
 //!   (which defines the `cause`, and establishes the links in the
 //!   error chain), and a `Backtrace`.
-//! * This crate additionally defines the  trait `ResultExt`
-//!   that defines a `chain_err` method. This method
-//!   on all `std::error::Error + Send + 'static` types extends
-//!   the error chain by boxing the current error into an opaque
-//!   object and putting it inside a new concrete error.
+//! * The macro also defines a `ResultExt` trait that defines a
+//!   `chain_err` method. This method on all `std::error::Error + Send
+//!   + 'static` types extends the error chain by boxing the current
+//!   error into an opaque object and putting it inside a new concrete
+//!   error.
 //! * It provides automatic `From` conversions between other error types
 //!   defined by the `error_chain!` that preserve type information,
 //!   and facilitate seamless error composition and matching of composed
@@ -49,10 +49,10 @@
 //! To accomplish its goals it makes some tradeoffs:
 //!
 //! * The split between the `Error` and `ErrorKind` types can make it
-//!   slightly more cumbersome to instantiate new (unchained) errors
-//!   errors, requiring an `Into` or `From` conversion; as well as
-//!   slightly more cumbersome to match on errors with another layer
-//!   of types to match.
+//!   slightly more cumbersome to instantiate new (unchained) errors,
+//!   requiring an `Into` or `From` conversion; as well as slightly
+//!   more cumbersome to match on errors with another layer of types
+//!   to match.
 //! * Because the error type contains `std::error::Error + Send + 'static` objects,
 //!   it can't implement `PartialEq` for easy comparisons.
 //!
@@ -81,13 +81,13 @@
 //!     // It is also possible to leave this block out entirely, or
 //!     // leave it empty, and these names will be used automatically.
 //!     types {
-//!         Error, ErrorKind, Result;
+//!         Error, ErrorKind, ResultExt, Result;
 //!     }
 //!
 //!     // Without the `Result` wrapper:
 //!     //
 //!     // types {
-//!     //     Error, ErrorKind;
+//!     //     Error, ErrorKind, ResultExt;
 //!     // }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -100,7 +100,7 @@
 //!     //
 //!     // This section can be empty.
 //!     links {
-//!         Another(other_error::Error) #[cfg(unix)];
+//!         Another(other_error::Error, other_error::ErrorKind) #[cfg(unix)];
 //!     }
 //!
 //!     // Automatic conversions between this error chain and other
@@ -201,7 +201,6 @@
 //! # error_chain! {}
 //! # fn do_something() -> Result<()> { unimplemented!() }
 //! # fn test() -> Result<()> {
-//! use error_chain::ResultExt;
 //! let res: Result<()> = do_something().chain_err(|| "something went wrong");
 //! # Ok(())
 //! # }
@@ -213,6 +212,62 @@
 //! which returns *some type that can be converted to `ErrorKind`*,
 //! boxes the original error to store as the cause, then returns a new
 //! error containing the original error.
+//!
+//! ## Matching errors
+//!
+//! error-chain error variants are matched with simple patterns.
+//! `Error` is a tuple struct and it's first field is the `ErrorKind`,
+//! making dispactching on error kinds relatively compact:
+//!
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {
+//! error_chain! {
+//!     errors {
+//!         InvalidToolchainName(t: String) {
+//!             description("invalid toolchain name")
+//!             display("invalid toolchain name: '{}'", t)
+//!         }
+//!     }
+//! }
+//!
+//! match Error::from("error!") {
+//!     Error(ErrorKind::InvalidToolchainName(_), _) => { }
+//!     Error(ErrorKind::Msg(_), _) => { }
+//! }
+//! # }
+//! ```
+//!
+//! Chained errors are also matched with (relatively) compact syntax
+//!
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! mod utils {
+//!     error_chain! {
+//!         errors {
+//!             BadStuff {
+//!                 description("bad stuff")
+//!             }
+//!         }
+//!     }
+//! }
+//!
+//! mod app {
+//!     error_chain! {
+//!         links {
+//!             Utils(::utils::Error, ::utils::ErrorKind);
+//!         }
+//!     }
+//! }
+//!
+//!
+//! # fn main() {
+//! match app::Error::from("error!") {
+//!     app::Error(app::ErrorKind::Utils(utils::ErrorKind::BadStuff), _) => { }
+//!     _ => { }
+//! }
+//! # }
+//! ```
 //!
 //! ## Foreign links
 //!
@@ -319,41 +374,6 @@ pub trait ChainedError: error::Error + Send + 'static {
         -> Option<Arc<Backtrace>>;
 }
 
-/// Additionnal methods for `Result`, for easy interaction with this crate.
-pub trait ResultExt<T, E, CE: ChainedError> {
-    /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
-    /// which returns *some type that can be converted to `ErrorKind`*, boxes
-    /// the original error to store as the cause, then returns a new error
-    /// containing the original error.
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
-        where F: FnOnce() -> EK,
-        EK: Into<CE::ErrorKind>;
-}
-
-impl<T, E, CE> ResultExt<T, E, CE> for Result<T, E> where CE: ChainedError, E: error::Error + Send + 'static {
-    fn chain_err<F, EK>(self, callback: F) -> Result<T, CE>
-        where F: FnOnce() -> EK,
-        EK: Into<CE::ErrorKind> {
-        self.map_err(move |e| {
-            #[cfg(feature = "backtrace")]
-            let state = {
-                let backtrace = CE::extract_backtrace(&e)
-                                   .or_else(make_backtrace);
-                State {
-                    next_error: Some(Box::new(e)),
-                    backtrace: backtrace,
-                }
-            };
-            #[cfg(not(feature = "backtrace"))]
-            let state = State {
-                next_error: Some(Box::new(e)),
-            };
-            CE::new(callback().into(), state)
-        })
-    }
-}
-
-
 /// Common state between errors.
 #[derive(Debug)]
 #[doc(hidden)]
@@ -381,6 +401,25 @@ impl Default for State {
 }
 
 impl State {
+    /// Creates a new State type
+    pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
+        #[cfg(feature = "backtrace")]
+        let state = {
+            let backtrace = CE::extract_backtrace(&*e)
+                .or_else(make_backtrace);
+            State {
+                next_error: Some(e),
+                backtrace: backtrace,
+            }
+        };
+        #[cfg(not(feature = "backtrace"))]
+        let state = State {
+            next_error: Some(e),
+        };
+
+        state
+    }
+    
     /// Returns the inner backtrace if present.
     pub fn backtrace(&self) -> Option<&Backtrace> {
         #[cfg(feature = "backtrace")]
@@ -389,4 +428,9 @@ impl State {
         let b = None;
         b
     }
+}
+
+#[doc(hidden)]
+pub mod mock {
+    error_chain! { }
 }

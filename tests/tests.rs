@@ -237,7 +237,6 @@ fn has_backtrace_depending_on_env() {
 #[test]
 fn chain_err() {
     use std::fmt;
-    use error_chain::ResultExt;
 
     error_chain! {
         foreign_links {
@@ -260,7 +259,7 @@ fn links() {
 
     error_chain! {
         links {
-            Test(test::Error);
+            Test(test::Error, test::ErrorKind);
         }
     }
 }
@@ -310,7 +309,7 @@ mod foreign_link_test {
 
     error_chain! {
         types{
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
         links {}
         foreign_links {
@@ -382,7 +381,7 @@ mod attributes_test {
         }
 
         links {
-            Inner(inner::Error) #[cfg(not(test))];
+            Inner(inner::Error, inner::ErrorKind) #[cfg(not(test))];
         }
 
         foreign_links {
@@ -402,7 +401,7 @@ mod attributes_test {
 fn with_result() {
     error_chain! {
         types {
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
     }
     let _: Result<()> = Ok(());
@@ -412,7 +411,7 @@ fn with_result() {
 fn without_result() {
     error_chain! {
         types {
-            Error, ErrorKind;
+            Error, ErrorKind, ResultExt;
         }
     }
     let _: Result<(), ()> = Ok(());
@@ -426,7 +425,7 @@ fn documentation() {
 
     error_chain! {
         links {
-            Inner(inner::Error) #[doc = "Doc"];
+            Inner(inner::Error, inner::ErrorKind) #[doc = "Doc"];
         }
         foreign_links {
             Io(::std::io::Error) #[doc = "Doc"];
@@ -452,4 +451,56 @@ mod multiple_error_same_mod {
 #[deny(dead_code)]
 mod allow_dead_code {
     error_chain! {}
+}
+
+// Make sure links actually work!
+#[test]
+fn rustup_regression() {
+    error_chain! {
+        links {
+            Download(error_chain::mock::Error, error_chain::mock::ErrorKind);
+        }
+
+        foreign_links { }
+
+        errors {
+            LocatingWorkingDir {
+                description("could not locate working directory")
+            }
+        }
+    }
+}
+
+#[test]
+fn error_patterns() {
+    error_chain! {
+        links { }
+
+        foreign_links { }
+
+        errors { }
+    }
+
+    // Tuples look nice when matching errors
+    match Error::from("Test") {
+        Error(ErrorKind::Msg(_), _) => {
+        }
+    }
+}
+
+#[test]
+fn error_first() {
+    error_chain! {
+        errors {
+            LocatingWorkingDir {
+                description("could not locate working directory")
+            }
+        }
+
+        links {
+            Download(error_chain::mock::Error, error_chain::mock::ErrorKind);
+        }
+
+        foreign_links { }
+    }
 }
