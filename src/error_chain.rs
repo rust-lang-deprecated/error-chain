@@ -50,6 +50,8 @@ macro_rules! error_chain_processed {
         }
 
     ) => {
+        pub use $crate::ResultExt;
+
         /// The Error type.
         ///
         /// This struct is made of three things:
