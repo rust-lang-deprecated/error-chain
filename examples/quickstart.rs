@@ -1,4 +1,4 @@
-// This macro use recursion a lot.
+// This macro uses recursion a lot.
 #![recursion_limit = "1024"]
 
 // Import of the macro. Don't forget to add `error-chain = "*"` in your

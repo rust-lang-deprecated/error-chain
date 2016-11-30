@@ -487,3 +487,20 @@ fn error_patterns() {
         }
     }
 }
+
+#[test]
+fn error_first() {
+    error_chain! {
+        errors {
+            LocatingWorkingDir {
+                description("could not locate working directory")
+            }
+        }
+
+        links {
+            Download(error_chain::mock::Error, error_chain::mock::ErrorKind);
+        }
+
+        foreign_links { }
+    }
+}
