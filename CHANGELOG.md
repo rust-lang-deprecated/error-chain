@@ -1,6 +1,9 @@
-# 0.7.0
+# 0.7.1
 
 - [Add the `bail!` macro](https://github.com/brson/error-chain/pull/76)
+
+# 0.7.0
+
 - [Rollback several design changes to fix regressions](https://github.com/brson/error-chain/pull/75)
 - New `Variant(Error) #[attrs]` for `links` and `foreign_links`.
 - Hide implementation details from the doc.
