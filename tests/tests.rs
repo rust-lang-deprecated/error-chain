@@ -470,3 +470,20 @@ fn rustup_regression() {
         }
     }
 }
+
+#[test]
+fn error_patterns() {
+    error_chain! {
+        links { }
+
+        foreign_links { }
+
+        errors { }
+    }
+
+    // Tuples look nice when matching errors
+    match Error::from("Test") {
+        Error(ErrorKind::Msg(_), _) => {
+        }
+    }
+}
