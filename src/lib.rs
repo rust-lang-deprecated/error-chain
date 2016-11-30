@@ -16,6 +16,15 @@
 //! * Errors implement Send.
 //! * Errors can carry backtraces.
 //!
+//! ## Quick start
+//!
+//! If you just want to set up your new project with error-chain,
+//! follow the [quickstart.rs] template.
+//!
+//! [quickstart.rs]: https://github.com/brson/error-chain/blob/master/examples/quickstart.rs.
+//!
+//! ## error-chain design principles
+//!
 //! Similar to other libraries like [error-type] and [quick-error], this
 //! library defines a macro, `error_chain!` that declares the types
 //! and implementation boilerplate necessary for fulfilling a
@@ -55,10 +64,6 @@
 //!   to match.
 //! * Because the error type contains `std::error::Error + Send + 'static` objects,
 //!   it can't implement `PartialEq` for easy comparisons.
-//!
-//! ## Quick start
-//!
-//! See https://github.com/brson/error-chain/blob/master/examples/quickstart.rs.
 //!
 //! ## Declaring error types
 //!
@@ -191,7 +196,7 @@
 //! }
 //! ```
 //!
-//! ## The `bail!` early retun macro
+//! ## The `bail!` macro
 //!
 //! The above method of introducing new errors works but is a little
 //! verbose. Instead we can use the `bail!` macro, which, much like `try!`
