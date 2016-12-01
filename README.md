@@ -4,14 +4,11 @@
 [![Latest Version](https://img.shields.io/crates/v/error-chain.svg)](https://crates.io/crates/error-chain)
 [![License](https://img.shields.io/github/license/brson/error-chain.svg)](https://github.com/brson/error-chain)
 
-`error-chain` is a crate for dealing with Rust error boilerplate. It
-provides a few unique features:
-
-* No error is ever discarded. This library primarily makes it easy to
-  "chain" errors with the `chain_err` method.
-* Introducing new errors is trivial. Simple errors can be introduced
-  at the error site with just a string.
-* Errors can create and propagate backtraces.
+`error-chain` makes it easy to take full advantage of Rust's error
+handling features without the overhead of maintaining boilerplate
+error types and conversions. It implements an opinionated strategy for
+defining your own error types, as well as conversions from others'
+error types.
 
 [Documentation (crates.io)](https://docs.rs/error-chain).
 
@@ -19,7 +16,12 @@ provides a few unique features:
 
 ## Quick start
 
-See the [quickstart example](examples/quickstart.rs).
+If you just want to set up your new project with error-chain,
+follow the [quickstart.rs] template, and read this [intro]
+to error-chain.
+
+[quickstart.rs]: https://github.com/brson/error-chain/blob/master/examples/quickstart.rs.
+[intro]: http://brson.github.io/2016/11/30/starting-with-error-chain
 
 ## License
 
