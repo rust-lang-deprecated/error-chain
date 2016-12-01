@@ -43,8 +43,8 @@
 //!   (which defines the `cause`, and establishes the links in the
 //!   error chain), and a `Backtrace`.
 //! * The macro also defines a `ResultExt` trait that defines a
-//!   `chain_err` method. This method on all `std::error::Error + Send
-//!   + 'static` types extends the error chain by boxing the current
+//!   `chain_err` method. This method on all `std::error::Error + Send + 'static`
+//!   types extends the error chain by boxing the current
 //!   error into an opaque object and putting it inside a new concrete
 //!   error.
 //! * It provides automatic `From` conversions between other error types
@@ -383,7 +383,7 @@ impl<'a> Iterator for ErrorChainIter<'a> {
 pub fn make_backtrace() -> Option<Arc<Backtrace>> {
     match std::env::var_os("RUST_BACKTRACE") {
         Some(ref val) if val != "0" => Some(Arc::new(Backtrace::new())),
-        _ => None
+        _ => None,
     }
 }
 
@@ -401,8 +401,7 @@ pub trait ChainedError: error::Error + Send + 'static {
     /// of the errors from `foreign_links`.
     #[cfg(feature = "backtrace")]
     #[doc(hidden)]
-    fn extract_backtrace(e: &(error::Error + Send + 'static))
-        -> Option<Arc<Backtrace>>;
+    fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<Arc<Backtrace>>;
 }
 
 /// Common state between errors.
@@ -424,9 +423,7 @@ impl Default for State {
             backtrace: make_backtrace(),
         };
         #[cfg(not(feature = "backtrace"))]
-        let state = State {
-            next_error: None,
-        };
+        let state = State { next_error: None };
         state
     }
 }
@@ -436,21 +433,18 @@ impl State {
     pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
         #[cfg(feature = "backtrace")]
         let state = {
-            let backtrace = CE::extract_backtrace(&*e)
-                .or_else(make_backtrace);
+            let backtrace = CE::extract_backtrace(&*e).or_else(make_backtrace);
             State {
                 next_error: Some(e),
                 backtrace: backtrace,
             }
         };
         #[cfg(not(feature = "backtrace"))]
-        let state = State {
-            next_error: Some(e),
-        };
+        let state = State { next_error: Some(e) };
 
         state
     }
-    
+
     /// Returns the inner backtrace if present.
     pub fn backtrace(&self) -> Option<&Backtrace> {
         #[cfg(feature = "backtrace")]
@@ -539,5 +533,5 @@ macro_rules! bail {
 
 #[doc(hidden)]
 pub mod mock {
-    error_chain! { }
+    error_chain!{}
 }
