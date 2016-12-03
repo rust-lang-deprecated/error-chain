@@ -78,6 +78,22 @@ macro_rules! error_chain_processed {
                 $error_name(kind, state)
             }
 
+            fn from_kind(kind: Self::ErrorKind) -> Self {
+                Self::from_kind(kind)
+            }
+
+            fn kind(&self) -> &Self::ErrorKind {
+                self.kind()
+            }
+
+            fn iter(&self) -> $crate::ErrorChainIter {
+                $crate::ErrorChainIter(Some(self))
+            }
+
+            fn backtrace(&self) -> Option<&$crate::Backtrace> {
+                self.backtrace()
+            }
+
             impl_extract_backtrace!($error_name
                                     $error_kind_name
                                     $([$link_error_path, $(#[$meta_links])*])*);
@@ -100,7 +116,7 @@ macro_rules! error_chain_processed {
 
             /// Iterates over the error chain.
             pub fn iter(&self) -> $crate::ErrorChainIter {
-                $crate::ErrorChainIter(Some(self))
+                $crate::ChainedError::iter(self)
             }
 
             /// Returns the backtrace associated with this error.

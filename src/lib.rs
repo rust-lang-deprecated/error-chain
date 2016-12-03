@@ -416,15 +416,28 @@ pub trait ChainedError: error::Error + Send + 'static {
     /// Associated kind type.
     type ErrorKind;
 
+    /// Constructs an error from a kind, and generates a backtrace.
+    fn from_kind(kind: Self::ErrorKind) -> Self where Self: Sized;
+
+    /// Returns the kind of the error.
+    fn kind(&self) -> &Self::ErrorKind;
+
+    /// Iterates over the error chain.
+    fn iter(&self) -> ErrorChainIter;
+
+    /// Returns the backtrace associated with this error.
+    fn backtrace(&self) -> Option<&Backtrace>;
+
     /// Creates an error from its parts.
     #[doc(hidden)]
-    fn new(kind: Self::ErrorKind, state: State) -> Self;
+    fn new(kind: Self::ErrorKind, state: State) -> Self where Self: Sized;
 
     /// Returns the first known backtrace, either from its State or from one
     /// of the errors from `foreign_links`.
     #[cfg(feature = "backtrace")]
     #[doc(hidden)]
-    fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<Arc<Backtrace>>;
+    fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<Arc<Backtrace>>
+        where Self: Sized;
 }
 
 /// Common state between errors.
