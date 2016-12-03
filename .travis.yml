@@ -1,5 +1,13 @@
-sudo: false
 language: rust
+rust:
+- stable
+- beta
+- nightly
+# Oldest supported version.
+# Use of https://github.com/rust-lang/rfcs/pull/16
+- 1.13.0
+
+sudo: false
 cache: cargo
 addons:
   apt:
@@ -7,11 +15,6 @@ addons:
     - libcurl4-openssl-dev
     - libelf-dev
     - libdw-dev
-
-rust:
-- stable
-- beta
-- nightly
 
 before_script:
 - |

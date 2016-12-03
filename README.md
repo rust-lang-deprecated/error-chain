@@ -23,6 +23,11 @@ to error-chain.
 [quickstart.rs]: https://github.com/brson/error-chain/blob/master/examples/quickstart.rs
 [intro]: http://brson.github.io/2016/11/30/starting-with-error-chain
 
+## Supported Rust version
+
+Please view the beginning of the [Travis configuration file](.travis.yml)
+to see the oldest supported Rust version.
+
 ## License
 
 MIT/Apache-2.0
