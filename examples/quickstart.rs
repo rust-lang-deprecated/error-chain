@@ -37,6 +37,11 @@ fn main() {
     }
 }
 
+// Use this macro to auto-generate the main above. You may want to
+// set the `RUST_BACKTRACE` env variable to see a backtrace.
+//quick_main!(run);
+
+
 // Most functions will return the `Result` type, imported from the
 // `errors` module. It is a typedef of the standard `Result` type
 // for which the error type is always our own `Error`.

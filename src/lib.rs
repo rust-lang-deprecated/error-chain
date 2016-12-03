@@ -378,6 +378,9 @@ pub type Backtrace = ();
 mod quick_error;
 #[macro_use]
 mod error_chain;
+#[macro_use]
+mod quick_main;
+pub use quick_main::ExitCode;
 #[cfg(feature = "example_generated")]
 pub mod example_generated;
 

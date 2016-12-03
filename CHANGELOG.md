@@ -1,3 +1,7 @@
+# Unreleased
+
+- Add `quick_main!` (#88).
+
 # 0.7.1
 
 - [Add the `bail!` macro](https://github.com/brson/error-chain/pull/76)
