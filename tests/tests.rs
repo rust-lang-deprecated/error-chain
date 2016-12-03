@@ -512,14 +512,14 @@ fn bail() {
     }
 
     fn foo() -> Result<()> {
-        Ok(bail!(ErrorKind::Foo))
+        bail!(ErrorKind::Foo)
     }
 
     fn bar() -> Result<()> {
-        Ok(bail!("bar"))
+        bail!("bar")
     }
 
     fn baz() -> Result<()> {
-        Ok(bail!("{}", "baz"))
+        bail!("{}", "baz")
     }
 }
