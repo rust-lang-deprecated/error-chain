@@ -251,7 +251,7 @@ macro_rules! error_chain_processed {
 
         // The ResultExt trait defines the `chain_err` method.
 
-        /// Additionnal methods for `Result`, for easy interaction with this crate.
+        /// Additional methods for `Result`, for easy interaction with this crate.
         pub trait $result_ext_name<T, E> {
             /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
             /// which returns *some type that can be converted to `ErrorKind`*, boxes

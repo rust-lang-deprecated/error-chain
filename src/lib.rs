@@ -19,7 +19,7 @@
 //!
 //! ## Why error chain?
 //!
-//! * error-chan is easy to configure. Handle errors robustly with minimal
+//! * error-chain is easy to configure. Handle errors robustly with minimal
 //!   effort.
 //! * Basic error handling requires no maintenance of custom error types
 //!   nor the `From` conversions that make `?` work.
@@ -270,7 +270,7 @@
 //!
 //! error-chain error variants are matched with simple patterns.
 //! `Error` is a tuple struct and it's first field is the `ErrorKind`,
-//! making dispactching on error kinds relatively compact:
+//! making dispatching on error kinds relatively compact:
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
@@ -337,7 +337,7 @@
 //! above all errors deriving from the `temp::Error` type will be
 //! presented to the user as a new `ErrorKind::Temp` variant, and the
 //! cause will be the original `temp::Error` error. In contrast, when
-//! `rustup_utils::Error` is converted to `Error` the two `ErrorKinds`
+//! `rustup_utils::Error` is converted to `Error` the two `ErrorKind`s
 //! are converted between each other to create a new `Error` but the
 //! old error is discarded; there is no "cause" created from the
 //! original error.
@@ -493,7 +493,7 @@ impl State {
 /// # }
 /// ```
 ///
-/// And as shorthand it takes a formatting string ala `println!`:
+/// And as shorthand it takes a formatting string a la `println!`:
 ///
 /// ```
 /// # #[macro_use] extern crate error_chain;
