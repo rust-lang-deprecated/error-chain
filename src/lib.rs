@@ -269,7 +269,7 @@
 //! ## Matching errors
 //!
 //! error-chain error variants are matched with simple patterns.
-//! `Error` is a tuple struct and it's first field is the `ErrorKind`,
+//! `Error` is a tuple struct and its first field is the `ErrorKind`,
 //! making dispatching on error kinds relatively compact:
 //!
 //! ```
@@ -416,11 +416,11 @@ pub trait ChainedError: error::Error + Send + 'static {
     /// Associated kind type.
     type ErrorKind;
 
-    /// Creates an error from it's parts.
+    /// Creates an error from its parts.
     #[doc(hidden)]
     fn new(kind: Self::ErrorKind, state: State) -> Self;
 
-    /// Returns the first known backtrace, either from it's State or from one
+    /// Returns the first known backtrace, either from its State or from one
     /// of the errors from `foreign_links`.
     #[cfg(feature = "backtrace")]
     #[doc(hidden)]
