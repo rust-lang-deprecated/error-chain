@@ -110,10 +110,10 @@
 //!     // It is also possible to leave this block out entirely, or
 //!     // leave it empty, and these names will be used automatically.
 //!     types {
-//!         Error, ErrorKind, ResultExt, Result;
+//!         Error, ErrorKind, ResultExt, Result, ChainMain;
 //!     }
 //!
-//!     // Without the `Result` wrapper:
+//!     // Without the `Result` and `ChainMain` wrappers:
 //!     //
 //!     // types {
 //!     //     Error, ErrorKind, ResultExt;
@@ -358,7 +358,21 @@
 //!
 //! [error-type]: https://github.com/DanielKeep/rust-error-type
 //! [quick-error]: https://github.com/tailhook/quick-error
-
+//!
+//! ## Writing `main()`
+//!
+//! The `ChainMain` helper trait provides a `chain_main()` method that makes it
+//! easy to define your `main()` function in terms of a `real_main()` returning
+//! a `Result`. This allows you to use `try!`, `?`, or `bail!` in `real_main()`.
+//! On error, `real_main().chain_main()` will print the error chain (and
+//! backtrace with `RUST_BACKTRACE=1`), and call `::std::process::exit(1)`.
+//!
+//! `real_main()` can return `Result<()>`, in which case
+//! `real_main().chain_main()` will exit with 0 on success. Or, `real_main()`
+//! can return `Result<i32>`, in which case `real_main().chain_main()` will exit
+//! with that value on success; this simplifies the implementation of programs
+//! like grep that indicate something more than an error with their exit code,
+//! such as not finding any matches.
 
 #[cfg(feature = "backtrace")]
 extern crate backtrace;

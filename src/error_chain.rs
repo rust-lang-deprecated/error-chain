@@ -8,9 +8,58 @@ macro_rules! error_chain_processed {
     ) => {
         error_chain_processed! {
             types {
-                Error, ErrorKind, ResultExt, Result;
+                Error, ErrorKind, ResultExt, Result, ChainMain;
             }
             $( $rest )*
+        }
+    };
+    // With `ChainMain` trait.
+    (
+        types {
+            $error_name:ident, $error_kind_name:ident,
+            $result_ext_name:ident, $result_name:ident,
+            $chain_main:ident;
+        }
+        $( $rest: tt )*
+    ) => {
+        error_chain_processed! {
+            types {
+                $error_name, $error_kind_name,
+                $result_ext_name, $result_name;
+            }
+            $( $rest )*
+        }
+        /// Trait for top-level `Result` types that provides a helper to implement `main()`.
+        pub trait $chain_main {
+            /// Helper to implement `main()` in terms of a `real_main()` that returns a `Result`
+            /// and can handle errors via `try!` and `?`. Call on the return value of
+            /// `real_main()`.  Calls `::std::process::exit` to exit the process, with exit code 1
+            /// on error. If called on a `Result<()>`, returns 0 on success; if called on a
+            /// `Result<i32>`, returns that value on success.
+            fn chain_main(self) -> !;
+        }
+
+        impl $chain_main for $result_name<i32> {
+            fn chain_main(self) -> ! {
+                ::std::process::exit(match self {
+                    Err(ref e) => {
+                        for e in e.iter() {
+                            println!("{}", e);
+                        }
+                        if let Some(backtrace) = e.backtrace() {
+                            println!("{:?}", backtrace);
+                        }
+                        1
+                    }
+                    Ok(ret) => ret,
+                })
+            }
+        }
+
+        impl $chain_main for $result_name<()> {
+            fn chain_main(self) -> ! {
+                self.and(Ok(0i32)).chain_main()
+            }
         }
     };
     // With `Result` wrapper.
