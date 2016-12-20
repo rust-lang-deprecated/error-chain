@@ -19,23 +19,26 @@ mod errors {
 
 use errors::*;
 
-fn main() {
-    if let Err(ref e) = run() {
-        println!("error: {}", e);
-
-        for e in e.iter().skip(1) {
-            println!("caused by: {}", e);
-        }
-
-        // The backtrace is not always generated. Try to run this example
-        // with `RUST_BACKTRACE=1`.
-        if let Some(backtrace) = e.backtrace() {
-            println!("backtrace: {:?}", backtrace);
-        }
-
-        ::std::process::exit(1);
-    }
-}
+fn main() {                                                                         
+    if let Err(ref e) = run() {                                                     
+        use ::std::io::Write;                                                       
+        let (stderr, errmsg) = (&mut ::std::io::stderr(), "Error writing to stderr");
+        
+        writeln!(stderr, "error: {}", e).expect(errmsg);                            
+                                                                                    
+        for e in e.iter().skip(1) {                                                 
+            writeln!(stderr, "caused by: {}", e).expect(errmsg);                    
+        }                                                                           
+                                                                                    
+        // The backtrace is not always generated. Try to run this example           
+        // with `RUST_BACKTRACE=1`.                                                 
+        if let Some(backtrace) = e.backtrace() {                                    
+            writeln!(stderr, "backtrace: {:?}", backtrace).expect(errmsg);          
+        }                                                                           
+                                                                                    
+        ::std::process::exit(1);                                                    
+    }                                                                               
+} 
 
 // Use this macro to auto-generate the main above. You may want to
 // set the `RUST_BACKTRACE` env variable to see a backtrace.
