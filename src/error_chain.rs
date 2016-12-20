@@ -29,6 +29,7 @@ macro_rules! error_chain_processed {
             $( $rest )*
         }
         /// Convenient wrapper around `std::Result`.
+        #[allow(unused)]
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
     // Without `Result` wrapper.

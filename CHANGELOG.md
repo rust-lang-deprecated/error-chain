@@ -1,6 +1,7 @@
 # Unreleased
 
 - Add `quick_main!` (#88).
+- `allow(unused)` for the `Result` wrapper.
 
 # 0.7.1
 
