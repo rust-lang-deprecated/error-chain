@@ -10,7 +10,7 @@ extern crate error_chain;
 fn smoke_test_1() {
     error_chain! {
         types {
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
 
         links { }
@@ -175,7 +175,7 @@ fn order_test_7() {
         foreign_links { }
 
         types {
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
     };
 }
@@ -190,7 +190,7 @@ fn order_test_8() {
         foreign_links { }
 
         types {
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
     };
 }
@@ -377,7 +377,7 @@ mod attributes_test {
 
     error_chain! {
         types {
-            Error, ErrorKind, Result;
+            Error, ErrorKind, ResultExt, Result;
         }
 
         links {
@@ -441,7 +441,7 @@ fn documentation() {
 mod multiple_error_same_mod {
     error_chain! {
         types {
-            MyError, MyErrorKind, MyResult;
+            MyError, MyErrorKind, MyResultExt, MyResult;
         }
     }
     error_chain! {}
@@ -522,4 +522,22 @@ fn bail() {
     fn baz() -> Result<()> {
         bail!("{}", "baz")
     }
+}
+
+/// Since the `types` declaration is a list of symbols, check if we
+/// don't change their meaning or order.
+#[test]
+fn types_declarations() {
+    error_chain! {
+        types {
+            MyError, MyErrorKind, MyResultExt, MyResult;
+        }
+    }
+
+    MyError::from_kind(MyErrorKind::Msg("".into()));
+
+    let err: Result<(), ::std::io::Error> = Ok(());
+    MyResultExt::chain_err(err, || "").unwrap();
+
+    let _: MyResult<()> = Ok(());
 }
