@@ -24,7 +24,7 @@ error_chain! {
     links {
         Inner(inner::Error, inner::ErrorKind);
         // Attributes can be added at the end of the declaration.
-        Feature(feature::Error, feature::Error) #[cfg(feature = "a_feature")];
+        Feature(feature::Error, feature::ErrorKind) #[cfg(feature = "a_feature")];
     }
 
     // Bindings to types implementing std::error::Error.
