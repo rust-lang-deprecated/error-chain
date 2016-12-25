@@ -455,42 +455,47 @@ pub struct State {
 }
 
 impl Default for State {
+    #[cfg(feature = "backtrace")]
     fn default() -> State {
-        #[cfg(feature = "backtrace")]
-        let state = State {
+        State {
             next_error: None,
             backtrace: make_backtrace(),
-        };
-        #[cfg(not(feature = "backtrace"))]
-        let state = State { next_error: None };
-        state
+        }
+    }
+
+    #[cfg(not(feature = "backtrace"))]
+    fn default() -> State {
+        State { next_error: None }
     }
 }
 
 impl State {
     /// Creates a new State type
+    #[cfg(feature = "backtrace")]
     pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
-        #[cfg(feature = "backtrace")]
-        let state = {
-            let backtrace = CE::extract_backtrace(&*e).or_else(make_backtrace);
-            State {
-                next_error: Some(e),
-                backtrace: backtrace,
-            }
-        };
-        #[cfg(not(feature = "backtrace"))]
-        let state = State { next_error: Some(e) };
+        let backtrace = CE::extract_backtrace(&*e).or_else(make_backtrace);
+        State {
+            next_error: Some(e),
+            backtrace: backtrace,
+        }
+    }
 
-        state
+    /// Creates a new State type
+    #[cfg(not(feature = "backtrace"))]
+    pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
+        State { next_error: Some(e) }
     }
 
     /// Returns the inner backtrace if present.
+    #[cfg(feature = "backtrace")]
     pub fn backtrace(&self) -> Option<&Backtrace> {
-        #[cfg(feature = "backtrace")]
-        let b = self.backtrace.as_ref().map(|v| &**v);
-        #[cfg(not(feature = "backtrace"))]
-        let b = None;
-        b
+        self.backtrace.as_ref().map(|v| &**v)
+    }
+
+    /// Returns the inner backtrace if present.
+    #[cfg(not(feature = "backtrace"))]
+    pub fn backtrace(&self) -> Option<&Backtrace> {
+        None
     }
 }
 
