@@ -236,18 +236,18 @@ fn has_backtrace_depending_on_env() {
 
 #[test]
 fn chain_err() {
-    use std::fmt;
+    use std::env;
 
     error_chain! {
         foreign_links {
-            Fmt(fmt::Error);
+            Var(env::VarError);
         }
         errors {
             Test
         }
     }
 
-    let _: Result<()> = Err(fmt::Error).chain_err(|| "");
+    let _: Result<()> = Err(env::VarError::NotPresent).chain_err(|| "");
     let _: Result<()> = Err(Error::from_kind(ErrorKind::Test)).chain_err(|| "");
 }
 
@@ -262,6 +262,8 @@ fn links() {
             Test(test::Error, test::ErrorKind);
         }
     }
+
+    {}
 }
 
 #[cfg(test)]
@@ -435,6 +437,8 @@ fn documentation() {
             Variant
         }
     }
+
+    {}
 }
 
 #[cfg(test)]
@@ -469,6 +473,8 @@ fn rustup_regression() {
             }
         }
     }
+
+    {}
 }
 
 #[test]
@@ -503,6 +509,8 @@ fn error_first() {
 
         foreign_links { }
     }
+
+    {}
 }
 
 #[test]
