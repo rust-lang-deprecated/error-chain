@@ -28,6 +28,9 @@ to error-chain.
 Please view the beginning of the [Travis configuration file](.travis.yml)
 to see the oldest supported Rust version.
 
+Note that `error-chain` supports older versions of Rust when built with
+`default-features = false`.
+
 ## License
 
 MIT/Apache-2.0
