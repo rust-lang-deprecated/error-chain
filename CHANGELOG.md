@@ -4,7 +4,7 @@
 
 - Add `quick_main!` (#88).
 - `allow(unused)` for the `Result` wrapper.
-- Minimum rust version supported is not 1.10 on some conditions (#103).
+- Minimum rust version supported is now 1.10 on some conditions (#103).
 
 # 0.7.1
 
