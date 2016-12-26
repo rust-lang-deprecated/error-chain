@@ -122,7 +122,7 @@
 //!
 //!     // Automatic conversions between this error chain and other
 //!     // error chains. In this case, it will e.g. generate an
-//!     // `ErrorKind` variant called `Dist` which in turn contains
+//!     // `ErrorKind` variant called `Another` which in turn contains
 //!     // the `other_error::ErrorKind`, with conversions from
 //!     // `other_error::Error`.
 //!     //
