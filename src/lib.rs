@@ -122,8 +122,8 @@
 //!     // Automatic conversions between this error chain and other
 //!     // error chains. In this case, it will e.g. generate an
 //!     // `ErrorKind` variant called `Dist` which in turn contains
-//!     // the `rustup_dist::ErrorKind`, with conversions from
-//!     // `rustup_dist::Error`.
+//!     // the `other_error::ErrorKind`, with conversions from
+//!     // `other_error::Error`.
 //!     //
 //!     // Optionally, some attributes can be added to a variant.
 //!     //
@@ -135,7 +135,7 @@
 //!     // Automatic conversions between this error chain and other
 //!     // error types not defined by the `error_chain!`. These will be
 //!     // wrapped in a new error with, in this case, the
-//!     // `ErrorKind::Temp` variant. The description and cause will
+//!     // `ErrorKind::Fmt` variant. The description and cause will
 //!     // forward to the description and cause of the original error.
 //!     //
 //!     // Optionally, some attributes can be added to a variant.
