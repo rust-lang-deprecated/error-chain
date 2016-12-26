@@ -56,16 +56,17 @@ macro_rules! error_chain_processed {
     ) => {
         /// The Error type.
         ///
-        /// This struct is made of three things:
+        /// This tuple struct is made of two elements:
         ///
         /// - an `ErrorKind` which is used to determine the type of the error.
-        /// - a backtrace, generated when the error is created.
-        /// - an error chain, used for the implementation of `Error::cause()`.
+        /// - An internal `State`, not meant for direct use outside of `error_chain`
+        ///   internals, containing:
+        ///   - a backtrace, generated when the error is created.
+        ///   - an error chain, used for the implementation of `Error::cause()`.
         #[derive(Debug)]
         pub struct $error_name(
             // The members must be `pub` for `links`.
             /// The kind of the error.
-            #[doc(hidden)]
             pub $error_kind_name,
             /// Contains the error chain and the backtrace.
             #[doc(hidden)]
