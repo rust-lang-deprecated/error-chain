@@ -134,7 +134,7 @@
 //!
 //!     // Automatic conversions between this error chain and other
 //!     // error types not defined by the `error_chain!`. These will be
-//!     // wrapped in a new error with, in this case, the
+//!     // wrapped in a new error with, in the first case, the
 //!     // `ErrorKind::Fmt` variant. The description and cause will
 //!     // forward to the description and cause of the original error.
 //!     //
