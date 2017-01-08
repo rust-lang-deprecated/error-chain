@@ -43,16 +43,7 @@ macro_rules! quick_main {
             ::std::process::exit(match $main() {
                 Ok(ret) => $crate::ExitCode::code(ret),
                 Err(ref e) => {
-                    let e: &$crate::ChainedError<ErrorKind=_> = e;
-                    writeln!(stderr, "Error: {}", e).expect(errmsg);
-
-                    for e in e.iter().skip(1) {
-                        writeln!(stderr, "Caused by: {}", e).expect(errmsg);
-                    }
-
-                    if let Some(backtrace) = e.backtrace() {
-                        writeln!(stderr, "{:?}", backtrace).expect(errmsg);
-                    }
+                    write!(stderr, "{}", $crate::ChainedError::display(e)).expect(errmsg);
 
                     1
                 }

@@ -368,6 +368,7 @@ use std::error;
 use std::iter::Iterator;
 #[cfg(feature = "backtrace")]
 use std::sync::Arc;
+use std::fmt;
 
 #[cfg(feature = "backtrace")]
 pub use backtrace::Backtrace;
@@ -432,6 +433,16 @@ pub trait ChainedError: error::Error + Sync + Send + 'static {
     /// Returns the backtrace associated with this error.
     fn backtrace(&self) -> Option<&Backtrace>;
 
+    /// Returns an object which implements `Display` for printing the full
+    /// context of this error.
+    ///
+    /// The full cause chain and backtrace, if present, will be printed.
+    fn display<'a>(&'a self) -> Display<'a, Self>
+        where Self: Sized
+    {
+        Display(self)
+    }
+
     /// Creates an error from its parts.
     #[doc(hidden)]
     fn new(kind: Self::ErrorKind, state: State) -> Self where Self: Sized;
@@ -442,6 +453,27 @@ pub trait ChainedError: error::Error + Sync + Send + 'static {
     #[doc(hidden)]
     fn extract_backtrace(e: &(error::Error + Sync + Send + 'static)) -> Option<Arc<Backtrace>>
         where Self: Sized;
+}
+
+/// A struct which formats an error for output.
+pub struct Display<'a, T: 'a>(&'a T);
+
+impl<'a, T> fmt::Display for Display<'a, T>
+    where T: ChainedError
+{
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        try!(writeln!(fmt, "Error: {}", self.0));
+
+        for e in self.0.iter().skip(1) {
+            try!(writeln!(fmt, "Caused by: {}", e));
+        }
+
+        if let Some(backtrace) = self.0.backtrace() {
+            try!(writeln!(fmt, "{:?}", backtrace));
+        }
+
+        Ok(())
+    }
 }
 
 /// Common state between errors.
