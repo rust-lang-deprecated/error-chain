@@ -1,6 +1,7 @@
 # Unreleased
 
 - [Add a `Sync` bound to errors](https://github.com/brson/error-chain/pul/110)
+- [Add `ChainedError::display` to format error chains](https://github.com/brson/error-chain/pull/113)
 
 # 0.7.2
 
