@@ -37,22 +37,12 @@ macro_rules! quick_main {
     ($main:expr) => {
         fn main() {
             use ::std::io::Write;
-            let stderr = &mut ::std::io::stderr();
-            let errmsg = "Error writing to stderr";
 
             ::std::process::exit(match $main() {
                 Ok(ret) => $crate::ExitCode::code(ret),
                 Err(ref e) => {
-                    let e: &$crate::ChainedError<ErrorKind=_> = e;
-                    writeln!(stderr, "Error: {}", e).expect(errmsg);
-
-                    for e in e.iter().skip(1) {
-                        writeln!(stderr, "Caused by: {}", e).expect(errmsg);
-                    }
-
-                    if let Some(backtrace) = e.backtrace() {
-                        writeln!(stderr, "{:?}", backtrace).expect(errmsg);
-                    }
+                    write!(&mut ::std::io::stderr(), "{}", $crate::ChainedError::display(e))
+                        .expect("Error writing to stderr");
 
                     1
                 }
