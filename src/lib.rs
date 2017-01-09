@@ -437,9 +437,7 @@ pub trait ChainedError: error::Error + Sync + Send + 'static {
     /// context of this error.
     ///
     /// The full cause chain and backtrace, if present, will be printed.
-    fn display<'a>(&'a self) -> Display<'a, Self>
-        where Self: Sized
-    {
+    fn display<'a>(&'a self) -> Display<'a, Self> {
         Display(self)
     }
 
@@ -456,7 +454,7 @@ pub trait ChainedError: error::Error + Sync + Send + 'static {
 }
 
 /// A struct which formats an error for output.
-pub struct Display<'a, T: 'a>(&'a T);
+pub struct Display<'a, T: 'a + ?Sized>(&'a T);
 
 impl<'a, T> fmt::Display for Display<'a, T>
     where T: ChainedError
