@@ -454,6 +454,7 @@ pub trait ChainedError: error::Error + Sync + Send + 'static {
 }
 
 /// A struct which formats an error for output.
+#[derive(Debug)]
 pub struct Display<'a, T: 'a + ?Sized>(&'a T);
 
 impl<'a, T> fmt::Display for Display<'a, T>
