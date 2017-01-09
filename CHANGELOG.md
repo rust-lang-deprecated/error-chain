@@ -1,5 +1,7 @@
 # Unreleased
 
+- [Add a `Sync` bound to errors](https://github.com/brson/error-chain/pul/110)
+
 # 0.7.2
 
 - Add `quick_main!` (#88).
