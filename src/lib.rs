@@ -148,8 +148,8 @@
 //!     }
 //!
 //!     // Define additional `ErrorKind` variants. The syntax here is
-//!     // the same as `quick_error!`, but the `from()` syntax is not
-//!     // supported.
+//!     // the same as `quick_error!`, but the `from()` and `cause()`
+//!     // syntax is not supported.
 //!     errors {
 //!         InvalidToolchainName(t: String) {
 //!             description("invalid toolchain name")
