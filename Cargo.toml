@@ -7,6 +7,7 @@ authors = [ "Brian Anderson <banderson@mozilla.com>",
             "Colin Kiegel <kiegel@gmx.de>",
             "Yamakaky <yamakaky@yamaworld.fr>"]
 description = "Yet another error boilerplate library."
+categories = ["rust-patterns"]
 
 documentation = "https://docs.rs/error-chain"
 homepage = "https://github.com/brson/error-chain"
