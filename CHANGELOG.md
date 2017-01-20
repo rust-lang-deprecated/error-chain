@@ -1,5 +1,9 @@
 # Unreleased
 
+# 0.8.1
+
+- Add crates.io categorie.
+
 # 0.8.0
 
 - [Add a `Sync` bound to errors](https://github.com/brson/error-chain/pul/110)
