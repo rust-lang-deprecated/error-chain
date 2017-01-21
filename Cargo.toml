@@ -15,6 +15,9 @@ repository = "https://github.com/brson/error-chain"
 
 license = "MIT/Apache-2.0"
 
+[badges]
+travis-ci = { repository = "brson/error-chain" }
+
 [features]
 default = ["backtrace", "example_generated"]
 example_generated = []
