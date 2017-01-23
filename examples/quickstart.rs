@@ -41,6 +41,23 @@ fn main() {
     }
 }
 
+// The above main gives you maximum control over how the error is
+// formatted. If you don't care (i.e. you want to display the full
+// error during an assert) you can just call the `display` method
+// on the error object
+#[allow(dead_code)]
+fn alternative_main() {
+    if let Err(ref e) = run() {
+        use std::io::Write;
+        use error_chain::ChainedError; // trait which holds `display`
+        let stderr = &mut ::std::io::stderr();
+        let errmsg = "Error writing to stderr";
+
+        writeln!(stderr, "{}", e.display()).expect(errmsg);
+        ::std::process::exit(1);
+    }
+}
+
 // Use this macro to auto-generate the main above. You may want to
 // set the `RUST_BACKTRACE` env variable to see a backtrace.
 //quick_main!(run);
@@ -58,4 +75,3 @@ fn run() -> Result<()> {
 
     Ok(())
 }
-
