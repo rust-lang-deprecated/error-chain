@@ -1,5 +1,7 @@
 # Unreleased
 
+# 0.9.0
+
 - Revert [Add a `Sync` bound to errors](https://github.com/brson/error-chain/pul/110)
 
 # 0.8.1
