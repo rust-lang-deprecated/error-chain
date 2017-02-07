@@ -280,7 +280,7 @@ macro_rules! error_chain_processed {
                       EK: Into<$error_kind_name>;
         }
 
-        impl<T, E> $result_ext_name<T, E> for ::std::result::Result<T, E> where E: ::std::error::Error + Sync + Send + 'static {
+        impl<T, E> $result_ext_name<T, E> for ::std::result::Result<T, E> where E: ::std::error::Error + Send + 'static {
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name> {
@@ -373,7 +373,7 @@ macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        fn extract_backtrace(e: &(::std::error::Error + Sync + Send + 'static))
+        fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
             -> Option<::std::sync::Arc<$crate::Backtrace>> {
             if let Some(e) = e.downcast_ref::<$error_name>() {
                 return e.1.backtrace.clone();
