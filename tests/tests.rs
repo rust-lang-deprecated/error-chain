@@ -563,8 +563,8 @@ fn rewrapping() {
     let result_b_from_func: Result<String, _> = Err(VarError::NotPresent);
 
     let our_error_a = result_a_from_func.map_err(|e| match e {
-        NotPresent => MyError::from_err(e, "env var wasn't provided".into()),
-        NotUnicode(_) => MyError::from_err(e, "env var was borkæ–‡å­—åŒ–ã".into()),
+        NotPresent => MyError::with_chain(e, "env var wasn't provided"),
+        NotUnicode(_) => MyError::with_chain(e, "env var was borkæ–‡å­—åŒ–ã"),
     });
 
     let our_error_b = result_b_from_func.or_else(|e| match e {
