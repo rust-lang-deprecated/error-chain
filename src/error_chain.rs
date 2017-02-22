@@ -84,6 +84,14 @@ macro_rules! error_chain_processed {
                 Self::from_kind(kind)
             }
 
+            fn with_chain<E, K>(error: E, kind: K)
+                -> Self
+                where E: ::std::error::Error + Send + 'static,
+                      K: Into<Self::ErrorKind>
+            {
+                Self::with_chain(error, kind)
+            }
+
             fn kind(&self) -> &Self::ErrorKind {
                 self.kind()
             }
@@ -108,6 +116,18 @@ macro_rules! error_chain_processed {
                 $error_name(
                     kind,
                     $crate::State::default(),
+                )
+            }
+
+            /// Constructs a chained error from another error and a kind, and generates a backtrace.
+            pub fn with_chain<E, K>(error: E, kind: K)
+                -> $error_name
+                where E: ::std::error::Error + Send + 'static,
+                      K: Into<$error_kind_name>
+            {
+                $error_name(
+                    kind.into(),
+                    $crate::State::new::<$error_name>(Box::new(error), ),
                 )
             }
 

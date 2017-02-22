@@ -541,3 +541,40 @@ fn types_declarations() {
 
     let _: MyResult<()> = Ok(());
 }
+
+#[test]
+/// Calling chain_err over a `Result` containing an error to get a chained error
+//// and constructing a MyError directly, passing it an error should be equivalent.
+fn rewrapping() {
+
+    use std::env::VarError::{self, NotPresent, NotUnicode};
+
+    error_chain! {
+        foreign_links {
+            VarErr(VarError);
+        }
+
+        types {
+            MyError, MyErrorKind, MyResultExt, MyResult;
+        }
+    }
+
+    let result_a_from_func: Result<String, _> = Err(VarError::NotPresent);
+    let result_b_from_func: Result<String, _> = Err(VarError::NotPresent);
+
+    let our_error_a = result_a_from_func.map_err(|e| match e {
+        NotPresent => MyError::with_chain(e, "env var wasn't provided"),
+        NotUnicode(_) => MyError::with_chain(e, "env var was borkæ–‡å­—åŒ–ã"),
+    });
+
+    let our_error_b = result_b_from_func.or_else(|e| match e {
+        NotPresent => Err(e).chain_err(|| "env var wasn't provided"),
+        NotUnicode(_) => Err(e).chain_err(|| "env var was borkæ–‡å­—åŒ–ã"),
+    });
+
+    assert_eq!(
+        format!("{}", our_error_a.unwrap_err()),
+        format!("{}", our_error_b.unwrap_err())
+    );
+
+}
