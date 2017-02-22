@@ -425,7 +425,10 @@ pub trait ChainedError: error::Error + Send + 'static {
     fn from_kind(kind: Self::ErrorKind) -> Self where Self: Sized;
 
     /// Constructs a chained error from another error and a kind, and generates a backtrace.
-    fn with_chain<E: ::std::error::Error + Send + 'static, K: Into<Self::ErrorKind>>(error: E, kind: K) -> Self where Self: Sized;
+    fn with_chain<E, K>(error: E, kind: K) -> Self
+        where Self: Sized,
+              E: ::std::error::Error + Send + 'static,
+              K: Into<Self::ErrorKind>;
 
     /// Returns the kind of the error.
     fn kind(&self) -> &Self::ErrorKind;
