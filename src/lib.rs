@@ -233,9 +233,11 @@
 //! # fn main() {}
 //! # error_chain! { errors { FooError } }
 //! fn foo() -> Result<()> {
-//!     bail!(ErrorKind::FooError);
-//!
-//!     Ok(())
+//!     if true {
+//!         bail!(ErrorKind::FooError);
+//!     } else {
+//!         Ok(())
+//!     }
 //! }
 //!
 //! fn bar() -> Result<()> {
