@@ -617,6 +617,42 @@ macro_rules! bail {
     };
 }
 
+/// Exits a function early with an error if the condition is not satisfied
+///
+/// The `ensure!` macro is a convenience helper that provides a way to exit
+/// a function with an error if the given condition fails.
+///
+/// As an example, `ensure!(condition, "error code: {}", errcode)` is equivalent to
+///
+/// ```
+/// # #[macro_use] extern crate error_chain;
+/// # error_chain! { }
+/// # fn main() { }
+/// # fn foo() -> Result<()> {
+/// # let errcode = 0u8;
+/// # let condition = true;
+/// if !condition {
+///     bail!("error code: {}", errcode);
+/// }
+/// # Ok(())
+/// # }
+/// ```
+///
+/// See documentation for `bail!` macro for further details.
+#[macro_export]
+macro_rules! ensure {
+    ($cond:expr, $e:expr) => {
+        if !($cond) {
+            bail!($e);
+        }
+    };
+    ($cond:expr, $fmt:expr, $($arg:tt)+) => {
+        if !($cond) {
+            bail!($fmt, $($arg)+);
+        }
+    };
+}
+
 #[doc(hidden)]
 pub mod mock {
     error_chain!{}
