@@ -524,6 +524,21 @@ fn bail() {
     }
 }
 
+#[test]
+fn ensure() {
+    error_chain! {
+        errors { Bar }
+    }
+
+    fn foo(x: u8) -> Result<()> {
+        ensure!(x == 42, ErrorKind::Bar);
+        Ok(())
+    }
+
+    assert!(foo(42).is_ok());
+    assert!(foo(0).is_err());
+}
+
 /// Since the `types` declaration is a list of symbols, check if we
 /// don't change their meaning or order.
 #[test]
