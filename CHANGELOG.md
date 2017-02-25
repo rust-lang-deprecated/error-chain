@@ -1,5 +1,7 @@
 # Unreleased
 
+# 0.10.0
+
 - [Add a new constructor for `Error`: `with_chain`.](https://github.com/brson/error-chain/pull/126)
 - [Add the `ensure!` macro.](https://github.com/brson/error-chain/pull/135)
 
