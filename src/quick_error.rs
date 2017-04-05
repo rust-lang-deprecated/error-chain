@@ -506,24 +506,28 @@ macro_rules! quick_error {
     // This is to contrast FIND_* clauses which just find stuff they need and
     // skip everything else completely
     (ERROR_CHECK $imode:tt display($self_:tt) -> ($( $exprs:tt )*) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt display($pattern: expr) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt display($pattern: expr, $( $exprs:tt )*) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt description($expr:expr) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt cause($expr:expr) $($tail:tt)*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt from() $($tail:tt)*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt from($ftyp:ty) $($tail:tt)*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK TUPLE from($fvar:ident: $ftyp:ty) -> ($( $e:expr ),*) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK TUPLE $($tail)*); };
+    => { quick_error!(ERROR_CHECK_COMMA TUPLE $($tail)*); };
     (ERROR_CHECK STRUCT from($fvar:ident: $ftyp:ty) -> {$( $v:ident: $e:expr ),*} $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK STRUCT $($tail)*); };
+        => { quick_error!(ERROR_CHECK_COMMA STRUCT $($tail)*); };
     (ERROR_CHECK $imode:tt ) => {};
+    (ERROR_CHECK_COMMA $imode:tt , $( $tail:tt )*)
+    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    (ERROR_CHECK_COMMA $imode:tt $( $tail:tt )*)
+    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
     // Utility functions
     (IDENT $ident:ident) => { $ident }
 }

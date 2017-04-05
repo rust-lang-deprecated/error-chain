@@ -593,3 +593,36 @@ fn rewrapping() {
     );
 
 }
+
+#[test]
+fn comma_in_errors_impl() {
+    error_chain! {
+        links { }
+
+        foreign_links { }
+
+        errors {
+            HttpStatus(e: u32) {
+                description("http request returned an unsuccessful status code"),
+                display("http request returned an unsuccessful status code: {}", e)
+            }
+        }
+    };
+}
+
+
+#[test]
+fn trailing_comma_in_errors_impl() {
+    error_chain! {
+        links { }
+
+        foreign_links { }
+
+        errors {
+            HttpStatus(e: u32) {
+                description("http request returned an unsuccessful status code"),
+                display("http request returned an unsuccessful status code: {}", e),
+            }
+        }
+    };
+}
