@@ -264,7 +264,7 @@ fn cause_err() {
     let base = Error::from(ErrorKind::Test);
     let ext = base.caused(|| "Test passes");
     
-    if let Error(ErrorKind::Msg(..), ..) = ext {
+    if let Error(ErrorKind::Msg(_), _) = ext {
         // pass
     } else {
         panic!("The error should be wrapped. {:?}", ext);
