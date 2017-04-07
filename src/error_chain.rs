@@ -145,6 +145,12 @@ macro_rules! error_chain_processed {
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
                 self.1.backtrace()
             }
+            
+            /// Extends the error chain with a new entry.
+            pub fn caused<F, EK>(self, error: F) -> $error_name 
+                where F: FnOnce() -> EK, EK: Into<$error_kind_name> {
+                $error_name::with_chain(self, Self::from_kind(error().into()))
+            }
         }
 
         impl ::std::error::Error for $error_name {
