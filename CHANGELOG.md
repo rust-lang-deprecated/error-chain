@@ -1,5 +1,7 @@
 # Unreleased
 
+- Add a new method for `Error`: `caused`. _PR to be added_
+
 # 0.10.0
 
 - [Add a new constructor for `Error`: `with_chain`.](https://github.com/brson/error-chain/pull/126)
