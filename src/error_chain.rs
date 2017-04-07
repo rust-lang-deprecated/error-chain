@@ -66,7 +66,7 @@ macro_rules! error_chain_processed {
         #[derive(Debug)]
         pub struct $error_name(
             // The members must be `pub` for `links`.
-            // The kind of the error.
+            /// The kind of the error.
             pub $error_kind_name,
             /// Contains the error chain and the backtrace.
             #[doc(hidden)]
@@ -137,12 +137,12 @@ macro_rules! error_chain_processed {
                 )
             }
 
-/// Returns the kind of the error.
+            /// Returns the kind of the error.
             pub fn kind(&self) -> &$error_kind_name {
                 &self.0
             }
 
-/// Iterates over the error chain.
+            /// Iterates over the error chain.
             pub fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ChainedError::iter(self)
             }
