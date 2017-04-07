@@ -458,6 +458,11 @@ pub trait ChainedError: error::Error + Send + 'static {
         Display(self)
     }
 
+    /// Extends the error chain with a new entry.
+    fn caused<F, EK>(self, error: F) -> Self
+        where F: FnOnce() -> EK,
+              EK: Into<Self::ErrorKind>;
+
     /// Creates an error from its parts.
     #[doc(hidden)]
     fn new(kind: Self::ErrorKind, state: State) -> Self where Self: Sized;

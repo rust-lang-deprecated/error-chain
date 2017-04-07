@@ -1,7 +1,7 @@
 /// Prefer to use `error_chain` instead of this macro.
 #[macro_export]
 macro_rules! error_chain_processed {
-    // Default values for `types`.
+// Default values for `types`.
     (
         types {}
         $( $rest: tt )*
@@ -13,7 +13,7 @@ macro_rules! error_chain_processed {
             $( $rest )*
         }
     };
-    // With `Result` wrapper.
+// With `Result` wrapper.
     (
         types {
             $error_name:ident, $error_kind_name:ident,
@@ -28,11 +28,11 @@ macro_rules! error_chain_processed {
             }
             $( $rest )*
         }
-        /// Convenient wrapper around `std::Result`.
+/// Convenient wrapper around `std::Result`.
         #[allow(unused)]
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
-    // Without `Result` wrapper.
+// Without `Result` wrapper.
     (
         types {
             $error_name:ident, $error_kind_name:ident,
@@ -54,21 +54,21 @@ macro_rules! error_chain_processed {
         }
 
     ) => {
-        /// The Error type.
-        ///
-        /// This tuple struct is made of two elements:
-        ///
-        /// - an `ErrorKind` which is used to determine the type of the error.
-        /// - An internal `State`, not meant for direct use outside of `error_chain`
-        ///   internals, containing:
-        ///   - a backtrace, generated when the error is created.
-        ///   - an error chain, used for the implementation of `Error::cause()`.
+/// The Error type.
+///
+/// This tuple struct is made of two elements:
+///
+/// - an `ErrorKind` which is used to determine the type of the error.
+/// - An internal `State`, not meant for direct use outside of `error_chain`
+///   internals, containing:
+///   - a backtrace, generated when the error is created.
+///   - an error chain, used for the implementation of `Error::cause()`.
         #[derive(Debug)]
         pub struct $error_name(
-            // The members must be `pub` for `links`.
-            /// The kind of the error.
+// The members must be `pub` for `links`.
+// The kind of the error.
             pub $error_kind_name,
-            /// Contains the error chain and the backtrace.
+/// Contains the error chain and the backtrace.
             #[doc(hidden)]
             pub $crate::State,
         );
@@ -98,6 +98,12 @@ macro_rules! error_chain_processed {
 
             fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ErrorChainIter(Some(self))
+            }
+
+            fn caused<F, EK>(self, error: F) -> Self
+                where F: FnOnce() -> EK,
+                      EK: Into<$error_kind_name> {
+                self.caused(error)
             }
 
             fn backtrace(&self) -> Option<&$crate::Backtrace> {
@@ -131,23 +137,23 @@ macro_rules! error_chain_processed {
                 )
             }
 
-            /// Returns the kind of the error.
+/// Returns the kind of the error.
             pub fn kind(&self) -> &$error_kind_name {
                 &self.0
             }
 
-            /// Iterates over the error chain.
+/// Iterates over the error chain.
             pub fn iter(&self) -> $crate::ErrorChainIter {
                 $crate::ChainedError::iter(self)
             }
 
-            /// Returns the backtrace associated with this error.
+/// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
                 self.1.backtrace()
             }
-            
-            /// Extends the error chain with a new entry.
-            pub fn caused<F, EK>(self, error: F) -> $error_name 
+
+/// Extends the error chain with a new entry.
+            pub fn caused<F, EK>(self, error: F) -> $error_name
                 where F: FnOnce() -> EK, EK: Into<$error_kind_name> {
                 $error_name::with_chain(self, Self::from_kind(error().into()))
             }
@@ -293,14 +299,14 @@ macro_rules! error_chain_processed {
             }
         }
 
-        // The ResultExt trait defines the `chain_err` method.
+// The ResultExt trait defines the `chain_err` method.
 
-        /// Additional methods for `Result`, for easy interaction with this crate.
+/// Additional methods for `Result`, for easy interaction with this crate.
         pub trait $result_ext_name<T, E> {
-            /// If the `Result` is an `Err` then `chain_err` evaluates the closure,
-            /// which returns *some type that can be converted to `ErrorKind`*, boxes
-            /// the original error to store as the cause, then returns a new error
-            /// containing the original error.
+/// If the `Result` is an `Err` then `chain_err` evaluates the closure,
+/// which returns *some type that can be converted to `ErrorKind`*, boxes
+/// the original error to store as the cause, then returns a new error
+/// containing the original error.
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name>;
