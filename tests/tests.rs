@@ -251,7 +251,7 @@ fn chain_err() {
     let _: Result<()> = Err(Error::from_kind(ErrorKind::Test)).chain_err(|| "");
 }
 
-/// Verify that an error chain is extended one by `Error::cause`, with 
+/// Verify that an error chain is extended one by `Error::chain_err`, with 
 /// the new error added to the end.
 #[test]
 fn cause_err() {
@@ -262,7 +262,7 @@ fn cause_err() {
     }
     
     let base = Error::from(ErrorKind::Test);
-    let ext = base.caused(|| "Test passes");
+    let ext = base.chain_err(|| "Test passes");
     
     if let Error(ErrorKind::Msg(_), _) = ext {
         // pass
