@@ -257,7 +257,9 @@
 //! ```
 //!
 //! ## Chaining errors
-//!
+//! error-chain supports extending an error chain by appending new errors.
+//! This can be done on a Result or on an existing Error.
+//! 
 //! To extend the error chain:
 //!
 //! ```
@@ -277,6 +279,11 @@
 //! which returns *some type that can be converted to `ErrorKind`*,
 //! boxes the original error to store as the cause, then returns a new
 //! error containing the original error.
+//!
+//! Calling `chain_err` on an existing `Error` instance has the same 
+//! signature and produces the same outcome as being called on a `Result`
+//! matching the properties described above. This is most useful when 
+//! partially handling errors using the `map_err` function.
 //!
 //! ## Matching errors
 //!
@@ -459,7 +466,7 @@ pub trait ChainedError: error::Error + Send + 'static {
     }
 
     /// Extends the error chain with a new entry.
-    fn caused<F, EK>(self, error: F) -> Self
+    fn chain_err<F, EK>(self, error: F) -> Self
         where F: FnOnce() -> EK,
               EK: Into<Self::ErrorKind>;
 
