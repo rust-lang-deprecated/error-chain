@@ -1,6 +1,6 @@
 # Unreleased
 
-- [Add a new method for `Error`: `caused`.](https://github.com/brson/error-chain/pull/141)
+- [Add a new method for `Error`: `chain_err`.](https://github.com/brson/error-chain/pull/141)
 
 # 0.10.0
 
