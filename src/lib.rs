@@ -272,7 +272,8 @@
 //! ```
 //!
 //! `chain_err` can be called on any `Result` type where the contained
-//! error type implements `std::error::Error + Send + 'static`.  If
+//! error type implements `std::error::Error + Send + 'static`, as long as
+//! the corresponding `ResultExt` trait is in scope.  If
 //! the `Result` is an `Err` then `chain_err` evaluates the closure,
 //! which returns *some type that can be converted to `ErrorKind`*,
 //! boxes the original error to store as the cause, then returns a new
