@@ -279,6 +279,20 @@
 //! boxes the original error to store as the cause, then returns a new
 //! error containing the original error.
 //!
+//! To chain an error directly, use `with_chain`:
+//!
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! # error_chain! {}
+//! # fn do_something() -> Result<()> { unimplemented!() }
+//! # fn test() -> Result<()> {
+//! let res: Result<()> =
+//!     do_something().map_err(|e| Error::with_chain(e, "something went wrong"));
+//! # Ok(())
+//! # }
+//! ```
+//!
 //! ## Linking errors
 //!
 //! To convert an error from another error chain to this error chain:
