@@ -272,11 +272,52 @@
 //! ```
 //!
 //! `chain_err` can be called on any `Result` type where the contained
-//! error type implements `std::error::Error + Send + 'static`.  If
+//! error type implements `std::error::Error + Send + 'static`, as long as
+//! the `Result` type's corresponding `ResultExt` trait is in scope.  If
 //! the `Result` is an `Err` then `chain_err` evaluates the closure,
 //! which returns *some type that can be converted to `ErrorKind`*,
 //! boxes the original error to store as the cause, then returns a new
 //! error containing the original error.
+//!
+//! To chain an error directly, use `with_chain`:
+//!
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! # error_chain! {}
+//! # fn do_something() -> Result<()> { unimplemented!() }
+//! # fn test() -> Result<()> {
+//! let res: Result<()> =
+//!     do_something().map_err(|e| Error::with_chain(e, "something went wrong"));
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## Linking errors
+//!
+//! To convert an error from another error chain to this error chain:
+//!
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! # fn main() {}
+//! # mod other { error_chain! {} }
+//! error_chain! {
+//!     links {
+//!         OtherError(other::Error, other::ErrorKind);
+//!     }
+//! }
+//!
+//! fn do_other_thing() -> other::Result<()> { unimplemented!() }
+//!
+//! # fn test() -> Result<()> {
+//! let res: Result<()> = do_other_thing().map_err(|e| e.into());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! The `Error` and `ErrorKind` types implements `From` for the corresponding
+//! types of all linked error chains. Linked errors do not introduce a new
+//! cause to the error chain.
 //!
 //! ## Matching errors
 //!
@@ -346,10 +387,10 @@
 //! `From` conversions for regular links *do not introduce a new error
 //! into the error chain*, while conversions for foreign links *always
 //! introduce a new error into the error chain*. So for the example
-//! above all errors deriving from the `temp::Error` type will be
-//! presented to the user as a new `ErrorKind::Temp` variant, and the
-//! cause will be the original `temp::Error` error. In contrast, when
-//! `rustup_utils::Error` is converted to `Error` the two `ErrorKind`s
+//! above all errors deriving from the `std::fmt::Error` type will be
+//! presented to the user as a new `ErrorKind::Fmt` variant, and the
+//! cause will be the original `std::fmt::Error` error. In contrast, when
+//! `other_error::Error` is converted to `Error` the two `ErrorKind`s
 //! are converted between each other to create a new `Error` but the
 //! old error is discarded; there is no "cause" created from the
 //! original error.
