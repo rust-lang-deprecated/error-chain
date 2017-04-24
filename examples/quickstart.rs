@@ -17,6 +17,9 @@ mod errors {
     error_chain! { }
 }
 
+// This only gives access within this module. Make this `pub use errors::*;`
+// instead if the types must be accessible from other modules (e.g., within
+// a `links` section).
 use errors::*;
 
 fn main() {
