@@ -251,6 +251,26 @@ fn chain_err() {
     let _: Result<()> = Err(Error::from_kind(ErrorKind::Test)).chain_err(|| "");
 }
 
+/// Verify that an error chain is extended one by `Error::chain_err`, with 
+/// the new error added to the end.
+#[test]
+fn error_chain_err() {
+    error_chain! {
+        errors {
+            Test
+        }
+    }
+    
+    let base = Error::from(ErrorKind::Test);
+    let ext = base.chain_err(|| "Test passes");
+    
+    if let Error(ErrorKind::Msg(_), _) = ext {
+        // pass
+    } else {
+        panic!("The error should be wrapped. {:?}", ext);
+    }
+}
+
 #[test]
 fn links() {
     mod test {

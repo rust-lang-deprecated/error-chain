@@ -100,6 +100,12 @@ macro_rules! error_chain_processed {
                 $crate::ErrorChainIter(Some(self))
             }
 
+            fn chain_err<F, EK>(self, error: F) -> Self
+                where F: FnOnce() -> EK,
+                      EK: Into<$error_kind_name> {
+                self.chain_err(error)
+            }
+
             fn backtrace(&self) -> Option<&$crate::Backtrace> {
                 self.backtrace()
             }
@@ -144,6 +150,12 @@ macro_rules! error_chain_processed {
             /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
                 self.1.backtrace()
+            }
+
+            /// Extends the error chain with a new entry.
+            pub fn chain_err<F, EK>(self, error: F) -> $error_name
+                where F: FnOnce() -> EK, EK: Into<$error_kind_name> {
+                $error_name::with_chain(self, Self::from_kind(error().into()))
             }
         }
 

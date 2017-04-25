@@ -1,5 +1,7 @@
 # Unreleased
 
+- [Add a new method for `Error`: `chain_err`.](https://github.com/brson/error-chain/pull/141)
+
 # 0.10.0
 
 - [Add a new constructor for `Error`: `with_chain`.](https://github.com/brson/error-chain/pull/126)
