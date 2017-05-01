@@ -14,7 +14,7 @@ extern crate error_chain;
 // `error_chain!` creates.
 mod errors {
     // Create the Error, ErrorKind, ResultExt, and Result types
-    error_chain! { }
+    error_chain!{}
 }
 
 // This only gives access within this module. Make this `pub use errors::*;`
@@ -24,7 +24,7 @@ use errors::*;
 
 fn main() {
     if let Err(ref e) = run() {
-        use ::std::io::Write;
+        use std::io::Write;
         let stderr = &mut ::std::io::stderr();
         let errmsg = "Error writing to stderr";
 

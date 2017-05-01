@@ -9,7 +9,7 @@ use std::fs::File;
 mod errors {
     use std::io;
     use super::LaunchStage;
-    
+
     error_chain! {
         foreign_links {
             Io(io::Error) #[doc = "Error during IO"];
@@ -27,7 +27,7 @@ mod errors {
             }
         }
     }
-    
+
     impl From<LaunchStage> for ErrorKind {
         fn from(v: LaunchStage) -> Self {
             ErrorKind::Launch(v)
@@ -54,9 +54,11 @@ fn load_config(rel_path: &str) -> Result<()> {
 /// Launch the service.
 fn launch(rel_path: &str) -> Result<()> {
     load_config(rel_path).map_err(|e| match e {
-        e @ Error(ErrorKind::ConfigLoad(_), _) => e.chain_err(|| LaunchStage::ConfigLoad),
-        e => e.chain_err(|| "Unknown failure")
-    })
+                                      e @ Error(ErrorKind::ConfigLoad(_), _) => {
+                                          e.chain_err(|| LaunchStage::ConfigLoad)
+                                      }
+                                      e => e.chain_err(|| "Unknown failure"),
+                                  })
 }
 
 fn main() {

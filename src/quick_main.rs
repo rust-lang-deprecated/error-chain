@@ -65,9 +65,13 @@ pub trait ExitCode {
 }
 
 impl ExitCode for i32 {
-    fn code(self) -> i32 { self }
+    fn code(self) -> i32 {
+        self
+    }
 }
 
 impl ExitCode for () {
-    fn code(self) -> i32 { 0 }
+    fn code(self) -> i32 {
+        0
+    }
 }
