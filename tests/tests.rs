@@ -197,7 +197,7 @@ fn order_test_8() {
 
 #[test]
 fn empty() {
-    error_chain! { };
+    error_chain!{};
 }
 
 #[test]
@@ -251,7 +251,7 @@ fn chain_err() {
     let _: Result<()> = Err(Error::from_kind(ErrorKind::Test)).chain_err(|| "");
 }
 
-/// Verify that an error chain is extended one by `Error::chain_err`, with 
+/// Verify that an error chain is extended one by `Error::chain_err`, with
 /// the new error added to the end.
 #[test]
 fn error_chain_err() {
@@ -260,10 +260,10 @@ fn error_chain_err() {
             Test
         }
     }
-    
+
     let base = Error::from(ErrorKind::Test);
     let ext = base.chain_err(|| "Test passes");
-    
+
     if let Error(ErrorKind::Msg(_), _) = ext {
         // pass
     } else {
@@ -274,7 +274,7 @@ fn error_chain_err() {
 #[test]
 fn links() {
     mod test {
-        error_chain! {}
+        error_chain!{}
     }
 
     error_chain! {
@@ -293,7 +293,7 @@ mod foreign_link_test {
     // signature of the public foreign_link_error_path
     #[derive(Debug)]
     pub struct ForeignError {
-        cause: ForeignErrorCause
+        cause: ForeignErrorCause,
     }
 
     impl ::std::error::Error for ForeignError {
@@ -301,7 +301,9 @@ mod foreign_link_test {
             "Foreign error description"
         }
 
-        fn cause(&self) -> Option<&::std::error::Error> { Some(&self.cause) }
+        fn cause(&self) -> Option<&::std::error::Error> {
+            Some(&self.cause)
+        }
     }
 
     impl fmt::Display for ForeignError {
@@ -318,7 +320,9 @@ mod foreign_link_test {
             "Foreign error cause description"
         }
 
-        fn cause(&self) -> Option<&::std::error::Error> { None }
+        fn cause(&self) -> Option<&::std::error::Error> {
+            None
+        }
     }
 
     impl fmt::Display for ForeignErrorCause {
@@ -342,43 +346,31 @@ mod foreign_link_test {
     #[test]
     fn display_underlying_error() {
         let chained_error = try_foreign_error().err().unwrap();
-        assert_eq!(
-            format!("{}", ForeignError{ cause: ForeignErrorCause{} }),
-            format!("{}", chained_error)
-        );
+        assert_eq!(format!("{}", ForeignError { cause: ForeignErrorCause {} }),
+                   format!("{}", chained_error));
     }
 
     #[test]
     fn finds_cause() {
         let chained_error = try_foreign_error().err().unwrap();
-        assert_eq!(
-            format!("{}", ForeignErrorCause{}),
-            format!("{}", ::std::error::Error::cause(&chained_error).unwrap())
-        );
+        assert_eq!(format!("{}", ForeignErrorCause {}),
+                   format!("{}", ::std::error::Error::cause(&chained_error).unwrap()));
     }
 
     #[test]
     fn iterates() {
         let chained_error = try_foreign_error().err().unwrap();
         let mut error_iter = chained_error.iter();
-        assert_eq!(
-            format!("{}", ForeignError{ cause: ForeignErrorCause{} }),
-            format!("{}", error_iter.next().unwrap())
-        );
-        assert_eq!(
-            format!("{}", ForeignErrorCause{}),
-            format!("{}", error_iter.next().unwrap())
-        );
-        assert_eq!(
-            format!("{:?}", None as Option<&::std::error::Error>),
-            format!("{:?}", error_iter.next())
-        );
+        assert_eq!(format!("{}", ForeignError { cause: ForeignErrorCause {} }),
+                   format!("{}", error_iter.next().unwrap()));
+        assert_eq!(format!("{}", ForeignErrorCause {}),
+                   format!("{}", error_iter.next().unwrap()));
+        assert_eq!(format!("{:?}", None as Option<&::std::error::Error>),
+                   format!("{:?}", error_iter.next()));
     }
 
     fn try_foreign_error() -> Result<()> {
-        try!(Err(ForeignError{
-            cause: ForeignErrorCause{}
-        }));
+        try!(Err(ForeignError { cause: ForeignErrorCause {} }));
         Ok(())
     }
 }
@@ -390,9 +382,7 @@ mod attributes_test {
 
     #[cfg(not(test))]
     mod inner {
-        error_chain! {
-
-        }
+        error_chain!{}
     }
 
     error_chain! {
@@ -440,7 +430,7 @@ fn without_result() {
 #[test]
 fn documentation() {
     mod inner {
-        error_chain! {}
+        error_chain!{}
     }
 
     error_chain! {
@@ -464,13 +454,13 @@ mod multiple_error_same_mod {
             MyError, MyErrorKind, MyResultExt, MyResult;
         }
     }
-    error_chain! {}
+    error_chain!{}
 }
 
 #[doc(test)]
 #[deny(dead_code)]
 mod allow_dead_code {
-    error_chain! {}
+    error_chain!{}
 }
 
 // Make sure links actually work!
@@ -503,8 +493,7 @@ fn error_patterns() {
 
     // Tuples look nice when matching errors
     match Error::from("Test") {
-        Error(ErrorKind::Msg(_), _) => {
-        }
+        Error(ErrorKind::Msg(_), _) => {}
     }
 }
 
@@ -607,10 +596,8 @@ fn rewrapping() {
         NotUnicode(_) => Err(e).chain_err(|| "env var was borkæ–‡å­—åŒ–ã"),
     });
 
-    assert_eq!(
-        format!("{}", our_error_a.unwrap_err()),
-        format!("{}", our_error_b.unwrap_err())
-    );
+    assert_eq!(format!("{}", our_error_a.unwrap_err()),
+               format!("{}", our_error_b.unwrap_err()));
 
 }
 

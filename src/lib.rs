@@ -259,7 +259,7 @@
 //! ## Chaining errors
 //! error-chain supports extending an error chain by appending new errors.
 //! This can be done on a Result or on an existing Error.
-//! 
+//!
 //! To extend the error chain:
 //!
 //! ```
@@ -281,9 +281,9 @@
 //! boxes the original error to store as the cause, then returns a new
 //! error containing the original error.
 //!
-//! Calling `chain_err` on an existing `Error` instance has the same 
+//! Calling `chain_err` on an existing `Error` instance has the same
 //! signature and produces the same outcome as being called on a `Result`
-//! matching the properties described above. This is most useful when 
+//! matching the properties described above. This is most useful when
 //! partially handling errors using the `map_err` function.
 //!
 //! To chain an error directly, use `with_chain`:
