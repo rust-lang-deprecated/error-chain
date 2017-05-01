@@ -231,9 +231,10 @@
 //! ## The `bail!` macro
 //!
 //! The above method of introducing new errors works but is a little
-//! verbose. Instead we can use the `bail!` macro, which, much like `try!`
-//! and `?`, performs an early return with conversions. With `bail!` the
-//! previous examples look like:
+//! verbose. Instead, we can use the `bail!` macro, which performs an early return
+//! with conversions done automatically.
+//!
+//! With `bail!` the previous examples look like:
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
