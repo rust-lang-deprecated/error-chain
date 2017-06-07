@@ -261,9 +261,9 @@ macro_rules! quick_error {
         )*}
     ) => {
         #[allow(unused)]
-        impl ::std::fmt::Display for $name {
-            fn fmt(&self, fmt: &mut ::std::fmt::Formatter)
-                -> ::std::fmt::Result
+        impl $crate::types::fmt::Display for $name {
+            fn fmt(&self, fmt: &mut $crate::types::fmt::Formatter)
+                -> $crate::types::fmt::Result
             {
                 match *self {
                     $(
@@ -337,19 +337,19 @@ macro_rules! quick_error {
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { display($self_:tt) -> ($( $exprs:tt )*) $( $tail:tt )*}
     ) => {
-        |quick_error!(IDENT $self_): &$name, f: &mut ::std::fmt::Formatter| {
+        |quick_error!(IDENT $self_): &$name, f: &mut $crate::types::fmt::Formatter| {
             write!(f, $( $exprs )*)
         }
     };
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { display($pattern:expr) $( $tail:tt )*}
     ) => {
-        |_, f: &mut ::std::fmt::Formatter| { write!(f, $pattern) }
+        |_, f: &mut $crate::types::fmt::Formatter| { write!(f, $pattern) }
     };
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { display($pattern:expr, $( $exprs:tt )*) $( $tail:tt )*}
     ) => {
-        |_, f: &mut ::std::fmt::Formatter| { write!(f, $pattern, $( $exprs )*) }
+        |_, f: &mut $crate::types::fmt::Formatter| { write!(f, $pattern, $( $exprs )*) }
     };
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { $t:tt $( $tail:tt )*}
@@ -361,7 +361,7 @@ macro_rules! quick_error {
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { }
     ) => {
-        |self_: &$name, f: &mut ::std::fmt::Formatter| {
+        |self_: &$name, f: &mut $crate::types::fmt::Formatter| {
             write!(f, "{}", self_.description())
         }
     };

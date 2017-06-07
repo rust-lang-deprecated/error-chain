@@ -30,7 +30,7 @@ macro_rules! error_chain_processed {
         }
         /// Convenient wrapper around `std::Result`.
         #[allow(unused)]
-        pub type $result_name<T> = ::std::result::Result<T, $error_name>;
+        pub type $result_name<T> = $crate::types::result::Result<T, $error_name>;
     };
     // Without `Result` wrapper.
     (
@@ -86,7 +86,7 @@ macro_rules! error_chain_processed {
 
             fn with_chain<E, K>(error: E, kind: K)
                 -> Self
-                where E: ::std::error::Error + Send + 'static,
+                where E: $crate::types::error::Error + Send + 'static,
                       K: Into<Self::ErrorKind>
             {
                 Self::with_chain(error, kind)
@@ -128,12 +128,12 @@ macro_rules! error_chain_processed {
             /// Constructs a chained error from another error and a kind, and generates a backtrace.
             pub fn with_chain<E, K>(error: E, kind: K)
                 -> $error_name
-                where E: ::std::error::Error + Send + 'static,
+                where E: $crate::types::error::Error + Send + 'static,
                       K: Into<$error_kind_name>
             {
                 $error_name(
                     kind.into(),
-                    $crate::State::new::<$error_name>(Box::new(error), ),
+                    $crate::State::new::<$error_name>($crate::types::boxed::Box::new(error), ),
                 )
             }
 
@@ -159,12 +159,12 @@ macro_rules! error_chain_processed {
             }
         }
 
-        impl ::std::error::Error for $error_name {
+        impl $crate::types::error::Error for $error_name {
             fn description(&self) -> &str {
                 self.0.description()
             }
 
-            fn cause(&self) -> Option<&::std::error::Error> {
+            fn cause(&self) -> Option<&$crate::types::error::Error> {
                 match self.1.next_error {
                     Some(ref c) => Some(&**c),
                     None => {
@@ -182,9 +182,9 @@ macro_rules! error_chain_processed {
             }
         }
 
-        impl ::std::fmt::Display for $error_name {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                ::std::fmt::Display::fmt(&self.0, f)
+        impl $crate::types::fmt::Display for $error_name {
+            fn fmt(&self, f: &mut $crate::types::fmt::Formatter) -> $crate::types::fmt::Result {
+                $crate::types::fmt::Display::fmt(&self.0, f)
             }
         }
 
@@ -223,13 +223,13 @@ macro_rules! error_chain_processed {
             }
         }
 
-        impl From<String> for $error_name {
-            fn from(s: String) -> Self {
+        impl From<$crate::types::string::String> for $error_name {
+            fn from(s: $crate::types::string::String) -> Self {
                 $error_name::from_kind(s.into())
             }
         }
 
-        impl ::std::ops::Deref for $error_name {
+        impl $crate::types::ops::Deref for $error_name {
             type Target = $error_kind_name;
 
             fn deref(&self) -> &Self::Target {
@@ -246,8 +246,8 @@ macro_rules! error_chain_processed {
             #[derive(Debug)]
             pub enum $error_kind_name {
 
-                /// A convenient variant for String.
-                Msg(s: String) {
+                /// A convenient variant for $crate::types::string::String.
+                Msg(s: $crate::types::string::String) {
                     description(&s)
                     display("{}", s)
                 }
@@ -263,7 +263,7 @@ macro_rules! error_chain_processed {
                 $(
                     $(#[$meta_foreign_links])*
                     $foreign_link_variant(err: $foreign_link_error_path) {
-                        description(::std::error::Error::description(err))
+                        description($crate::types::error::Error::description(err))
                         display("{}", err)
                     }
                 ) *
@@ -283,12 +283,12 @@ macro_rules! error_chain_processed {
 
         impl<'a> From<&'a str> for $error_kind_name {
             fn from(s: &'a str) -> Self {
-                $error_kind_name::Msg(s.to_string())
+                $error_kind_name::Msg($crate::types::string::String::from(s))
             }
         }
 
-        impl From<String> for $error_kind_name {
-            fn from(s: String) -> Self {
+        impl From<$crate::types::string::String> for $error_kind_name {
+            fn from(s: $crate::types::string::String) -> Self {
                 $error_kind_name::Msg(s)
             }
         }
@@ -307,17 +307,17 @@ macro_rules! error_chain_processed {
             /// which returns *some type that can be converted to `ErrorKind`*, boxes
             /// the original error to store as the cause, then returns a new error
             /// containing the original error.
-            fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
+            fn chain_err<F, EK>(self, callback: F) -> $crate::types::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name>;
         }
 
-        impl<T, E> $result_ext_name<T, E> for ::std::result::Result<T, E> where E: ::std::error::Error + Send + 'static {
-            fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
+        impl<T, E> $result_ext_name<T, E> for $crate::types::result::Result<T, E> where E: $crate::types::error::Error + Send + 'static {
+            fn chain_err<F, EK>(self, callback: F) -> $crate::types::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name> {
                 self.map_err(move |e| {
-                    let state = $crate::State::new::<$error_name>(Box::new(e), );
+                    let state = $crate::State::new::<$error_name>($crate::types::boxed::Box::new(e), );
                     $crate::ChainedError::new(callback().into(), state)
                 })
             }
@@ -405,7 +405,7 @@ macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
+        fn extract_backtrace(e: &($crate::types::error::Error + Send + 'static))
             -> Option<::std::sync::Arc<$crate::Backtrace>> {
             if let Some(e) = e.downcast_ref::<$error_name>() {
                 return e.1.backtrace.clone();
