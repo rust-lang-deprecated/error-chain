@@ -63,7 +63,7 @@ fn alternative_main() {
 
 // Use this macro to auto-generate the main above. You may want to
 // set the `RUST_BACKTRACE` env variable to see a backtrace.
-//quick_main!(run);
+// quick_main!(run);
 
 
 // Most functions will return the `Result` type, imported from the

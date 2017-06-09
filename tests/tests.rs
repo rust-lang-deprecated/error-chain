@@ -1,7 +1,4 @@
 #![allow(dead_code)]
-//#![feature(trace_macros)]
-//
-//trace_macros!(true);
 
 #[macro_use]
 extern crate error_chain;
@@ -568,7 +565,7 @@ fn types_declarations() {
 
 #[test]
 /// Calling chain_err over a `Result` containing an error to get a chained error
-//// and constructing a MyError directly, passing it an error should be equivalent.
+/// and constructing a MyError directly, passing it an error should be equivalent.
 fn rewrapping() {
 
     use std::env::VarError::{self, NotPresent, NotUnicode};
