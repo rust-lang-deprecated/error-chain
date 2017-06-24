@@ -157,7 +157,7 @@
 //!         }
 //!
 //!         // You can also add commas after description/display.
-//!         // This may work better with some editor auto-identation modes:
+//!         // This may work better with some editor auto-indentation modes:
 //!         UnknownToolchainVersion(v: String) {
 //!             description("unknown toolchain version"), // note the ,
 //!             display("unknown toolchain version: '{}'", v), // trailing comma is allowed
