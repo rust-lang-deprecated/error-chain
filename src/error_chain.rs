@@ -4,17 +4,12 @@
 macro_rules! impl_error_chain_processed {
     // Default values for `types` and `derive`.
     (
-        // FIXME does not work if either types or derive isn't empty
         types {}
-        derive {}
         $( $rest: tt )*
     ) => {
         impl_error_chain_processed! {
             types {
                 Error, ErrorKind, ResultExt, Result;
-            }
-            derive {
-                Debug;
             }
             $( $rest )*
         }
@@ -47,7 +42,7 @@ macro_rules! impl_error_chain_processed {
         }
 
         derive {
-            $($trait:ident),*;
+            $($trait:ident),*
         }
 
         links {
@@ -412,10 +407,10 @@ macro_rules! error_chain_processing {
     ( ($a:tt, $b:tt, $c:tt, $d:tt, $e:tt) ) => {
         impl_error_chain_processed! {
             types $a
-            derive $e
-            links $b
-            foreign_links $c
-            errors $d
+            derive $b
+            links $c
+            foreign_links $d
+            errors $e
         }
     };
 }
