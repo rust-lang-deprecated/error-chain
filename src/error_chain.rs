@@ -80,13 +80,13 @@ macro_rules! impl_error_chain_processed {
             pub $error_kind_name,
             /// Contains the error chain and the backtrace.
             #[doc(hidden)]
-            pub $crate::State,
+            pub $crate::State<Trait>,
         );
 
-        impl $crate::ChainedError for $error_name {
+        impl $crate::ChainedError<Trait> for $error_name {
             type ErrorKind = $error_kind_name;
 
-            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
+            fn new(kind: $error_kind_name, state: $crate::State<Trait>) -> $error_name {
                 $error_name(kind, state)
             }
 
