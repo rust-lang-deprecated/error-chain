@@ -42,7 +42,7 @@ macro_rules! impl_error_chain_processed {
         }
 
         derive {
-            $($trait:ident),*
+            $($bound:ident),*
         }
 
         links {
@@ -60,6 +60,10 @@ macro_rules! impl_error_chain_processed {
         }
 
     ) => {
+        use ::std::fmt::Debug;
+        use ::std::error::Error as StdError;
+        create_super_trait!(Trait: Debug, StdError, Send $(, $bound)*);
+
         /// The Error type.
         ///
         /// This tuple struct is made of two elements:
@@ -69,7 +73,7 @@ macro_rules! impl_error_chain_processed {
         ///   internals, containing:
         ///   - a backtrace, generated when the error is created.
         ///   - an error chain, used for the implementation of `Error::cause()`.
-        #[derive(Debug)]
+        #[derive(Debug, $($bound),*)]
         pub struct $error_name(
             // The members must be `pub` for `links`.
             /// The kind of the error.
@@ -256,7 +260,7 @@ macro_rules! impl_error_chain_processed {
 
         impl_error_chain_kind! {
             /// The kind of an error.
-            #[derive(Debug)]
+            #[derive(Debug, $($bound),*)]
             pub enum $error_kind_name {
 
                 /// A convenient variant for String.
@@ -423,6 +427,19 @@ macro_rules! error_chain {
             ({}, {}, {}, {}, {})
             $($block_name { $( $block_content )* })*
         }
+    };
+}
+
+/// Macro used to generate traits with `Self` bounds
+#[macro_export]
+#[doc(hidden)]
+macro_rules! create_super_trait {
+    ($name:ident: $($bound:ident),*) => {
+        create_super_trait!($name: $($bound +)*);
+    };
+    ($name:ident: $bound_1:ident + $($bound_2:tt +)*) => {
+        trait $name: $bound_1 $(+ $bound_2)* {}
+        impl<T: $bound_1 $(+ $bound_2)*> $name for T {}
     };
 }
 

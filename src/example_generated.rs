@@ -23,7 +23,7 @@
 pub mod inner {
     error_chain! {
         derive {
-            Send
+            PartialEq, Eq
         }
     }
 }
@@ -40,11 +40,11 @@ error_chain! {
         Custom
     }
     derive {
-        Send
+        PartialEq, Eq
     }
 }
 
-fn foo<T: Send>() {}
+fn foo<T: PartialEq + Eq>() {}
 fn bar() {
     foo::<Error>();
 }
