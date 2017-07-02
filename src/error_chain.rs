@@ -41,10 +41,6 @@ macro_rules! impl_error_chain_processed {
             $result_ext_name:ident;
         }
 
-        derive {
-            $($bound:ident),*
-        }
-
         links {
             $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path )
                $( #[$meta_links:meta] )*; ) *
@@ -59,10 +55,11 @@ macro_rules! impl_error_chain_processed {
             $( $error_chunks:tt ) *
         }
 
+        derive {
+            $($bound:ident),*
+        }
     ) => {
-        use ::std::fmt::Debug;
-        use ::std::error::Error as StdError;
-        create_super_trait!(Trait: Debug, StdError, Send $(, $bound)*);
+        create_super_trait!(Trait: ::std::fmt::Debug, ::std::error::Error, Send $(, $bound)*);
 
         /// The Error type.
         ///
@@ -370,7 +367,7 @@ macro_rules! error_chain_processing {
     };
     (
         ($a:tt, {}, $c:tt, $d:tt, $e:tt)
-        derive $content:tt
+        links $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
@@ -380,7 +377,7 @@ macro_rules! error_chain_processing {
     };
     (
         ($a:tt, $b:tt, {}, $d:tt, $e:tt)
-        links $content:tt
+        foreign_links $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
@@ -390,7 +387,7 @@ macro_rules! error_chain_processing {
     };
     (
         ($a:tt, $b:tt, $c:tt, {}, $e:tt)
-        foreign_links $content:tt
+        errors $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
@@ -400,7 +397,7 @@ macro_rules! error_chain_processing {
     };
     (
         ($a:tt, $b:tt, $c:tt, $d:tt, {})
-        errors $content:tt
+        derive $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
@@ -411,10 +408,10 @@ macro_rules! error_chain_processing {
     ( ($a:tt, $b:tt, $c:tt, $d:tt, $e:tt) ) => {
         impl_error_chain_processed! {
             types $a
-            derive $b
-            links $c
-            foreign_links $d
-            errors $e
+            links $b
+            foreign_links $c
+            errors $d
+            derive $e
         }
     };
 }
@@ -434,12 +431,9 @@ macro_rules! error_chain {
 #[macro_export]
 #[doc(hidden)]
 macro_rules! create_super_trait {
-    ($name:ident: $($bound:ident),*) => {
-        create_super_trait!($name: $($bound +)*);
-    };
-    ($name:ident: $bound_1:ident + $($bound_2:tt +)*) => {
-        trait $name: $bound_1 $(+ $bound_2)* {}
-        impl<T: $bound_1 $(+ $bound_2)*> $name for T {}
+    ($name:ident: $bound_1:path, $($rest:path),*) => {
+        trait $name: $bound_1 $(+ $rest)* {}
+        impl<T: $bound_1 $(+ $rest)*> $name for T {}
     };
 }
 
