@@ -360,7 +360,6 @@
 //! mod utils {
 //!     error_chain! {
 //!         errors {
-//!             BadStuff {
 //!                 description("bad stuff")
 //!             }
 //!         }
@@ -593,10 +592,9 @@ pub trait ChainedError<S: ?Sized>: error::Error + Send + 'static {
 
     /// Constructs a chained error from another error and a kind, and generates a backtrace.
     fn with_chain<E, K>(error: E, kind: K) -> Self
-    where
-        Self: Sized,
-        E: ::std::error::Error + Send + 'static,
-        K: Into<Self::ErrorKind>;
+    where Self: Sized,
+          E: ToError + ::std::error::Error + Send + 'static,
+          K: Into<Self::ErrorKind>;
 
     /// Returns the kind of the error.
     fn kind(&self) -> &Self::ErrorKind;
@@ -630,9 +628,11 @@ pub trait ChainedError<S: ?Sized>: error::Error + Send + 'static {
     /// Returns the first known backtrace, either from its State or from one
     /// of the errors from `foreign_links`.
     #[doc(hidden)]
-    fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<InternalBacktrace>
-    where
-        Self: Sized;
+    fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<InternalBacktrace>;
+}
+
+pub trait ToError {
+    fn to_error(&self) -> &(error::Error + Send + 'static);
 }
 
 /// A struct which formats an error for output.
@@ -669,7 +669,7 @@ pub struct State<T: ?Sized> {
     pub backtrace: InternalBacktrace,
 }
 
-impl<T> Default for State<T> {
+impl<T: ?Sized> Default for State<T> {
     #[cfg(feature = "backtrace")]
     fn default() -> Self {
         State {
