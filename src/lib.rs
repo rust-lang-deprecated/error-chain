@@ -402,8 +402,9 @@
 //! }
 //!
 //! # fn main() {
-//! let cause = "xyzzy".parse::<i32>().err().unwrap();
-//! let e = Error::with_chain(cause, ErrorKind::InvalidToolchainName("xyzzy".to_string()));
+//! let e = "xyzzy".parse::<i32>()
+//!     .chain_err(|| ErrorKind::InvalidToolchainName("xyzzy".to_string()))
+//!     .unwrap_err();
 //!
 //! // Get the brief description of the error:
 //! assert_eq!(e.description(), "invalid toolchain name");
