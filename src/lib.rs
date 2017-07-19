@@ -383,6 +383,53 @@
 //! # }
 //! ```
 //!
+//! ## Inspecting errors
+//!
+//! An error-chain error contains information about the error itself, a backtrace, and the chain
+//! of causing errors. For reporting purposes, this information can be accessed as follows.
+//!
+//! ```
+//! # #[macro_use] extern crate error_chain;
+//! use error_chain::ChainedError;  // for e.display()
+//!
+//! error_chain! {
+//!     errors {
+//!         InvalidToolchainName(t: String) {
+//!             description("invalid toolchain name")
+//!             display("invalid toolchain name: '{}'", t)
+//!         }
+//!     }
+//! }
+//!
+//! # fn main() {
+//! // Generate an example error to inspect:
+//! let e = "xyzzy".parse::<i32>()
+//!     .chain_err(|| ErrorKind::InvalidToolchainName("xyzzy".to_string()))
+//!     .unwrap_err();
+//!
+//! // Get the brief description of the error:
+//! assert_eq!(e.description(), "invalid toolchain name");
+//!
+//! // Get the display version of the error:
+//! assert_eq!(e.to_string(), "invalid toolchain name: 'xyzzy'");
+//!
+//! // Get the full cause and backtrace:
+//! println!("{}", e.display().to_string());
+//! //     Error: invalid toolchain name: 'xyzzy'
+//! //     Caused by: invalid digit found in string
+//! //     stack backtrace:
+//! //        0:     0x7fa9f684fc94 - backtrace::backtrace::libunwind::trace
+//! //                             at src/backtrace/libunwind.rs:53
+//! //                              - backtrace::backtrace::trace<closure>
+//! //                             at src/backtrace/mod.rs:42
+//! //        1:     0x7fa9f6850b0e - backtrace::capture::{{impl}}::new
+//! //                             at out/capture.rs:79
+//! //     [..]
+//! # }
+//! ```
+//!
+//! The `Error` and `ErrorKind` types also allow programmatic access to these elements.
+//!
 //! ## Foreign links
 //!
 //! Errors that do not conform to the same conventions as this library
