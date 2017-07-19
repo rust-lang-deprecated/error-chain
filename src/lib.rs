@@ -402,6 +402,7 @@
 //! }
 //!
 //! # fn main() {
+//! // Generate an example error to inspect:
 //! let e = "xyzzy".parse::<i32>()
 //!     .chain_err(|| ErrorKind::InvalidToolchainName("xyzzy".to_string()))
 //!     .unwrap_err();
