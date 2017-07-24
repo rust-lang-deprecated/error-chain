@@ -165,11 +165,16 @@ macro_rules! error_chain_processed {
                 where F: FnOnce() -> EK, EK: Into<$error_kind_name> {
                 $error_name::with_chain(self, Self::from_kind(error().into()))
             }
+
+            /// Returns a string describing the error kind.
+            pub fn description(&self) -> &str {
+                self.0.description()
+            }
         }
 
         impl ::std::error::Error for $error_name {
             fn description(&self) -> &str {
-                self.0.description()
+                self.description()
             }
 
             fn cause(&self) -> Option<&::std::error::Error> {
@@ -234,14 +239,6 @@ macro_rules! error_chain_processed {
         impl From<String> for $error_name {
             fn from(s: String) -> Self {
                 $error_name::from_kind(s.into())
-            }
-        }
-
-        impl ::std::ops::Deref for $error_name {
-            type Target = $error_kind_name;
-
-            fn deref(&self) -> &Self::Target {
-                &self.0
             }
         }
 
