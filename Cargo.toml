@@ -10,7 +10,6 @@ description = "Yet another error boilerplate library."
 categories = ["rust-patterns"]
 
 documentation = "https://docs.rs/error-chain"
-homepage = "https://github.com/brson/error-chain"
 repository = "https://github.com/brson/error-chain"
 
 license = "MIT/Apache-2.0"
