@@ -348,6 +348,7 @@
 //! match Error::from("error!") {
 //!     Error(ErrorKind::InvalidToolchainName(_), _) => { }
 //!     Error(ErrorKind::Msg(_), _) => { }
+//!     _ => { }
 //! }
 //! # }
 //! ```

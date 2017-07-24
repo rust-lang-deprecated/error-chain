@@ -201,6 +201,9 @@ macro_rules! impl_error_chain_kind {
                 $(#[$imeta])*
                 $iitem $(($( $ttyp ),*))* $({$( $svar: $styp ),*})*,
             )*
+
+            #[doc(hidden)]
+            __Nonexhaustive {}
         }
     };
     // Private enum (Queue Empty)
@@ -279,6 +282,8 @@ macro_rules! impl_error_chain_kind {
                             display_fn(self, fmt)
                         }
                     )*
+
+                    _ => Ok(())
                 }
             }
         }
@@ -326,6 +331,8 @@ macro_rules! impl_error_chain_kind {
                                 {$( $funcs )*})
                         }
                     )*
+
+                    _ => "",
                 }
             }
         }
