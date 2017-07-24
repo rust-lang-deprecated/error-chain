@@ -1,5 +1,7 @@
 # Unreleased
 
+- [Remove `impl Deref<Kind> for Error`](https://github.com/rust-lang-nursery/error-chain/pull/192)
+
 # 0.11.0
 
 - Change last rust version supported to 1.14
