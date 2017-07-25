@@ -55,7 +55,7 @@
 //! and implementation boilerplate necessary for fulfilling a
 //! particular error-handling strategy. Most importantly it defines a
 //! custom error type (called `Error` by convention) and the `From`
-//! conversions that let the `try!` macro and `?` operator work.
+//! conversions that let the `?` operator work.
 //!
 //! This library differs in a few ways from previous error libs:
 //!
@@ -211,21 +211,20 @@
 //! strings and `ErrorKind` have `From` conversions to turn them into
 //! `Error`.
 //!
-//! When the error is emitted inside a `try!` macro or behind the
-//! `?` operator, the explicit conversion isn't needed; `try!` will
-//! automatically convert `Err(ErrorKind)` to `Err(Error)`. So the
-//! below is equivalent to the previous:
+//! When the error is emitted behind the `?` operator, the explicit conversion
+//! isn't needed; `Err(ErrorKind)` will automatically be converted to `Err(Error)`.
+//! So the below is equivalent to the previous:
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! # error_chain! { errors { FooError } }
 //! fn foo() -> Result<()> {
-//!     Ok(try!(Err(ErrorKind::FooError)))
+//!     Ok(Err(ErrorKind::FooError)?)
 //! }
 //!
 //! fn bar() -> Result<()> {
-//!     Ok(try!(Err("bogus!")))
+//!     Ok(Err("bogus!")?)
 //! }
 //! ```
 //!
@@ -437,7 +436,7 @@
 //! can still be included in the error chain. They are considered "foreign
 //! errors", and are declared using the `foreign_links` block of the
 //! `error_chain!` macro. `Error`s are automatically created from
-//! foreign errors by the `try!` macro.
+//! foreign errors by the `?` operator.
 //!
 //! Foreign links and regular links have one crucial difference:
 //! `From` conversions for regular links *do not introduce a new error
@@ -580,14 +579,14 @@ impl<'a, T> fmt::Display for Display<'a, T>
     where T: ChainedError
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        try!(writeln!(fmt, "Error: {}", self.0));
+        writeln!(fmt, "Error: {}", self.0)?;
 
         for e in self.0.iter().skip(1) {
-            try!(writeln!(fmt, "Caused by: {}", e));
+            writeln!(fmt, "Caused by: {}", e)?;
         }
 
         if let Some(backtrace) = self.0.backtrace() {
-            try!(writeln!(fmt, "{:?}", backtrace));
+            writeln!(fmt, "{:?}", backtrace)?;
         }
 
         Ok(())

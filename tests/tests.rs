@@ -367,7 +367,7 @@ mod foreign_link_test {
     }
 
     fn try_foreign_error() -> Result<()> {
-        try!(Err(ForeignError { cause: ForeignErrorCause {} }));
+        Err(ForeignError { cause: ForeignErrorCause {} })?;
         Ok(())
     }
 }

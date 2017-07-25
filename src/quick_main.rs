@@ -1,4 +1,4 @@
-/// Convenient wrapper to be able to use `try!` and such in the main. You can
+/// Convenient wrapper to be able to use `?` and such in the main. You can
 /// use it with a separated function:
 ///
 /// ```
