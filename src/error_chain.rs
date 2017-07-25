@@ -250,7 +250,7 @@ macro_rules! error_chain_processed {
         // The ErrorKind type
         // --------------
 
-        quick_error! {
+        impl_error_chain_kind! {
             /// The kind of an error.
             #[derive(Debug)]
             pub enum $error_kind_name {
