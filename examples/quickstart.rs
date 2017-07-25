@@ -46,17 +46,17 @@ fn main() {
 
 // The above main gives you maximum control over how the error is
 // formatted. If you don't care (i.e. you want to display the full
-// error during an assert) you can just call the `display` method
+// error during an assert) you can just call the `display_chain` method
 // on the error object
 #[allow(dead_code)]
 fn alternative_main() {
     if let Err(ref e) = run() {
         use std::io::Write;
-        use error_chain::ChainedError; // trait which holds `display`
+        use error_chain::ChainedError; // trait which holds `display_chain`
         let stderr = &mut ::std::io::stderr();
         let errmsg = "Error writing to stderr";
 
-        writeln!(stderr, "{}", e.display()).expect(errmsg);
+        writeln!(stderr, "{}", e.display_chain()).expect(errmsg);
         ::std::process::exit(1);
     }
 }
