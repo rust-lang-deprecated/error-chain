@@ -1,4 +1,5 @@
 #![deny(missing_docs)]
+#![doc(html_root_url = "https://docs.rs/error-chain/0.10.0")]
 
 //! A library for consistent and reliable error handling
 //!
