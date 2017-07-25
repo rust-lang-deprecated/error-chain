@@ -1,5 +1,6 @@
 # Unreleased
 
+- [Rename `ChanedError::display` to `display_chain`](https://github.com/brson/error-chain/issues/180)
 - [Add a new method for `Error`: `chain_err`.](https://github.com/brson/error-chain/pull/141)
 - [Allow `chain_err` to be used on `Option<T>`](https://github.com/brson/error-chain/pull/156)
 - [Add support for creating an error chain on boxed trait errors (`Box<Error>`)](https://github.com/brson/error-chain/pull/156)

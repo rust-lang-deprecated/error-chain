@@ -61,7 +61,7 @@
 //!
 //! * Instead of defining the custom `Error` type as an enum, it is a
 //!   struct containing an `ErrorKind` (which defines the
-//!   `description` and `display` methods for the error), an opaque,
+//!   `description` and `display_chain` methods for the error), an opaque,
 //!   optional, boxed `std::error::Error + Send + 'static` object
 //!   (which defines the `cause`, and establishes the links in the
 //!   error chain), and a `Backtrace`.
@@ -391,7 +391,7 @@
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
-//! use error_chain::ChainedError;  // for e.display()
+//! use error_chain::ChainedError;  // for e.display_chain()
 //!
 //! error_chain! {
 //!     errors {
@@ -415,7 +415,7 @@
 //! assert_eq!(e.to_string(), "invalid toolchain name: 'xyzzy'");
 //!
 //! // Get the full cause and backtrace:
-//! println!("{}", e.display().to_string());
+//! println!("{}", e.display_chain().to_string());
 //! //     Error: invalid toolchain name: 'xyzzy'
 //! //     Caused by: invalid digit found in string
 //! //     stack backtrace:
@@ -551,8 +551,8 @@ pub trait ChainedError: error::Error + Send + 'static {
     /// context of this error.
     ///
     /// The full cause chain and backtrace, if present, will be printed.
-    fn display<'a>(&'a self) -> Display<'a, Self> {
-        Display(self)
+    fn display_chain<'a>(&'a self) -> DisplayChain<'a, Self> {
+        DisplayChain(self)
     }
 
     /// Extends the error chain with a new entry.
@@ -574,9 +574,9 @@ pub trait ChainedError: error::Error + Send + 'static {
 
 /// A struct which formats an error for output.
 #[derive(Debug)]
-pub struct Display<'a, T: 'a + ?Sized>(&'a T);
+pub struct DisplayChain<'a, T: 'a + ?Sized>(&'a T);
 
-impl<'a, T> fmt::Display for Display<'a, T>
+impl<'a, T> fmt::Display for DisplayChain<'a, T>
     where T: ChainedError
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {

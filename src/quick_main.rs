@@ -47,7 +47,7 @@ macro_rules! quick_main {
             ::std::process::exit(match $main() {
                 Ok(ret) => $crate::ExitCode::code(ret),
                 Err(ref e) => {
-                    write!(&mut ::std::io::stderr(), "{}", $crate::ChainedError::display(e))
+                    write!(&mut ::std::io::stderr(), "{}", $crate::ChainedError::display_chain(e))
                         .expect("Error writing to stderr");
 
                     1
