@@ -175,7 +175,7 @@
 //! This populates the module with a number of definitions,
 //! the most important of which are the `Error` type
 //! and the `ErrorKind` type. An example of generated code can be found in the
-//! [example_generated](example_generated) module.
+//! [example_generated](example_generated.html) module.
 //!
 //! ## Returning new errors
 //!
