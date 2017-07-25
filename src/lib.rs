@@ -149,9 +149,8 @@
 //!         Io(::std::io::Error) #[cfg(unix)];
 //!     }
 //!
-//!     // Define additional `ErrorKind` variants. The syntax here is
-//!     // the same as `quick_error!`, but the `from()` and `cause()`
-//!     // syntax is not supported.
+//!     // Define additional `ErrorKind` variants.  Define custom responses with the
+//!     // `description` and `display` calls.
 //!     errors {
 //!         InvalidToolchainName(t: String) {
 //!             description("invalid toolchain name")
@@ -553,7 +552,7 @@ pub use backtrace::Backtrace;
 pub type Backtrace = ();
 
 #[macro_use]
-mod quick_error;
+mod impl_error_chain_kind;
 #[macro_use]
 mod error_chain;
 #[macro_use]

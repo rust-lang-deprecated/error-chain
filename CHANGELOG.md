@@ -2,6 +2,7 @@
 
 - Change last rust version supported to 1.14
 - [Cache whether RUST_BACKTRACE is enabled in a relaxed atomic static.](https://github.com/rust-lang-nursery/error-chain/pull/210)
+- [Mask the `quick_error` macro from the doc](https://github.com/rust-lang-nursery/error-chain/pull/210)
 
 # 0.11.0-rc.2
 
