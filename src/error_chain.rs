@@ -166,7 +166,8 @@ macro_rules! error_chain_processed {
                 $error_name::with_chain(self, Self::from_kind(error().into()))
             }
 
-            /// Returns a string describing the error kind.
+            /// A short description of the error.
+            /// This method is identical to [`Error::description()`](https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description)
             pub fn description(&self) -> &str {
                 self.0.description()
             }
