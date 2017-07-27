@@ -358,6 +358,7 @@ mod foreign_link_test {
     fn iterates() {
         let chained_error = try_foreign_error().err().unwrap();
         let mut error_iter = chained_error.iter();
+        assert!(!format!("{:?}", error_iter).is_empty());
         assert_eq!(format!("{}", ForeignError { cause: ForeignErrorCause {} }),
                    format!("{}", error_iter.next().unwrap()));
         assert_eq!(format!("{}", ForeignErrorCause {}),
