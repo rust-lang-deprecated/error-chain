@@ -1,4 +1,4 @@
-# Unreleased
+# 0.11.0-rc.1
 
 - [Make `ErrorChainIter`'s field private](https://github.com/brson/error-chain/issues/178)
 - [Rename `ErrorChainIter` to `Iter`](https://github.com/brson/error-chain/issues/168)
