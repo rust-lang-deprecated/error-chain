@@ -1,5 +1,6 @@
 # Unreleased
 
+- [Make `ErrorChainIter`'s field private](https://github.com/brson/error-chain/issues/178)
 - [Rename `ErrorChainIter` to `Iter`](https://github.com/brson/error-chain/issues/168)
 - [Implement `Debug` for `ErrorChainIter`](https://github.com/brson/error-chain/issues/169)
 - [Rename `ChainedError::display` to `display_chain`](https://github.com/brson/error-chain/issues/180)

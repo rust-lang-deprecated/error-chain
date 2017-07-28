@@ -495,7 +495,14 @@ pub mod example_generated;
 
 #[derive(Debug)]
 /// Iterator over the error chain using the `Error::cause()` method.
-pub struct Iter<'a>(pub Option<&'a error::Error>);
+pub struct Iter<'a>(Option<&'a error::Error>);
+
+impl<'a> Iter<'a> {
+    /// Returns a new iterator over the error chain using `Error::cause()`.
+    pub fn new(err: Option<&'a error::Error>) -> Iter<'a> {
+        Iter(err)
+    }
+}
 
 impl<'a> Iterator for Iter<'a> {
     type Item = &'a error::Error;
