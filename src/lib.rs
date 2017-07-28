@@ -493,6 +493,7 @@ pub use quick_main::ExitCode;
 #[cfg(feature = "example_generated")]
 pub mod example_generated;
 
+#[derive(Debug)]
 /// Iterator over the error chain using the `Error::cause()` method.
 pub struct ErrorChainIter<'a>(pub Option<&'a error::Error>);
 
