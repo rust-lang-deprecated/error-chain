@@ -495,9 +495,16 @@ pub mod example_generated;
 
 #[derive(Debug)]
 /// Iterator over the error chain using the `Error::cause()` method.
-pub struct ErrorChainIter<'a>(pub Option<&'a error::Error>);
+pub struct Iter<'a>(Option<&'a error::Error>);
 
-impl<'a> Iterator for ErrorChainIter<'a> {
+impl<'a> Iter<'a> {
+    /// Returns a new iterator over the error chain using `Error::cause()`.
+    pub fn new(err: Option<&'a error::Error>) -> Iter<'a> {
+        Iter(err)
+    }
+}
+
+impl<'a> Iterator for Iter<'a> {
     type Item = &'a error::Error;
 
     fn next<'b>(&'b mut self) -> Option<&'a error::Error> {
@@ -542,7 +549,7 @@ pub trait ChainedError: error::Error + Send + 'static {
     fn kind(&self) -> &Self::ErrorKind;
 
     /// Iterates over the error chain.
-    fn iter(&self) -> ErrorChainIter;
+    fn iter(&self) -> Iter;
 
     /// Returns the backtrace associated with this error.
     fn backtrace(&self) -> Option<&Backtrace>;

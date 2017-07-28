@@ -96,8 +96,8 @@ macro_rules! error_chain_processed {
                 self.kind()
             }
 
-            fn iter(&self) -> $crate::ErrorChainIter {
-                $crate::ErrorChainIter(Some(self))
+            fn iter(&self) -> $crate::Iter {
+                $crate::Iter::new(Some(self))
             }
 
             fn chain_err<F, EK>(self, error: F) -> Self
@@ -151,7 +151,7 @@ macro_rules! error_chain_processed {
             }
 
             /// Iterates over the error chain.
-            pub fn iter(&self) -> $crate::ErrorChainIter {
+            pub fn iter(&self) -> $crate::Iter {
                 $crate::ChainedError::iter(self)
             }
 
