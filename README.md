@@ -12,7 +12,7 @@ error types.
 
 [Documentation (crates.io)](https://docs.rs/error-chain).
 
-[Documentation (master)](https://brson.github.io/error-chain).
+[Documentation (master)](https://rust-lang-nursery.github.io/error-chain).
 
 ## Quick start
 
