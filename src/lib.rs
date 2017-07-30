@@ -24,7 +24,7 @@
 //! * error-chain is easy to configure. Handle errors robustly with minimal
 //!   effort.
 //! * Basic error handling requires no maintenance of custom error types
-//!   nor the `From` conversions that make `?` work.
+//!   nor the [`From`] conversions that make `?` work.
 //! * error-chain scales from simple error handling strategies to more
 //!   rigorous.  Return formatted strings for simple errors, only
 //!   introducing error variants and their strong typing as needed for
@@ -40,56 +40,56 @@
 //! error-chain is based on the following principles:
 //!
 //! * No error should ever be discarded. This library primarily
-//!   makes it easy to "chain" errors with the `chain_err` method.
+//!   makes it easy to "chain" errors with the [`chain_err`] method.
 //! * Introducing new errors is trivial. Simple errors can be introduced
 //!   at the error site with just a string.
 //! * Handling errors is possible with pattern matching.
 //! * Conversions between error types are done in an automatic and
-//!   consistent way - `From` conversion behavior is never specified
+//!   consistent way - [`From`] conversion behavior is never specified
 //!   explicitly.
-//! * Errors implement Send.
+//! * Errors implement [`Send`].
 //! * Errors can carry backtraces.
 //!
 //! Similar to other libraries like [error-type] and [quick-error],
 //! this library introduces the error chaining mechanism originally
-//! employed by Cargo.  The `error_chain!` macro declares the types
+//! employed by Cargo.  The [`error_chain!`] macro declares the types
 //! and implementation boilerplate necessary for fulfilling a
 //! particular error-handling strategy. Most importantly it defines a
-//! custom error type (called `Error` by convention) and the `From`
+//! custom error type (called [`Error`] by convention) and the [`From`]
 //! conversions that let the `?` operator work.
 //!
 //! This library differs in a few ways from previous error libs:
 //!
-//! * Instead of defining the custom `Error` type as an enum, it is a
-//!   struct containing an `ErrorKind` (which defines the
-//!   `description` and `display_chain` methods for the error), an opaque,
-//!   optional, boxed `std::error::Error + Send + 'static` object
-//!   (which defines the `cause`, and establishes the links in the
-//!   error chain), and a `Backtrace`.
-//! * The macro also defines a `ResultExt` trait that defines a
-//!   `chain_err` method. This method on all `std::error::Error + Send + 'static`
+//! * Instead of defining the custom [`Error`] type as an enum, it is a
+//!   struct containing an [`ErrorKind`][] (which defines the
+//!   [`description`] and [`display_chain`] methods for the error), an opaque,
+//!   optional, boxed [`std::error::Error`]` + `[`Send`]` + 'static` object
+//!   (which defines the [`cause`], and establishes the links in the
+//!   error chain), and a [`Backtrace`].
+//! * The macro also defines a [`ResultExt`] trait that defines a
+//!   [`chain_err`] method. This method on all [`std::error::Error`]` + `[`Send`]` + 'static`
 //!   types extends the error chain by boxing the current
 //!   error into an opaque object and putting it inside a new concrete
 //!   error.
-//! * It provides automatic `From` conversions between other error types
-//!   defined by the `error_chain!` that preserve type information,
+//! * It provides automatic [`From`] conversions between other error types
+//!   defined by the [`error_chain!`] that preserve type information,
 //!   and facilitate seamless error composition and matching of composed
 //!   errors.
-//! * It provides automatic `From` conversions between any other error
-//!   type that hides the type of the other error in the `cause` box.
+//! * It provides automatic [`From`] conversions between any other error
+//!   type that hides the type of the other error in the [`cause`] box.
 //! * If `RUST_BACKTRACE` is enabled, it collects a single backtrace at
 //!   the earliest opportunity and propagates it down the stack through
-//!   `From` and `ResultExt` conversions.
+//!   [`From`] and [`ResultExt`] conversions.
 //!
 //! To accomplish its goals it makes some tradeoffs:
 //!
-//! * The split between the `Error` and `ErrorKind` types can make it
+//! * The split between the [`Error`] and [`ErrorKind`] types can make it
 //!   slightly more cumbersome to instantiate new (unchained) errors,
-//!   requiring an `Into` or `From` conversion; as well as slightly
+//!   requiring an [`Into`] or [`From`] conversion; as well as slightly
 //!   more cumbersome to match on errors with another layer of types
 //!   to match.
-//! * Because the error type contains `std::error::Error + Send + 'static` objects,
-//!   it can't implement `PartialEq` for easy comparisons.
+//! * Because the error type contains [`std::error::Error`]` + `[`Send`]` + 'static` objects,
+//!   it can't implement [`PartialEq`] for easy comparisons.
 //!
 //! ## Declaring error types
 //!
@@ -98,7 +98,7 @@
 //! basis, such as per module.
 //!
 //! Assuming you are using crate-level error types, typically you will
-//! define an `errors` module and inside it call `error_chain!`:
+//! define an `errors` module and inside it call [`error_chain!`]:
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
@@ -174,8 +174,8 @@
 //! be omitted if it is empty.
 //!
 //! This populates the module with a number of definitions,
-//! the most important of which are the `Error` type
-//! and the `ErrorKind` type. An example of generated code can be found in the
+//! the most important of which are the [`Error`] type
+//! and the [`ErrorKind`] type. An example of generated code can be found in the
 //! [example_generated](example_generated/index.html) module.
 //!
 //! ## Returning new errors
@@ -191,7 +191,7 @@
 //! }
 //! ```
 //!
-//! Introducing new error chains, with an `ErrorKind`:
+//! Introducing new error chains, with an [`ErrorKind`]:
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
@@ -205,12 +205,12 @@
 //! }
 //! ```
 //!
-//! Note that the return type is the typedef `Result`, which is
+//! Note that the return type is the typedef [`Result`], which is
 //! defined by the macro as `pub type Result<T> =
 //! ::std::result::Result<T, Error>`. Note that in both cases
-//! `.into()` is called to convert a type into the `Error` type; both
-//! strings and `ErrorKind` have `From` conversions to turn them into
-//! `Error`.
+//! [`.into()`] is called to convert a type into the [`Error`] type; both
+//! strings and [`ErrorKind`] have [`From`] conversions to turn them into
+//! [`Error`].
 //!
 //! When the error is emitted behind the `?` operator, the explicit conversion
 //! isn't needed; `Err(ErrorKind)` will automatically be converted to `Err(Error)`.
@@ -232,10 +232,10 @@
 //! ## The `bail!` macro
 //!
 //! The above method of introducing new errors works but is a little
-//! verbose. Instead, we can use the `bail!` macro, which performs an early return
+//! verbose. Instead, we can use the [`bail!`] macro, which performs an early return
 //! with conversions done automatically.
 //!
-//! With `bail!` the previous examples look like:
+//! With [`bail!`] the previous examples look like:
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
@@ -275,20 +275,20 @@
 //! # }
 //! ```
 //!
-//! `chain_err` can be called on any `Result` type where the contained
-//! error type implements `std::error::Error + Send + 'static`, as long as
-//! the `Result` type's corresponding `ResultExt` trait is in scope.  If
-//! the `Result` is an `Err` then `chain_err` evaluates the closure,
-//! which returns *some type that can be converted to `ErrorKind`*,
+//! [`chain_err`] can be called on any [`Result`] type where the contained
+//! error type implements [`std::error::Error`]` + `[`Send`]` + 'static`, as long as
+//! the [`Result`] type's corresponding [`ResultExt`] trait is in scope.  If
+//! the [`Result`] is an `Err` then [`chain_err`] evaluates the closure,
+//! which returns *some type that can be converted to [`ErrorKind`]*,
 //! boxes the original error to store as the cause, then returns a new
 //! error containing the original error.
 //!
-//! Calling `chain_err` on an existing `Error` instance has the same
-//! signature and produces the same outcome as being called on a `Result`
-//! matching the properties described above. This is most useful when
-//! partially handling errors using the `map_err` function.
+//! Calling [`chain_err`][Error_chain_err] on an existing [`Error`] instance has
+//! the same signature and produces the same outcome as being called on a
+//! [`Result`] matching the properties described above. This is most useful when
+//! partially handling errors using the [`map_err`] function.
 //!
-//! To chain an error directly, use `with_chain`:
+//! To chain an error directly, use [`with_chain`]:
 //!
 //! ```
 //! # #[macro_use] extern crate error_chain;
@@ -324,14 +324,14 @@
 //! # }
 //! ```
 //!
-//! The `Error` and `ErrorKind` types implements `From` for the corresponding
+//! The [`Error`] and [`ErrorKind`] types implements [`From`] for the corresponding
 //! types of all linked error chains. Linked errors do not introduce a new
 //! cause to the error chain.
 //!
 //! ## Matching errors
 //!
 //! error-chain error variants are matched with simple patterns.
-//! `Error` is a tuple struct and its first field is the `ErrorKind`,
+//! [`Error`] is a tuple struct and its first field is the [`ErrorKind`],
 //! making dispatching on error kinds relatively compact:
 //!
 //! ```
@@ -429,23 +429,23 @@
 //! # }
 //! ```
 //!
-//! The `Error` and `ErrorKind` types also allow programmatic access to these elements.
+//! The [`Error`] and [`ErrorKind`] types also allow programmatic access to these elements.
 //!
 //! ## Foreign links
 //!
 //! Errors that do not conform to the same conventions as this library
 //! can still be included in the error chain. They are considered "foreign
 //! errors", and are declared using the `foreign_links` block of the
-//! `error_chain!` macro. `Error`s are automatically created from
+//! [`error_chain!`] macro. [`Error`]s are automatically created from
 //! foreign errors by the `?` operator.
 //!
 //! Foreign links and regular links have one crucial difference:
-//! `From` conversions for regular links *do not introduce a new error
+//! [`From`] conversions for regular links *do not introduce a new error
 //! into the error chain*, while conversions for foreign links *always
 //! introduce a new error into the error chain*. So for the example
-//! above all errors deriving from the `std::fmt::Error` type will be
-//! presented to the user as a new `ErrorKind::Fmt` variant, and the
-//! cause will be the original `std::fmt::Error` error. In contrast, when
+//! above all errors deriving from the [`std::fmt::Error`] type will be
+//! presented to the user as a new [`ErrorKind`] variant, and the
+//! cause will be the original [`std::fmt::Error`] error. In contrast, when
 //! `other_error::Error` is converted to `Error` the two `ErrorKind`s
 //! are converted between each other to create a new `Error` but the
 //! old error is discarded; there is no "cause" created from the
@@ -455,19 +455,44 @@
 //!
 //! If the `RUST_BACKTRACE` environment variable is set to anything
 //! but ``0``, the earliest non-foreign error to be generated creates
-//! a single backtrace, which is passed through all `From` conversions
-//! and `chain_err` invocations of compatible types. To read the
-//! backtrace just call the `backtrace()` method.
+//! a single backtrace, which is passed through all [`From`] conversions
+//! and [`chain_err`] invocations of compatible types. To read the
+//! backtrace just call the [`backtrace`] method.
 //!
 //! Backtrace generation can be disabled by turning off the `backtrace` feature.
 //!
 //! ## Iteration
 //!
-//! The `iter` method returns an iterator over the chain of error boxes.
+//! The [`iter`] method returns an iterator over the chain of error boxes.
 //!
 //! [error-type]: https://github.com/DanielKeep/rust-error-type
 //! [quick-error]: https://github.com/tailhook/quick-error
 
+//! [`display_chain`]: trait.ChainedError.html#method.display_chain
+//! [`error_chain!`]: macro.error_chain.html
+//! [`bail!`]: macro.bail.html
+//! [`Backtrace`]: struct.Backtrace.html
+
+//! [`Error`]: example_generated/struct.Error.html
+//! [`with_chain`]: example_generated/struct.Error.html#method.with_chain
+//! [Error_chain_err]: example_generated/struct.Error.html#method.chain_err
+//! [`cause`]: example_generated/struct.Error.html#method.cause
+//! [`backtrace`]: example_generated/struct.Error.html#method.backtrace
+//! [`iter`]: example_generated/struct.Error.html#method.iter
+//! [`ErrorKind`]: example_generated/enum.ErrorKind.html
+//! [`description`]: example_generated/enum.ErrorKind.html#method.description
+//! [`Result`]: example_generated/type.Result.html
+//! [`ResultExt`]: example_generated/trait.ResultExt.html
+//! [`chain_err`]: example_generated/trait.ResultExt.html#tymethod.chain_err
+
+//! [`std::error::Error`]: https://doc.rust-lang.org/std/error/trait.Error.html
+//! [`Send`]: https://doc.rust-lang.org/std/marker/trait.Send.html
+//! [`Into`]: https://doc.rust-lang.org/std/convert/trait.Into.html
+//! [`From`]: https://doc.rust-lang.org/std/convert/trait.From.html
+//! [`PartialEq`]: https://doc.rust-lang.org/std/cmp/trait.PartialEq.html
+//! [`std::fmt::Error`]: https://doc.rust-lang.org/std/fmt/struct.Error.html
+//! [`.into()`]: https://doc.rust-lang.org/std/convert/trait.Into.html#tymethod.into
+//! [`map_err`]: https://doc.rust-lang.org/std/result/enum.Result.html#method.map_err
 
 #[cfg(feature = "backtrace")]
 extern crate backtrace;
