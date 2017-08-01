@@ -16,7 +16,7 @@
 //! follow the [quickstart.rs] template, and read this [intro]
 //! to error-chain.
 //!
-//! [quickstart.rs]: https://github.com/brson/error-chain/blob/master/examples/quickstart.rs
+//! [quickstart.rs]: https://github.com/rust-lang-nursery/error-chain/blob/master/examples/quickstart.rs
 //! [intro]: http://brson.github.io/2016/11/30/starting-with-error-chain
 //!
 //! ## Why error chain?
