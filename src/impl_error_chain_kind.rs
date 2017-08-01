@@ -4,18 +4,19 @@
 //   - $imeta
 
 #[macro_export]
-macro_rules! quick_error {
+#[doc(hidden)]
+macro_rules! impl_error_chain_kind {
     (   $(#[$meta:meta])*
         pub enum $name:ident { $($chunks:tt)* }
     ) => {
-        quick_error!(SORT [pub enum $name $(#[$meta])* ]
+        impl_error_chain_kind!(SORT [pub enum $name $(#[$meta])* ]
             items [] buf []
             queue [ $($chunks)* ]);
     };
     (   $(#[$meta:meta])*
         enum $name:ident { $($chunks:tt)* }
     ) => {
-        quick_error!(SORT [enum $name $(#[$meta])* ]
+        impl_error_chain_kind!(SORT [enum $name $(#[$meta])* ]
             items [] buf []
             queue [ $($chunks)* ]);
     };
@@ -27,16 +28,16 @@ macro_rules! quick_error {
         buf [ ]
         queue [ ]
     ) => {
-        quick_error!(ENUM_DEFINITION [enum $name $( #[$meta] )*]
+        impl_error_chain_kind!(ENUM_DEFINITION [enum $name $( #[$meta] )*]
             body []
             queue [$($( #[$imeta] )*
                       => $iitem: $imode [$( $ivar: $ityp ),*] )*]
         );
-        quick_error!(IMPLEMENTATIONS $name {$(
+        impl_error_chain_kind!(IMPLEMENTATIONS $name {$(
            $iitem: $imode [$(#[$imeta])*] [$( $ivar: $ityp ),*] {$( $ifuncs )*}
            )*});
         $(
-            quick_error!(ERROR_CHECK $imode $($ifuncs)*);
+            impl_error_chain_kind!(ERROR_CHECK $imode $($ifuncs)*);
         )*
     };
     (SORT [pub enum $name:ident $( #[$meta:meta] )*]
@@ -46,16 +47,16 @@ macro_rules! quick_error {
         buf [ ]
         queue [ ]
     ) => {
-        quick_error!(ENUM_DEFINITION [pub enum $name $( #[$meta] )*]
+        impl_error_chain_kind!(ENUM_DEFINITION [pub enum $name $( #[$meta] )*]
             body []
             queue [$($( #[$imeta] )*
                       => $iitem: $imode [$( $ivar: $ityp ),*] )*]
         );
-        quick_error!(IMPLEMENTATIONS $name {$(
+        impl_error_chain_kind!(IMPLEMENTATIONS $name {$(
            $iitem: $imode [$(#[$imeta])*] [$( $ivar: $ityp ),*] {$( $ifuncs )*}
            )*});
         $(
-            quick_error!(ERROR_CHECK $imode $($ifuncs)*);
+            impl_error_chain_kind!(ERROR_CHECK $imode $($ifuncs)*);
         )*
     };
     // Add meta to buffer
@@ -66,7 +67,7 @@ macro_rules! quick_error {
         buf [$( #[$bmeta:meta] )*]
         queue [ #[$qmeta:meta] $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
             buf [$( #[$bmeta] )* #[$qmeta] ]
             queue [$( $tail )*]);
@@ -79,7 +80,7 @@ macro_rules! quick_error {
         buf [$( #[$bmeta:meta] )*]
         queue [ $qitem:ident $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])*
                       => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
             buf [$(#[$bmeta])* => $qitem : UNIT [ ] ]
@@ -94,7 +95,7 @@ macro_rules! quick_error {
             => $bitem:ident: $bmode:tt [$( $bvar:ident: $btyp:ty ),*] ]
         queue [ #[$qmeta:meta] $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             enum [$( $(#[$emeta])* => $eitem $(( $($etyp),* ))* )*
                      $(#[$bmeta])* => $bitem: $bmode $(( $($btyp),* ))*]
             items [$($( #[$imeta:meta] )*
@@ -111,7 +112,7 @@ macro_rules! quick_error {
         buf [$( #[$bmeta:meta] )* => $bitem:ident: UNIT [ ] ]
         queue [($( $qvar:ident: $qtyp:ty ),+) $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
             buf [$( #[$bmeta] )* => $bitem: TUPLE [$( $qvar:$qtyp ),*] ]
             queue [$( $tail )*]
@@ -125,7 +126,7 @@ macro_rules! quick_error {
         buf [$( #[$bmeta:meta] )* => $bitem:ident: UNIT [ ] ]
         queue [{ $( $qvar:ident: $qtyp:ty ),+} $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
             buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),*] ]
             queue [$( $tail )*]);
@@ -138,7 +139,7 @@ macro_rules! quick_error {
         buf [$( #[$bmeta:meta] )* => $bitem:ident: UNIT [ ] ]
         queue [{$( $qvar:ident: $qtyp:ty ),+ ,} $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
             buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),*] ]
             queue [$( $tail )*]);
@@ -152,7 +153,7 @@ macro_rules! quick_error {
                  => $bitem:ident: $bmode:tt [$( $bvar:ident: $btyp:ty ),*] ]
         queue [ {$( $qfuncs:tt )*} $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*
                       $(#[$bmeta])* => $bitem: $bmode [$( $bvar:$btyp ),*] {$( $qfuncs )*} ]
             buf [ ]
@@ -167,7 +168,7 @@ macro_rules! quick_error {
                  => $bitem:ident: $bmode:tt [$( $bvar:ident: $btyp:ty ),*] ]
         queue [ $qitem:ident $( $tail:tt )*]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*
                      $(#[$bmeta])* => $bitem: $bmode [$( $bvar:$btyp ),*] {} ]
             buf [ => $qitem : UNIT [ ] ]
@@ -182,7 +183,7 @@ macro_rules! quick_error {
             => $bitem:ident: $bmode:tt [$( $bvar:ident: $btyp:ty ),*] ]
         queue [ ]
     ) => {
-        quick_error!(SORT [$( $def )*]
+        impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*
                      $(#[$bmeta])* => $bitem: $bmode [$( $bvar:$btyp ),*] {} ]
             buf [ ]
@@ -223,7 +224,7 @@ macro_rules! quick_error {
         queue [$( #[$qmeta:meta] )*
             => $qitem:ident: UNIT [ ] $( $queue:tt )*]
     ) => {
-        quick_error!(ENUM_DEFINITION [ $($def)* ]
+        impl_error_chain_kind!(ENUM_DEFINITION [ $($def)* ]
             body [$($( #[$imeta] )* => $iitem ($(($( $ttyp ),+))*) {$({$( $svar: $styp ),*})*} )*
                     $( #[$qmeta] )* => $qitem () {} ]
             queue [ $($queue)* ]
@@ -236,7 +237,7 @@ macro_rules! quick_error {
         queue [$( #[$qmeta:meta] )*
             => $qitem:ident: TUPLE [$( $qvar:ident: $qtyp:ty ),+] $( $queue:tt )*]
     ) => {
-        quick_error!(ENUM_DEFINITION [ $($def)* ]
+        impl_error_chain_kind!(ENUM_DEFINITION [ $($def)* ]
             body [$($( #[$imeta] )* => $iitem ($(($( $ttyp ),+))*) {$({$( $svar: $styp ),*})*} )*
                     $( #[$qmeta] )* => $qitem (($( $qtyp ),*)) {} ]
             queue [ $($queue)* ]
@@ -249,7 +250,7 @@ macro_rules! quick_error {
         queue [$( #[$qmeta:meta] )*
             => $qitem:ident: STRUCT [$( $qvar:ident: $qtyp:ty ),*] $( $queue:tt )*]
     ) => {
-        quick_error!(ENUM_DEFINITION [ $($def)* ]
+        impl_error_chain_kind!(ENUM_DEFINITION [ $($def)* ]
             body [$($( #[$imeta] )* => $iitem ($(($( $ttyp ),+))*) {$({$( $svar: $styp ),*})*} )*
                     $( #[$qmeta] )* => $qitem () {{$( $qvar: $qtyp ),*}} ]
             queue [ $($queue)* ]
@@ -268,10 +269,10 @@ macro_rules! quick_error {
                 match *self {
                     $(
                         $(#[$imeta])*
-                        quick_error!(ITEM_PATTERN
+                        impl_error_chain_kind!(ITEM_PATTERN
                             $name $item: $imode [$( ref $var ),*]
                         ) => {
-                            let display_fn = quick_error!(FIND_DISPLAY_IMPL
+                            let display_fn = impl_error_chain_kind!(FIND_DISPLAY_IMPL
                                 $name $item: $imode
                                 {$( $funcs )*});
 
@@ -286,10 +287,10 @@ macro_rules! quick_error {
             fn description(&self) -> &str {
                 match *self {
                     $(
-                        quick_error!(ITEM_PATTERN
+                        impl_error_chain_kind!(ITEM_PATTERN
                             $name $item: $imode [$( ref $var ),*]
                         ) => {
-                            quick_error!(FIND_DESCRIPTION_IMPL
+                            impl_error_chain_kind!(FIND_DESCRIPTION_IMPL
                                 $item: $imode self fmt [$( $var ),*]
                                 {$( $funcs )*})
                         }
@@ -299,10 +300,10 @@ macro_rules! quick_error {
             fn cause(&self) -> Option<&::std::error::Error> {
                 match *self {
                     $(
-                        quick_error!(ITEM_PATTERN
+                        impl_error_chain_kind!(ITEM_PATTERN
                             $name $item: $imode [$( ref $var ),*]
                         ) => {
-                            quick_error!(FIND_CAUSE_IMPL
+                            impl_error_chain_kind!(FIND_CAUSE_IMPL
                                 $item: $imode [$( $var ),*]
                                 {$( $funcs )*})
                         }
@@ -317,10 +318,10 @@ macro_rules! quick_error {
                 match *self {
                     $(
                         $(#[$imeta])*
-                        quick_error!(ITEM_PATTERN
+                        impl_error_chain_kind!(ITEM_PATTERN
                             $name $item: $imode [$( ref $var ),*]
                         ) => {
-                            quick_error!(FIND_DESCRIPTION_IMPL
+                            impl_error_chain_kind!(FIND_DESCRIPTION_IMPL
                                 $item: $imode self fmt [$( $var ),*]
                                 {$( $funcs )*})
                         }
@@ -329,7 +330,7 @@ macro_rules! quick_error {
             }
         }
         $(
-            quick_error!(FIND_FROM_IMPL
+            impl_error_chain_kind!(FIND_FROM_IMPL
                 $name $item: $imode [$( $var:$typ ),*]
                 {$( $funcs )*});
         )*
@@ -337,7 +338,7 @@ macro_rules! quick_error {
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { display($self_:tt) -> ($( $exprs:tt )*) $( $tail:tt )*}
     ) => {
-        |quick_error!(IDENT $self_): &$name, f: &mut ::std::fmt::Formatter| {
+        |impl_error_chain_kind!(IDENT $self_): &$name, f: &mut ::std::fmt::Formatter| {
             write!(f, $( $exprs )*)
         }
     };
@@ -354,7 +355,7 @@ macro_rules! quick_error {
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { $t:tt $( $tail:tt )*}
     ) => {
-        quick_error!(FIND_DISPLAY_IMPL
+        impl_error_chain_kind!(FIND_DISPLAY_IMPL
             $name $item: $imode
             {$( $tail )*})
     };
@@ -375,7 +376,7 @@ macro_rules! quick_error {
         [$( $var:ident ),*]
         { $t:tt $( $tail:tt )*}
     ) => {
-        quick_error!(FIND_DESCRIPTION_IMPL
+        impl_error_chain_kind!(FIND_DESCRIPTION_IMPL
             $item: $imode $me $fmt [$( $var ),*]
             {$( $tail )*})
     };
@@ -395,7 +396,7 @@ macro_rules! quick_error {
         [$( $var:ident ),*]
         { $t:tt $( $tail:tt )*}
     ) => {
-        quick_error!(FIND_CAUSE_IMPL
+        impl_error_chain_kind!(FIND_CAUSE_IMPL
             $item: $imode [$( $var ),*]
             { $($tail)* })
     };
@@ -416,7 +417,7 @@ macro_rules! quick_error {
                 }
             }
         )*
-        quick_error!(FIND_FROM_IMPL
+        impl_error_chain_kind!(FIND_FROM_IMPL
             $name $item: $imode [$( $var:$typ ),*]
             {$( $tail )*});
     };
@@ -429,7 +430,7 @@ macro_rules! quick_error {
                 $name::$item
             }
         }
-        quick_error!(FIND_FROM_IMPL
+        impl_error_chain_kind!(FIND_FROM_IMPL
             $name $item: UNIT [  ]
             {$( $tail )*});
     };
@@ -442,7 +443,7 @@ macro_rules! quick_error {
                 $name::$item($( $texpr ),*)
             }
         }
-        quick_error!(FIND_FROM_IMPL
+        impl_error_chain_kind!(FIND_FROM_IMPL
             $name $item: TUPLE [$( $var:$typ ),*]
             { $($tail)* });
     };
@@ -457,7 +458,7 @@ macro_rules! quick_error {
                 }
             }
         }
-        quick_error!(FIND_FROM_IMPL
+        impl_error_chain_kind!(FIND_FROM_IMPL
             $name $item: STRUCT [$( $var:$typ ),*]
             { $($tail)* });
     };
@@ -465,7 +466,7 @@ macro_rules! quick_error {
         [$( $var:ident: $typ:ty ),*]
         { $t:tt $( $tail:tt )*}
     ) => {
-        quick_error!(FIND_FROM_IMPL
+        impl_error_chain_kind!(FIND_FROM_IMPL
             $name $item: $imode [$( $var:$typ ),*]
             {$( $tail )*}
         );
@@ -506,28 +507,28 @@ macro_rules! quick_error {
     // This is to contrast FIND_* clauses which just find stuff they need and
     // skip everything else completely
     (ERROR_CHECK $imode:tt display($self_:tt) -> ($( $exprs:tt )*) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt display($pattern: expr) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt display($pattern: expr, $( $exprs:tt )*) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt description($expr:expr) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt cause($expr:expr) $($tail:tt)*)
-    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt from() $($tail:tt)*)
-    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt from($ftyp:ty) $($tail:tt)*)
-    => { quick_error!(ERROR_CHECK_COMMA $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK TUPLE from($fvar:ident: $ftyp:ty) -> ($( $e:expr ),*) $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK_COMMA TUPLE $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK_COMMA TUPLE $($tail)*); };
     (ERROR_CHECK STRUCT from($fvar:ident: $ftyp:ty) -> {$( $v:ident: $e:expr ),*} $( $tail:tt )*)
-        => { quick_error!(ERROR_CHECK_COMMA STRUCT $($tail)*); };
+        => { impl_error_chain_kind!(ERROR_CHECK_COMMA STRUCT $($tail)*); };
     (ERROR_CHECK $imode:tt ) => {};
     (ERROR_CHECK_COMMA $imode:tt , $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK $imode $($tail)*); };
     (ERROR_CHECK_COMMA $imode:tt $( $tail:tt )*)
-    => { quick_error!(ERROR_CHECK $imode $($tail)*); };
+    => { impl_error_chain_kind!(ERROR_CHECK $imode $($tail)*); };
     // Utility functions
     (IDENT $ident:ident) => { $ident }
 }
