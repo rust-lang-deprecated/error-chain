@@ -260,7 +260,7 @@ macro_rules! quick_error {
             $item:ident: $imode:tt [$(#[$imeta:meta])*] [$( $var:ident: $typ:ty ),*] {$( $funcs:tt )*}
         )*}
     ) => {
-        #[allow(unused, unused_doc_comment)]
+        #[allow(unknown_lints, unused, unused_doc_comment)]
         impl ::std::fmt::Display for $name {
             fn fmt(&self, fmt: &mut ::std::fmt::Formatter)
                 -> ::std::fmt::Result
@@ -310,7 +310,7 @@ macro_rules! quick_error {
                 }
             }
         }*/
-        #[allow(unused, unused_doc_comment)]
+        #[allow(unknown_lints, unused, unused_doc_comment)]
         impl $name {
             /// A string describing the error kind.
             pub fn description(&self) -> &str {
