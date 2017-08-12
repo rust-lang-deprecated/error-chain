@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Error` struct in crate `error_chain`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Error">
+
+    <title>error_chain::example_generated::Error - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Error</p><div class="block items"><ul><li><a href="#methods">Methods</a></li><li><a href="#deref-methods">Methods from Deref&lt;Target=ErrorKind&gt;</a></li><li><a href="#implementations">Trait Implementations</a></li></ul></div><p class='location'><a href='../index.html'>error_chain</a>::<wbr><a href='index.html'>example_generated</a></p><script>window.sidebarCurrent = {name: 'Error', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>error_chain</a>::<wbr><a href='index.html'>example_generated</a>::<wbr><a class="struct" href=''>Error</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/error_chain/error_chain.rs.html#67-74' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Error(pub <a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>, _);</pre><div class='docblock'><p>The Error type.</p>
+
+<p>This tuple struct is made of two elements:</p>
+
+<ul>
+<li>an <code>ErrorKind</code> which is used to determine the type of the error.</li>
+<li>An internal <code>State</code>, not meant for direct use outside of <code>error_chain</code>
+internals, containing:
+
+<ul>
+<li>a backtrace, generated when the error is created.</li>
+<li>an error chain, used for the implementation of <code>Error::cause()</code>.</li>
+</ul></li>
+</ul>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#119-168' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from_kind' class="method"><span id='from_kind.v' class='invisible'><code>fn <a href='#method.from_kind' class='fnname'>from_kind</a>(kind: <a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>) -&gt; <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span></h4>
+<div class='docblock'><p>Constructs an error from a kind, and generates a backtrace.</p>
+</div><h4 id='method.with_chain' class="method"><span id='with_chain.v' class='invisible'><code>fn <a href='#method.with_chain' class='fnname'>with_chain</a>&lt;E, K&gt;(error: E, kind: K) -&gt; <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;E: <a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;K: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Constructs a chained error from another error and a kind, and generates a backtrace.</p>
+</div><h4 id='method.with_boxed_chain' class="method"><span id='with_boxed_chain.v' class='invisible'><code>fn <a href='#method.with_boxed_chain' class='fnname'>with_boxed_chain</a>&lt;K&gt;(error: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>&gt;, kind: K) -&gt; <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;K: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Construct a chained error from another boxed error and a kind, and generates a backtrace</p>
+</div><h4 id='method.kind' class="method"><span id='kind.v' class='invisible'><code>fn <a href='#method.kind' class='fnname'>kind</a>(&amp;self) -&gt; &amp;<a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a></code></span></h4>
+<div class='docblock'><p>Returns the kind of the error.</p>
+</div><h4 id='method.iter' class="method"><span id='iter.v' class='invisible'><code>fn <a href='#method.iter' class='fnname'>iter</a>(&amp;self) -&gt; <a class="struct" href="../../error_chain/struct.Iter.html" title="struct error_chain::Iter">Iter</a></code></span></h4>
+<div class='docblock'><p>Iterates over the error chain.</p>
+</div><h4 id='method.backtrace' class="method"><span id='backtrace.v' class='invisible'><code>fn <a href='#method.backtrace' class='fnname'>backtrace</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../../error_chain/struct.Backtrace.html" title="struct error_chain::Backtrace">Backtrace</a>&gt;</code></span></h4>
+<div class='docblock'><p>Returns the backtrace associated with this error.</p>
+</div><h4 id='method.chain_err' class="method"><span id='chain_err.v' class='invisible'><code>fn <a href='#method.chain_err' class='fnname'>chain_err</a>&lt;F, EK&gt;(self, error: F) -&gt; <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/trait.FnOnce.html" title="trait core::ops::FnOnce">FnOnce</a>() -&gt; EK,<br>&nbsp;&nbsp;&nbsp;&nbsp;EK: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Extends the error chain with a new entry.</p>
+</div></div><h2 id='deref-methods'>Methods from <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html" title="trait core::ops::Deref">Deref</a>&lt;Target = <a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>&gt;</h2><div class='impl-items'><h4 id='method.description' class="method"><span id='description.v' class='invisible'><code>fn <a href='#method.description' class='fnname'>description</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span></h4>
+<div class='docblock'><p>A string describing the error kind.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#66' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="../../error_chain/trait.ChainedError.html" title="trait error_chain::ChainedError">ChainedError</a> for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#76-116' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.ErrorKind' class="type"><span id='ErrorKind.t' class='invisible'><code>type <a href='../../error_chain/trait.ChainedError.html#associatedtype.ErrorKind' class="type">ErrorKind</a> = <a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a></code></span></h4>
+<div class='docblock'><p>Associated kind type.</p>
+</div><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.new' class='fnname'>new</a>(kind: <a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>, state: State) -&gt; <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span></h4>
+<h4 id='method.from_kind-1' class="method"><span id='from_kind.v-1' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.from_kind' class='fnname'>from_kind</a>(kind: Self::<a class="trait" href="../../error_chain/trait.ChainedError.html" title="trait error_chain::ChainedError">ErrorKind</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Constructs an error from a kind, and generates a backtrace.</p>
+</div><h4 id='method.with_chain-1' class="method"><span id='with_chain.v-1' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.with_chain' class='fnname'>with_chain</a>&lt;E, K&gt;(error: E, kind: K) -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;E: <a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;K: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;Self::<a class="trait" href="../../error_chain/trait.ChainedError.html" title="trait error_chain::ChainedError">ErrorKind</a>&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Constructs a chained error from another error and a kind, and generates a backtrace.</p>
+</div><h4 id='method.kind-1' class="method"><span id='kind.v-1' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.kind' class='fnname'>kind</a>(&amp;self) -&gt; &amp;Self::<a class="trait" href="../../error_chain/trait.ChainedError.html" title="trait error_chain::ChainedError">ErrorKind</a></code></span></h4>
+<div class='docblock'><p>Returns the kind of the error.</p>
+</div><h4 id='method.iter-1' class="method"><span id='iter.v-1' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.iter' class='fnname'>iter</a>(&amp;self) -&gt; <a class="struct" href="../../error_chain/struct.Iter.html" title="struct error_chain::Iter">Iter</a></code></span></h4>
+<div class='docblock'><p>Iterates over the error chain.</p>
+</div><h4 id='method.chain_err-1' class="method"><span id='chain_err.v-1' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.chain_err' class='fnname'>chain_err</a>&lt;F, EK&gt;(self, error: F) -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/trait.FnOnce.html" title="trait core::ops::FnOnce">FnOnce</a>() -&gt; EK,<br>&nbsp;&nbsp;&nbsp;&nbsp;EK: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>&gt;,&nbsp;</span></code></span></h4>
+<div class='docblock'><p>Extends the error chain with a new entry.</p>
+</div><h4 id='method.backtrace-1' class="method"><span id='backtrace.v-1' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.backtrace' class='fnname'>backtrace</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../../error_chain/struct.Backtrace.html" title="struct error_chain::Backtrace">Backtrace</a>&gt;</code></span></h4>
+<div class='docblock'><p>Returns the backtrace associated with this error.</p>
+</div><h4 id='method.extract_backtrace' class="method"><span id='extract_backtrace.v' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#tymethod.extract_backtrace' class='fnname'>extract_backtrace</a>(e: &amp;(<a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'static)) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/arc/struct.Arc.html" title="struct alloc::arc::Arc">Arc</a>&lt;<a class="struct" href="../../error_chain/struct.Backtrace.html" title="struct error_chain::Backtrace">Backtrace</a>&gt;&gt;</code></span></h4>
+<h4 id='method.display_chain' class="method"><span id='display_chain.v' class='invisible'><code>fn <a href='../../error_chain/trait.ChainedError.html#method.display_chain' class='fnname'>display_chain</a>&lt;'a&gt;(&amp;'a self) -&gt; <a class="struct" href="../../error_chain/struct.DisplayChain.html" title="struct error_chain::DisplayChain">DisplayChain</a>&lt;'a, Self&gt;</code></span></h4>
+<div class='docblock'><p>Returns an object which implements <code>Display</code> for printing the full context of this error. <a href="../../error_chain/trait.ChainedError.html#method.display_chain">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#170-192' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.description-1' class="method"><span id='description.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description' class='fnname'>description</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span></h4>
+<div class='docblock'><p>A short description of the error. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description">Read more</a></p>
+</div><h4 id='method.cause' class="method"><span id='cause.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause' class='fnname'>cause</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a>&gt;</code></span></h4>
+<div class='docblock'><p>The lower-level cause of this error, if any. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#194-198' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class="method"><span id='fmt.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="struct" href="../../error_chain/example_generated/inner/struct.Error.html" title="struct error_chain::example_generated::inner::Error">Error</a>&gt; for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#202-209' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>Link to another <code>ErrorChain</code>.</p>
+</div><div class='impl-items'><h4 id='method.from' class="method"><span id='from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(e: <a class="struct" href="../../error_chain/example_generated/inner/struct.Error.html" title="struct error_chain::example_generated::inner::Error">Error</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>&gt; for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#214-220' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>Link to a <code>std::error::Error</code> type.</p>
+</div><div class='impl-items'><h4 id='method.from-1' class="method"><span id='from.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(e: <a class="struct" href="https://doc.rust-lang.org/nightly/std/io/error/struct.Error.html" title="struct std::io::error::Error">Error</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>&gt; for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#223-227' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from-2' class="method"><span id='from.v-2' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(e: <a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;&amp;'a <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#229-233' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from-3' class="method"><span id='from.v-3' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(s: &amp;'a <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/collections/string/struct.String.html" title="struct collections::string::String">String</a>&gt; for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#235-239' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from-4' class="method"><span id='from.v-4' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(s: <a class="struct" href="https://doc.rust-lang.org/nightly/collections/string/struct.String.html" title="struct collections::string::String">String</a>) -&gt; Self</code></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html" title="trait core::ops::Deref">Deref</a> for <a class="struct" href="../../error_chain/example_generated/struct.Error.html" title="struct error_chain::example_generated::Error">Error</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/error_chain/error_chain.rs.html#241-247' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Target' class="type"><span id='Target.t' class='invisible'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#associatedtype.Target' class="type">Target</a> = <a class="enum" href="../../error_chain/example_generated/enum.ErrorKind.html" title="enum error_chain::example_generated::ErrorKind">ErrorKind</a></code></span></h4>
+<div class='docblock'><p>The resulting type after dereferencing</p>
+</div><h4 id='method.deref' class="method"><span id='deref.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#tymethod.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;Self::<a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html" title="trait core::ops::Deref">Target</a></code></span></h4>
+<div class='docblock'><p>The method called to dereference a value</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "error_chain";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
