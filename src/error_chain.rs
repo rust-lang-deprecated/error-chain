@@ -172,7 +172,7 @@ macro_rules! error_chain_processed {
                 self.0.description()
             }
 
-            #[allow(unused_doc_comment)]
+            #[allow(unknown_lints, unused_doc_comment)]
             fn cause(&self) -> Option<&::std::error::Error> {
                 match self.1.next_error {
                     Some(ref c) => Some(&**c),
@@ -424,7 +424,7 @@ macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        #[allow(unused_doc_comment)]
+        #[allow(unknown_lints, unused_doc_comment)]
         fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
             -> Option<::std::sync::Arc<$crate::Backtrace>> {
             if let Some(e) = e.downcast_ref::<$error_name>() {
