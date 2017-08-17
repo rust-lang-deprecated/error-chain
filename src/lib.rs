@@ -593,9 +593,29 @@ impl<'a> Iterator for Iter<'a> {
 #[cfg(feature = "backtrace")]
 #[doc(hidden)]
 pub fn make_backtrace() -> Option<Arc<Backtrace>> {
-    match std::env::var_os("RUST_BACKTRACE") {
-        Some(ref val) if val != "0" => Some(Arc::new(Backtrace::new())),
-        _ => None,
+    use std::sync::atomic::{ATOMIC_USIZE_INIT, AtomicUsize, Ordering};
+
+    // The lowest bit indicates whether the value was computed,
+    // while the second lowest bit is the actual "enabled" bit.
+    static BACKTRACE_ENABLED_CACHE: AtomicUsize = ATOMIC_USIZE_INIT;
+
+    let enabled = match BACKTRACE_ENABLED_CACHE.load(Ordering::Relaxed) {
+        0 => {
+            let enabled = match std::env::var_os("RUST_BACKTRACE") {
+                Some(ref val) if val != "0" => true,
+                _ => false
+            };
+            let encoded = ((enabled as usize) << 1) | 1;
+            BACKTRACE_ENABLED_CACHE.store(encoded, Ordering::Relaxed);
+            enabled
+        }
+        encoded => (encoded >> 1) != 0
+    };
+
+    if enabled {
+        Some(Arc::new(Backtrace::new()))
+    } else {
+        None
     }
 }
 
