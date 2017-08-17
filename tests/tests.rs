@@ -200,35 +200,29 @@ fn empty() {
 #[test]
 #[cfg(feature = "backtrace")]
 fn has_backtrace_depending_on_env() {
-    use std::env;
+    use std::process::Command;
+    use std::path::Path;
 
-    error_chain! {
-        types {}
-        links {}
-        foreign_links {}
-        errors {
-            MyError
-        }
-    }
-
-    let original_value = env::var_os("RUST_BACKTRACE");
+    let cmd_path = if cfg!(windows) {
+        Path::new("./target/debug/has_backtrace.exe")
+    } else {
+        Path::new("./target/debug/has_backtrace")
+    };
+    let mut cmd = Command::new(cmd_path);
 
     // missing RUST_BACKTRACE and RUST_BACKTRACE=0
-    env::remove_var("RUST_BACKTRACE");
-    let err = Error::from(ErrorKind::MyError);
-    assert!(err.backtrace().is_none());
-    env::set_var("RUST_BACKTRACE", "0");
-    let err = Error::from(ErrorKind::MyError);
-    assert!(err.backtrace().is_none());
+    cmd.env_remove("RUST_BACKTRACE");
+    assert_eq!(cmd.status().unwrap().code().unwrap(), 0);
+
+    cmd.env("RUST_BACKTRACE", "0");
+    assert_eq!(cmd.status().unwrap().code().unwrap(), 0);
 
     // RUST_BACKTRACE set to anything but 0
-    env::set_var("RUST_BACKTRACE", "yes");
-    let err = Error::from(ErrorKind::MyError);
-    assert!(err.backtrace().is_some());
+    cmd.env("RUST_BACKTRACE", "yes");
+    assert_eq!(cmd.status().unwrap().code().unwrap(), 1);
 
-    if let Some(var) = original_value {
-        env::set_var("RUST_BACKTRACE", var);
-    }
+    cmd.env("RUST_BACKTRACE", "1");
+    assert_eq!(cmd.status().unwrap().code().unwrap(), 1);
 }
 
 #[test]
