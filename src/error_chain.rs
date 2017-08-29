@@ -1,4 +1,5 @@
 /// Prefer to use `error_chain` instead of this macro.
+#[doc(hidden)]
 #[macro_export]
 macro_rules! error_chain_processed {
     // Default values for `types`.
@@ -400,8 +401,7 @@ macro_rules! error_chain_processing {
     };
 }
 
-/// This macro is used for handling of duplicated and out-of-order fields. For
-/// the exact rules, see `error_chain_processed`.
+/// Macro for generating error types and traits. See crate level documentation for details.
 #[macro_export]
 macro_rules! error_chain {
     ( $( $block_name:ident { $( $block_content:tt )* } )* ) => {
