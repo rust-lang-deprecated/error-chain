@@ -1,13 +1,13 @@
 /// Prefer to use `error_chain` instead of this macro.
 #[doc(hidden)]
 #[macro_export]
-macro_rules! error_chain_processed {
+macro_rules! impl_error_chain_processed {
     // Default values for `types`.
     (
         types {}
         $( $rest: tt )*
     ) => {
-        error_chain_processed! {
+        impl_error_chain_processed! {
             types {
                 Error, ErrorKind, ResultExt, Result;
             }
@@ -22,7 +22,7 @@ macro_rules! error_chain_processed {
         }
         $( $rest: tt )*
     ) => {
-        error_chain_processed! {
+        impl_error_chain_processed! {
             types {
                 $error_name, $error_kind_name,
                 $result_ext_name;
@@ -392,7 +392,7 @@ macro_rules! error_chain_processing {
         }
     };
     ( ($a:tt, $b:tt, $c:tt, $d:tt) ) => {
-        error_chain_processed! {
+        impl_error_chain_processed! {
             types $a
             links $b
             foreign_links $c
