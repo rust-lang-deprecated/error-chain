@@ -476,6 +476,7 @@
 //! #   }
 //! # }
 //! # use errors::*;
+//! # #[cfg(feature="backtrace")]
 //! # fn main() {
 //! if let Err(ref e) = open_file() {
 //!     if let Some(backtrace) = e.backtrace() {
@@ -492,6 +493,8 @@
 //!     }
 //! };
 //! # }
+//! # #[cfg(not(feature="backtrace"))]
+//! # fn main() { }
 //!
 //! fn open_file() -> Result<()> {
 //!    std::fs::File::open("does_not_exist")?;
