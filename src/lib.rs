@@ -461,6 +461,47 @@
 //!
 //! Backtrace generation can be disabled by turning off the `backtrace` feature.
 //!
+//! The Backtrace contains a Vec of [`BacktraceFrame`]s that can be operated
+//! on directly.  For example, to only see the files and line numbers of code
+//! within your own project.
+//!
+//! ```
+//! # #[macro_use]
+//! # extern crate error_chain;
+//! # mod errors {
+//! #   error_chain! {
+//! #       foreign_links {
+//! #           Io(::std::io::Error);
+//! #       }
+//! #   }
+//! # }
+//! # use errors::*;
+//! # #[cfg(feature="backtrace")]
+//! # fn main() {
+//! if let Err(ref e) = open_file() {
+//!     if let Some(backtrace) = e.backtrace() {
+//!         let frames = backtrace.frames();
+//!         for frame in frames.iter() {
+//!             for symbol in frame.symbols().iter() {
+//!                 if let (Some(file), Some(lineno)) = (symbol.filename(), symbol.lineno()) {
+//!                     if file.display().to_string()[0..3] == "src".to_string(){
+//!                         println!("{}:{}", file.display().to_string(), lineno);
+//!                     }
+//!                 }
+//!             }
+//!         }
+//!     }
+//! };
+//! # }
+//! # #[cfg(not(feature="backtrace"))]
+//! # fn main() { }
+//!
+//! fn open_file() -> Result<()> {
+//!    std::fs::File::open("does_not_exist")?;
+//!    Ok(())
+//! }
+//! ```
+//!
 //! ## Iteration
 //!
 //! The [`iter`] method returns an iterator over the chain of error boxes.
@@ -493,6 +534,8 @@
 //! [`std::fmt::Error`]: https://doc.rust-lang.org/std/fmt/struct.Error.html
 //! [`.into()`]: https://doc.rust-lang.org/std/convert/trait.Into.html#tymethod.into
 //! [`map_err`]: https://doc.rust-lang.org/std/result/enum.Result.html#method.map_err
+//! [`BacktraceFrame`]: https://docs.rs/backtrace/0.3.2/backtrace/struct.BacktraceFrame.html
+
 
 #[cfg(feature = "backtrace")]
 extern crate backtrace;
