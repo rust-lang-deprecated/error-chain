@@ -491,7 +491,8 @@ fn error_patterns() {
 
     // Tuples look nice when matching errors
     match Error::from("Test") {
-        Error(ErrorKind::Msg(_), _) => {}
+        Error(ErrorKind::Msg(_), _) => {},
+        _ => {},
     }
 }
 

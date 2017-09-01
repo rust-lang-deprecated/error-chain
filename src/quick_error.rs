@@ -200,6 +200,9 @@ macro_rules! quick_error {
                 $(#[$imeta])*
                 $iitem $(($( $ttyp ),*))* $({$( $svar: $styp ),*})*,
             )*
+
+            #[doc(hidden)]
+            __Nonexhaustive {}
         }
     };
     // Private enum (Queue Empty)
@@ -278,6 +281,8 @@ macro_rules! quick_error {
                             display_fn(self, fmt)
                         }
                     )*
+
+                    _ => Ok(())
                 }
             }
         }
@@ -325,6 +330,8 @@ macro_rules! quick_error {
                                 {$( $funcs )*})
                         }
                     )*
+
+                    _ => "",
                 }
             }
         }
