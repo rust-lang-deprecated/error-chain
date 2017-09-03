@@ -8,6 +8,7 @@
 - [Allow `chain_err` to be used on `Option<T>`](https://github.com/rust-lang-nursery/error-chain/pull/156)
 - [Add support for creating an error chain on boxed trait errors (`Box<Error>`)](https://github.com/rust-lang-nursery/error-chain/pull/156)
 - [Remove lint for unused doc comment.](https://github.com/rust-lang-nursery/error-chain/pull/199)
+- [Hide error_chain_processed macro from documentation.](https://github.com/rust-lang-nursery/error-chain/pull/212)
 
 # 0.10.0
 
