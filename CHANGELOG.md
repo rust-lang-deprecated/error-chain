@@ -1,3 +1,7 @@
+# Unreleased
+
+- Change last rust version supported to 1.14
+
 # 0.11.0-rc.2
 
 - [Make `ErrorChainIter`'s field private](https://github.com/rust-lang-nursery/error-chain/issues/178)
