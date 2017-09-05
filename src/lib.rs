@@ -1,6 +1,6 @@
 #![deny(missing_docs)]
 #![allow(unknown_lints)] // to be removed when unused_doc_comments lints is merged
-#![doc(html_root_url = "https://docs.rs/error-chain/0.11.0-rc.2")]
+#![doc(html_root_url = "https://docs.rs/error-chain/0.11.0")]
 
 //! A library for consistent and reliable error handling
 //!
