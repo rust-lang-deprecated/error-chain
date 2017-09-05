@@ -14,6 +14,7 @@
 - [Add support for creating an error chain on boxed trait errors (`Box<Error>`)](https://github.com/rust-lang-nursery/error-chain/pull/156)
 - [Remove lint for unused doc comment.](https://github.com/rust-lang-nursery/error-chain/pull/199)
 - [Hide error_chain_processed macro from documentation.](https://github.com/rust-lang-nursery/error-chain/pull/212)
+- [Cache whether RUST_BACKTRACE is enabled in a relaxed atomic static.](https://github.com/rust-lang-nursery/error-chain/pull/210)
 
 # 0.10.0
 
