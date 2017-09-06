@@ -540,6 +540,10 @@
 #[cfg(feature = "backtrace")]
 extern crate backtrace;
 
+#[cfg(feature = "quickmain_log")]
+#[macro_use]
+extern crate log;
+
 use std::error;
 use std::iter::Iterator;
 #[cfg(feature = "backtrace")]
@@ -559,6 +563,7 @@ mod error_chain;
 #[macro_use]
 mod quick_main;
 pub use quick_main::ExitCode;
+pub use quick_main::print_quickmain_error;
 #[cfg(feature = "example_generated")]
 pub mod example_generated;
 
