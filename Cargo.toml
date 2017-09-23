@@ -23,4 +23,4 @@ default = ["backtrace", "example_generated"]
 example_generated = []
 
 [dependencies]
-backtrace = { version = "0.3", optional = true }
+backtrace = { version = "0.3.3", optional = true }
