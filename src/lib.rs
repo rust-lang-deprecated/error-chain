@@ -536,21 +536,9 @@
 //! [`map_err`]: https://doc.rust-lang.org/std/result/enum.Result.html#method.map_err
 //! [`BacktraceFrame`]: https://docs.rs/backtrace/0.3.2/backtrace/struct.BacktraceFrame.html
 
-
-#[cfg(feature = "backtrace")]
-extern crate backtrace;
-
 use std::error;
 use std::iter::Iterator;
-#[cfg(feature = "backtrace")]
-use std::sync::Arc;
 use std::fmt;
-
-#[cfg(feature = "backtrace")]
-pub use backtrace::Backtrace;
-#[cfg(not(feature = "backtrace"))]
-/// Dummy type used when the `backtrace` feature is disabled.
-pub type Backtrace = ();
 
 #[macro_use]
 mod impl_error_chain_kind;
@@ -561,6 +549,10 @@ mod quick_main;
 pub use quick_main::ExitCode;
 #[cfg(feature = "example_generated")]
 pub mod example_generated;
+mod backtrace;
+pub use backtrace::Backtrace;
+#[doc(hidden)]
+pub use backtrace::InternalBacktrace;
 
 #[derive(Debug)]
 /// Iterator over the error chain using the `Error::cause()` method.
@@ -584,38 +576,6 @@ impl<'a> Iterator for Iter<'a> {
             }
             None => None,
         }
-    }
-}
-
-/// Returns a backtrace of the current call stack if `RUST_BACKTRACE`
-/// is set to anything but ``0``, and `None` otherwise.  This is used
-/// in the generated error implementations.
-#[cfg(feature = "backtrace")]
-#[doc(hidden)]
-pub fn make_backtrace() -> Option<Arc<Backtrace>> {
-    use std::sync::atomic::{ATOMIC_USIZE_INIT, AtomicUsize, Ordering};
-
-    // The lowest bit indicates whether the value was computed,
-    // while the second lowest bit is the actual "enabled" bit.
-    static BACKTRACE_ENABLED_CACHE: AtomicUsize = ATOMIC_USIZE_INIT;
-
-    let enabled = match BACKTRACE_ENABLED_CACHE.load(Ordering::Relaxed) {
-        0 => {
-            let enabled = match std::env::var_os("RUST_BACKTRACE") {
-                Some(ref val) if val != "0" => true,
-                _ => false
-            };
-            let encoded = ((enabled as usize) << 1) | 1;
-            BACKTRACE_ENABLED_CACHE.store(encoded, Ordering::Relaxed);
-            enabled
-        }
-        encoded => (encoded >> 1) != 0
-    };
-
-    if enabled {
-        Some(Arc::new(Backtrace::new()))
-    } else {
-        None
     }
 }
 
@@ -662,9 +622,8 @@ pub trait ChainedError: error::Error + Send + 'static {
 
     /// Returns the first known backtrace, either from its State or from one
     /// of the errors from `foreign_links`.
-    #[cfg(feature = "backtrace")]
     #[doc(hidden)]
-    fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<Arc<Backtrace>>
+    fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<InternalBacktrace>
         where Self: Sized;
 }
 
@@ -698,52 +657,32 @@ pub struct State {
     /// Next error in the error chain.
     pub next_error: Option<Box<error::Error + Send>>,
     /// Backtrace for the current error.
-    #[cfg(feature = "backtrace")]
-    pub backtrace: Option<Arc<Backtrace>>,
+    pub backtrace: InternalBacktrace,
 }
 
 impl Default for State {
-    #[cfg(feature = "backtrace")]
     fn default() -> State {
         State {
             next_error: None,
-            backtrace: make_backtrace(),
+            backtrace: InternalBacktrace::new(),
         }
-    }
-
-    #[cfg(not(feature = "backtrace"))]
-    fn default() -> State {
-        State { next_error: None }
     }
 }
 
 impl State {
     /// Creates a new State type
-    #[cfg(feature = "backtrace")]
     pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
-        let backtrace = CE::extract_backtrace(&*e).or_else(make_backtrace);
+        let backtrace = CE::extract_backtrace(&*e)
+            .unwrap_or_else(InternalBacktrace::new);
         State {
             next_error: Some(e),
             backtrace: backtrace,
         }
     }
 
-    /// Creates a new State type
-    #[cfg(not(feature = "backtrace"))]
-    pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
-        State { next_error: Some(e) }
-    }
-
     /// Returns the inner backtrace if present.
-    #[cfg(feature = "backtrace")]
     pub fn backtrace(&self) -> Option<&Backtrace> {
-        self.backtrace.as_ref().map(|v| &**v)
-    }
-
-    /// Returns the inner backtrace if present.
-    #[cfg(not(feature = "backtrace"))]
-    pub fn backtrace(&self) -> Option<&Backtrace> {
-        None
+        self.backtrace.as_backtrace()
     }
 }
 

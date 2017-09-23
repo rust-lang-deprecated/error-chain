@@ -419,40 +419,25 @@ macro_rules! error_chain {
 /// for more details.
 #[macro_export]
 #[doc(hidden)]
-#[cfg(feature = "backtrace")]
 macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
         #[allow(unknown_lints, unused_doc_comment)]
         fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
-            -> Option<::std::sync::Arc<$crate::Backtrace>> {
+            -> Option<$crate::InternalBacktrace> {
             if let Some(e) = e.downcast_ref::<$error_name>() {
-                return e.1.backtrace.clone();
+                return Some(e.1.backtrace.clone());
             }
             $(
                 $( #[$meta_links] )*
                 {
                     if let Some(e) = e.downcast_ref::<$link_error_path>() {
-                        return e.1.backtrace.clone();
+                        return Some(e.1.backtrace.clone());
                     }
                 }
             ) *
             None
         }
     }
-}
-
-/// Macro used to manage the `backtrace` feature.
-///
-/// See
-/// https://www.reddit.com/r/rust/comments/57virt/hey_rustaceans_got_an_easy_question_ask_here/da5r4ti/?context=3
-/// for more details.
-#[macro_export]
-#[doc(hidden)]
-#[cfg(not(feature = "backtrace"))]
-macro_rules! impl_extract_backtrace {
-    ($error_name: ident
-     $error_kind_name: ident
-     $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {}
 }
