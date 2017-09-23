@@ -255,7 +255,7 @@ fn error_chain_err() {
     let base = Error::from(ErrorKind::Test);
     let ext = base.chain_err(|| "Test passes");
 
-    if let Error(ErrorKind::Msg(_), _) = ext {
+    if let ErrorKind::Msg(_) = *ext.kind() {
         // pass
     } else {
         panic!("The error should be wrapped. {:?}", ext);
@@ -484,8 +484,8 @@ fn error_patterns() {
     }
 
     // Tuples look nice when matching errors
-    match Error::from("Test") {
-        Error(ErrorKind::Msg(_), _) => {},
+    match *Error::from("Test").kind() {
+        ErrorKind::Msg(_) => {},
         _ => {},
     }
 }
@@ -500,8 +500,12 @@ fn result_match() {
 
     match ok() {
         Ok(()) => {},
-        Err(Error(ErrorKind::Msg(_), _)) => {},
-        Err(..) => {},
+        Err(e) => {
+            match *e.kind() {
+                ErrorKind::Msg(_) => {}
+                _ => {}
+            }
+        }
     }
 }
 
