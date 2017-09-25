@@ -491,6 +491,21 @@ fn error_patterns() {
 }
 
 #[test]
+fn result_match() {
+    error_chain! { }
+
+    fn ok() -> Result<()> {
+        Ok(())
+    }
+
+    match ok() {
+        Ok(()) => {},
+        Err(Error(ErrorKind::Msg(_), _)) => {},
+        Err(..) => {},
+    }
+}
+
+#[test]
 fn error_first() {
     error_chain! {
         errors {
