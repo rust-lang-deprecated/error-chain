@@ -33,12 +33,67 @@ macro_rules! impl_error_chain_processed {
         #[allow(unused)]
         pub type $result_name<T> = ::std::result::Result<T, $error_name>;
     };
-    // Without `Result` wrapper.
+
+    // With `Msg` variant.
+    (
+        types {
+            $error_name:ident, $error_kind_name:ident, $($types:tt)*
+        }
+        links $links:tt
+        foreign_links $foreign_links:tt
+        errors { $($errors:tt)* }
+    ) => {
+        impl_error_chain_processed! {
+            types {
+                $error_name, $error_kind_name, $($types)*
+            }
+            skip_msg_variant
+            links $links
+            foreign_links $foreign_links
+            errors {
+                /// A convenient variant for String.
+                Msg(s: String) {
+                    description(&s)
+                    display("{}", s)
+                }
+
+                $($errors)*
+            }
+        }
+
+        impl<'a> From<&'a str> for $error_kind_name {
+            fn from(s: &'a str) -> Self {
+                $error_kind_name::Msg(s.into())
+            }
+        }
+
+        impl From<String> for $error_kind_name {
+            fn from(s: String) -> Self {
+                $error_kind_name::Msg(s)
+            }
+        }
+
+        impl<'a> From<&'a str> for $error_name {
+            fn from(s: &'a str) -> Self {
+                Self::from_kind(s.into())
+            }
+        }
+
+        impl From<String> for $error_name {
+            fn from(s: String) -> Self {
+                Self::from_kind(s.into())
+            }
+        }
+    };
+
+    // Without `Result` wrapper or `Msg` variant.
     (
         types {
             $error_name:ident, $error_kind_name:ident,
             $result_ext_name:ident;
         }
+
+        skip_msg_variant
 
         links {
             $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path )
@@ -233,19 +288,6 @@ macro_rules! impl_error_chain_processed {
             }
         }
 
-        impl<'a> From<&'a str> for $error_name {
-            fn from(s: &'a str) -> Self {
-                $error_name::from_kind(s.into())
-            }
-        }
-
-        impl From<String> for $error_name {
-            fn from(s: String) -> Self {
-                $error_name::from_kind(s.into())
-            }
-        }
-
-
         // The ErrorKind type
         // --------------
 
@@ -253,13 +295,6 @@ macro_rules! impl_error_chain_processed {
             /// The kind of an error.
             #[derive(Debug)]
             pub enum $error_kind_name {
-
-                /// A convenient variant for String.
-                Msg(s: String) {
-                    description(&s)
-                    display("{}", s)
-                }
-
                 $(
                     $(#[$meta_links])*
                     $link_variant(e: $link_kind_path) {
@@ -288,18 +323,6 @@ macro_rules! impl_error_chain_processed {
                 }
             }
         ) *
-
-        impl<'a> From<&'a str> for $error_kind_name {
-            fn from(s: &'a str) -> Self {
-                $error_kind_name::Msg(s.to_string())
-            }
-        }
-
-        impl From<String> for $error_kind_name {
-            fn from(s: String) -> Self {
-                $error_kind_name::Msg(s)
-            }
-        }
 
         impl From<$error_name> for $error_kind_name {
             fn from(e: $error_name) -> Self {
@@ -350,48 +373,64 @@ macro_rules! impl_error_chain_processed {
 #[macro_export]
 macro_rules! error_chain_processing {
     (
-        ({}, $b:tt, $c:tt, $d:tt)
+        ({}, $($rest:tt)*)
         types $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($content, $b, $c, $d)
+            ($content, $($rest)*)
             $($tail)*
         }
     };
+
     (
-        ($a:tt, {}, $c:tt, $d:tt)
+        ($a:tt, {}, $($rest:tt)*)
         links $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($a, $content, $c, $d)
+            ($a, $content, $($rest)*)
             $($tail)*
         }
     };
+
     (
-        ($a:tt, $b:tt, {}, $d:tt)
+        ($a:tt, $b:tt, {}, $($rest:tt)*)
         foreign_links $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($a, $b, $content, $d)
+            ($a, $b, $content, $($rest)*)
             $($tail)*
         }
     };
+
     (
-        ($a:tt, $b:tt, $c:tt, {})
+        ($a:tt, $b:tt, $c:tt, {}, $($rest:tt)*)
         errors $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($a, $b, $c, $content)
+            ($a, $b, $c, $content, $($rest)*)
             $($tail)*
         }
     };
-    ( ($a:tt, $b:tt, $c:tt, $d:tt) ) => {
+
+    (
+        ($a:tt, $b:tt, $c:tt, $d:tt, {}, $($rest:tt)*)
+        skip_msg_variant
+        $( $tail:tt )*
+    ) => {
+        error_chain_processing! {
+            ($a, $b, $c, $d, {skip_msg_variant}, $($rest)*)
+            $($tail)*
+        }
+    };
+
+    ( ($a:tt, $b:tt, $c:tt, $d:tt, {$($e:tt)*},) ) => {
         impl_error_chain_processed! {
             types $a
+            $($e)*
             links $b
             foreign_links $c
             errors $d
@@ -402,10 +441,10 @@ macro_rules! error_chain_processing {
 /// Macro for generating error types and traits. See crate level documentation for details.
 #[macro_export]
 macro_rules! error_chain {
-    ( $( $block_name:ident { $( $block_content:tt )* } )* ) => {
+    ( $($args:tt)* ) => {
         error_chain_processing! {
-            ({}, {}, {}, {})
-            $($block_name { $( $block_content )* })*
+            ({}, {}, {}, {}, {},)
+            $($args)*
         }
     };
 }
