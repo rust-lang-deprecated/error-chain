@@ -7,6 +7,7 @@
 - [Mask the `quick_error` macro from the doc](https://github.com/rust-lang-nursery/error-chain/pull/210)
 - [Make generated `ErrorKind` enums non-exhaustive](https://github.com/rust-lang-nursery/error-chain/pull/193)
 - All 0.11.0-rc.2 changes
+- [Allow users of `quick_main!` to use the `log` crate](https://github.com/rust-lang-nursery/error-chain/pull/216)
 
 # 0.11.0-rc.2
 

@@ -42,13 +42,10 @@
 macro_rules! quick_main {
     ($main:expr) => {
         fn main() {
-            use ::std::io::Write;
-
             ::std::process::exit(match $main() {
                 Ok(ret) => $crate::ExitCode::code(ret),
                 Err(ref e) => {
-                    write!(&mut ::std::io::stderr(), "{}", $crate::ChainedError::display_chain(e))
-                        .expect("Error writing to stderr");
+                    { $crate::print_quickmain_error(e); }
 
                     1
                 }
@@ -74,4 +71,21 @@ impl ExitCode for () {
     fn code(self) -> i32 {
         0
     }
+}
+
+/// When using `quick_main!`, prints the error if the program doesn't terminate successfully.
+pub fn print_quickmain_error<K,E: ::ChainedError<ErrorKind=K>>(e: &E) {
+    print_error_helper(e);
+}
+
+#[cfg(not(feature = "quickmain_log"))]
+fn print_error_helper<K,E: ::ChainedError<ErrorKind=K>>(e: &E) {
+    use ::std::io::Write;
+    write!(&mut ::std::io::stderr(), "{}", ::ChainedError::display_chain(e))
+        .expect("Error writing to stderr");
+}
+
+#[cfg(feature = "quickmain_log")]
+fn print_error_helper<K,E: ::ChainedError<ErrorKind=K>>(e: &E) {
+    { error!("{}", ::ChainedError::display_chain(e)) }
 }

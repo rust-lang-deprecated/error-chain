@@ -20,7 +20,9 @@ travis-ci = { repository = "rust-lang-nursery/error-chain" }
 
 [features]
 default = ["backtrace", "example_generated"]
+quickmain_log = ["log"]
 example_generated = []
 
 [dependencies]
 backtrace = { version = "0.3", optional = true }
+log = {version = "0.3", optional = true }
