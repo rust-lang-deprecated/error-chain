@@ -13,33 +13,7 @@ macro_rules! impl_error_chain_kind {
             items [] buf []
             queue [ $($chunks)* ]);
     };
-    (   $(#[$meta:meta])*
-        enum $name:ident { $($chunks:tt)* }
-    ) => {
-        impl_error_chain_kind!(SORT [enum $name $(#[$meta])* ]
-            items [] buf []
-            queue [ $($chunks)* ]);
-    };
     // Queue is empty, can do the work
-    (SORT [enum $name:ident $( #[$meta:meta] )*]
-        items [$($( #[$imeta:meta] )*
-                  => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
-                                {$( $ifuncs:tt )*} )* ]
-        buf [ ]
-        queue [ ]
-    ) => {
-        impl_error_chain_kind!(ENUM_DEFINITION [enum $name $( #[$meta] )*]
-            body []
-            queue [$($( #[$imeta] )*
-                      => $iitem: $imode [$( $ivar: $ityp ),*] )*]
-        );
-        impl_error_chain_kind!(IMPLEMENTATIONS $name {$(
-           $iitem: $imode [$(#[$imeta])*] [$( $ivar: $ityp ),*] {$( $ifuncs )*}
-           )*});
-        $(
-            impl_error_chain_kind!(ERROR_CHECK $imode $($ifuncs)*);
-        )*
-    };
     (SORT [pub enum $name:ident $( #[$meta:meta] )*]
         items [$($( #[$imeta:meta] )*
                   => $iitem:ident: $imode:tt [$( $ivar:ident: $ityp:ty ),*]
@@ -206,20 +180,6 @@ macro_rules! impl_error_chain_kind {
             __Nonexhaustive {}
         }
     };
-    // Private enum (Queue Empty)
-    (ENUM_DEFINITION [enum $name:ident $( #[$meta:meta] )*]
-        body [$($( #[$imeta:meta] )*
-            => $iitem:ident ($(($( $ttyp:ty ),+))*) {$({$( $svar:ident: $styp:ty ),*})*} )* ]
-        queue [ ]
-    ) => {
-        $(#[$meta])*
-        enum $name {
-            $(
-                $(#[$imeta])*
-                $iitem $(($( $ttyp ),*))* $({$( $svar: $styp ),*})*,
-            )*
-        }
-    };
     // Unit variant
     (ENUM_DEFINITION [$( $def:tt )*]
         body [$($( #[$imeta:meta] )*
@@ -287,35 +247,6 @@ macro_rules! impl_error_chain_kind {
                 }
             }
         }
-        /*#[allow(unused)]
-        impl ::std::error::Error for $name {
-            fn description(&self) -> &str {
-                match *self {
-                    $(
-                        impl_error_chain_kind!(ITEM_PATTERN
-                            $name $item: $imode [$( ref $var ),*]
-                        ) => {
-                            impl_error_chain_kind!(FIND_DESCRIPTION_IMPL
-                                $item: $imode self fmt [$( $var ),*]
-                                {$( $funcs )*})
-                        }
-                    )*
-                }
-            }
-            fn cause(&self) -> Option<&::std::error::Error> {
-                match *self {
-                    $(
-                        impl_error_chain_kind!(ITEM_PATTERN
-                            $name $item: $imode [$( ref $var ),*]
-                        ) => {
-                            impl_error_chain_kind!(FIND_CAUSE_IMPL
-                                $item: $imode [$( $var ),*]
-                                {$( $funcs )*})
-                        }
-                    )*
-                }
-            }
-        }*/
         #[allow(unknown_lints, unused, unused_doc_comment)]
         impl $name {
             /// A string describing the error kind.
@@ -336,11 +267,6 @@ macro_rules! impl_error_chain_kind {
                 }
             }
         }
-        $(
-            impl_error_chain_kind!(FIND_FROM_IMPL
-                $name $item: $imode [$( $var:$typ ),*]
-                {$( $funcs )*});
-        )*
     };
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { display($self_:tt) -> ($( $exprs:tt )*) $( $tail:tt )*}
@@ -393,96 +319,6 @@ macro_rules! impl_error_chain_kind {
     ) => {
         stringify!($item)
     };
-    (FIND_CAUSE_IMPL $item:ident: $imode:tt
-        [$( $var:ident ),*]
-        { cause($expr:expr) $( $tail:tt )*}
-    ) => {
-        Some($expr)
-    };
-    (FIND_CAUSE_IMPL $item:ident: $imode:tt
-        [$( $var:ident ),*]
-        { $t:tt $( $tail:tt )*}
-    ) => {
-        impl_error_chain_kind!(FIND_CAUSE_IMPL
-            $item: $imode [$( $var ),*]
-            { $($tail)* })
-    };
-    (FIND_CAUSE_IMPL $item:ident: $imode:tt
-        [$( $var:ident ),*]
-        { }
-    ) => {
-        None
-    };
-    (FIND_FROM_IMPL $name:ident $item:ident: $imode:tt
-        [$( $var:ident: $typ:ty ),*]
-        { from() $( $tail:tt )*}
-    ) => {
-        $(
-            impl From<$typ> for $name {
-                fn from($var: $typ) -> $name {
-                    $name::$item($var)
-                }
-            }
-        )*
-        impl_error_chain_kind!(FIND_FROM_IMPL
-            $name $item: $imode [$( $var:$typ ),*]
-            {$( $tail )*});
-    };
-    (FIND_FROM_IMPL $name:ident $item:ident: UNIT
-        [ ]
-        { from($ftyp:ty) $( $tail:tt )*}
-    ) => {
-        impl From<$ftyp> for $name {
-            fn from(_discarded_error: $ftyp) -> $name {
-                $name::$item
-            }
-        }
-        impl_error_chain_kind!(FIND_FROM_IMPL
-            $name $item: UNIT [  ]
-            {$( $tail )*});
-    };
-    (FIND_FROM_IMPL $name:ident $item:ident: TUPLE
-        [$( $var:ident: $typ:ty ),*]
-        { from($fvar:ident: $ftyp:ty) -> ($( $texpr:expr ),*) $( $tail:tt )*}
-    ) => {
-        impl From<$ftyp> for $name {
-            fn from($fvar: $ftyp) -> $name {
-                $name::$item($( $texpr ),*)
-            }
-        }
-        impl_error_chain_kind!(FIND_FROM_IMPL
-            $name $item: TUPLE [$( $var:$typ ),*]
-            { $($tail)* });
-    };
-    (FIND_FROM_IMPL $name:ident $item:ident: STRUCT
-        [$( $var:ident: $typ:ty ),*]
-        { from($fvar:ident: $ftyp:ty) -> {$( $tvar:ident: $texpr:expr ),*} $( $tail:tt )*}
-    ) => {
-        impl From<$ftyp> for $name {
-            fn from($fvar: $ftyp) -> $name {
-                $name::$item {
-                    $( $tvar: $texpr ),*
-                }
-            }
-        }
-        impl_error_chain_kind!(FIND_FROM_IMPL
-            $name $item: STRUCT [$( $var:$typ ),*]
-            { $($tail)* });
-    };
-    (FIND_FROM_IMPL $name:ident $item:ident: $imode:tt
-        [$( $var:ident: $typ:ty ),*]
-        { $t:tt $( $tail:tt )*}
-    ) => {
-        impl_error_chain_kind!(FIND_FROM_IMPL
-            $name $item: $imode [$( $var:$typ ),*]
-            {$( $tail )*}
-        );
-    };
-    (FIND_FROM_IMPL $name:ident $item:ident: $imode:tt
-        [$( $var:ident: $typ:ty ),*]
-        { }
-    ) => {
-    };
     (ITEM_BODY $(#[$imeta:meta])* $item:ident: UNIT
     ) => { };
     (ITEM_BODY $(#[$imeta:meta])* $item:ident: TUPLE
@@ -521,16 +357,6 @@ macro_rules! impl_error_chain_kind {
     => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
     (ERROR_CHECK $imode:tt description($expr:expr) $( $tail:tt )*)
     => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
-    (ERROR_CHECK $imode:tt cause($expr:expr) $($tail:tt)*)
-    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
-    (ERROR_CHECK $imode:tt from() $($tail:tt)*)
-    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
-    (ERROR_CHECK $imode:tt from($ftyp:ty) $($tail:tt)*)
-    => { impl_error_chain_kind!(ERROR_CHECK_COMMA $imode $($tail)*); };
-    (ERROR_CHECK TUPLE from($fvar:ident: $ftyp:ty) -> ($( $e:expr ),*) $( $tail:tt )*)
-    => { impl_error_chain_kind!(ERROR_CHECK_COMMA TUPLE $($tail)*); };
-    (ERROR_CHECK STRUCT from($fvar:ident: $ftyp:ty) -> {$( $v:ident: $e:expr ),*} $( $tail:tt )*)
-        => { impl_error_chain_kind!(ERROR_CHECK_COMMA STRUCT $($tail)*); };
     (ERROR_CHECK $imode:tt ) => {};
     (ERROR_CHECK_COMMA $imode:tt , $( $tail:tt )*)
     => { impl_error_chain_kind!(ERROR_CHECK $imode $($tail)*); };
