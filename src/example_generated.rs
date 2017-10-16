@@ -29,7 +29,7 @@ error_chain! {
         Inner(inner::Error, inner::ErrorKind) #[doc = "Link to another `ErrorChain`."];
     }
     foreign_links {
-        Io(::std::io::Error) #[doc = "Link to a `std::error::Error` type."];
+        Io(::std::io::Error) #[doc = "Link to a `std::io::Error` type."];
     }
     errors {
         #[doc = "A custom error kind."]
