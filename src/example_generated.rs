@@ -24,14 +24,14 @@
 pub mod inner {
     error_chain! {
         derive {
-            PartialEq, PartialEq<Error>
+            //PartialEq, PartialEq<Error>
         }
     }
 }
 
 error_chain! {
     links {
-        Inner(inner::Error, inner::ErrorKind) #[doc = "Link to another `ErrorChain`."];
+        Inner(inner::Error, inner::ErrorKind, inner::Trait) #[doc = "Link to another `ErrorChain`."];
     }
     foreign_links {
         //Io(::std::io::Error) #[doc = "Link to a `std::error::Error` type."];
@@ -41,11 +41,11 @@ error_chain! {
         Custom
     }
     derive {
-        PartialEq, PartialEq<Error>
+        //PartialEq, PartialEq<Error>
     }
 }
 
 //fn foo<T: PartialEq>() {}
 //fn bar() {
-    //foo::<Error>();
+//foo::<Error>();
 //}

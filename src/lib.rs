@@ -1,4 +1,4 @@
-#![deny(missing_docs)]
+//#![deny(missing_docs)]
 #![allow(unknown_lints)] // to be removed when unused_doc_comments lints is merged
 #![doc(html_root_url = "https://docs.rs/error-chain/0.11.0")]
 
@@ -592,7 +592,8 @@ pub trait ChainedError<S: ?Sized>: error::Error + Send + 'static {
 
     /// Constructs a chained error from another error and a kind, and generates a backtrace.
     fn with_chain<E, K>(error: E, kind: K) -> Self
-    where Self: Sized,
+    where
+          Self: Sized,
           E: ToError + ::std::error::Error + Send + 'static,
           K: Into<Self::ErrorKind>;
 
@@ -609,7 +610,7 @@ pub trait ChainedError<S: ?Sized>: error::Error + Send + 'static {
     /// context of this error.
     ///
     /// The full cause chain and backtrace, if present, will be printed.
-    fn display_chain<'a>(&'a self) -> DisplayChain<'a, Self> {
+    fn display_chain<'a>(&'a self) -> DisplayChain<'a, Self, S> {
         DisplayChain(self, PhantomData)
     }
 
@@ -633,6 +634,12 @@ pub trait ChainedError<S: ?Sized>: error::Error + Send + 'static {
 
 pub trait ToError {
     fn to_error(&self) -> &(error::Error + Send + 'static);
+}
+
+impl<T: ?Sized + ToError + error::Error + Send + 'static> ToError for Box<T> {
+    fn to_error(&self) -> &(error::Error + Send + 'static) {
+        self
+    }
 }
 
 /// A struct which formats an error for output.
@@ -681,7 +688,7 @@ impl<T: ?Sized> Default for State<T> {
 
 impl<T> State<T>
 where
-    T: error::Error + Send + 'static,
+    T: ToError + ?Sized,
 {
     /// Creates a new State type
     pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {

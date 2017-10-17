@@ -42,7 +42,8 @@ macro_rules! impl_error_chain_processed {
         }
 
         links {
-            $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path )
+            $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path,
+                                     $link_trait_path:path )
                $( #[$meta_links:meta] )*; ) *
         }
 
@@ -70,7 +71,8 @@ macro_rules! impl_error_chain_processed {
         ///   internals, containing:
         ///   - a backtrace, generated when the error is created.
         ///   - an error chain, used for the implementation of `Error::cause()`.
-        #[derive(Debug, $($derive),*)]
+        //#[derive(Debug, $($derive),*)]
+        #[derive(Debug)]
         pub struct $error_name(
             // The members must be `pub` for `links`.
             /// The kind of the error.
@@ -148,7 +150,7 @@ macro_rules! impl_error_chain_processed {
             }
 
             /// Construct a chained error from another boxed error and a kind, and generates a backtrace
-            pub fn with_boxed_chain<K>(error: Box<::std::error::Error + Send>, kind: K)
+            pub fn with_boxed_chain<K>(error: Box<Trait>, kind: K)
                 -> $error_name
                 where K: Into<$error_kind_name>
             {
@@ -222,7 +224,7 @@ macro_rules! impl_error_chain_processed {
                 fn from(e: $link_error_path) -> Self {
                     $error_name(
                         $error_kind_name::$link_variant(e.0),
-                        e.1,
+                        ::State { next_error: e.1.next_error.map(|e| $crate::ConvertErrorTrait::convert(e)), backtrace: e.1.backtrace },
                     )
                 }
             }
@@ -332,7 +334,7 @@ macro_rules! impl_error_chain_processed {
                       EK: Into<$error_kind_name>;
         }
 
-        impl<T, E> $result_ext_name<T, E> for ::std::result::Result<T, E>
+        impl<T, E> $result_ext_name<T> for ::std::result::Result<T, E>
             where E: Trait + 'static
         {
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
@@ -354,8 +356,6 @@ macro_rules! impl_error_chain_processed {
                 })
             }
         }
-
-
     };
 }
 
@@ -440,9 +440,21 @@ macro_rules! error_chain {
 #[doc(hidden)]
 macro_rules! create_super_trait {
     ($name:ident: $bound_1:path, $($rest:path),*) => {
-        trait $name: $bound_1 $(+ $rest)* {}
+        pub trait $name: $bound_1 $(+ $rest)* {}
         impl<T: $bound_1 $(+ $rest)*> $name for T {}
-    };
+
+        pub trait ConvertErrorTrait {
+            type Target: ?Sized;
+            fn convert(self: Box<Self>) -> Box<Self::Target>;
+        }
+    
+        impl<T: ?Sized + $bound_1 $(+ $rest)*> ConvertErrorTrait for T {
+            type Target = Trait + 'static;
+            fn convert(self: Box<Self>) -> Box<Self::Target> {
+                Box::new(self) as Box<Trait>
+            }
+        }
+};
 }
 
 /// Macro used to manage the `backtrace` feature.
