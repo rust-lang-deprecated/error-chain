@@ -2,6 +2,8 @@
 #![allow(unknown_lints)] // to be removed when unused_doc_comments lints is merged
 #![doc(html_root_url = "https://docs.rs/error-chain/0.11.0")]
 
+#![feature(log_syntax)]
+
 //! A library for consistent and reliable error handling
 //!
 //! error-chain makes it easy to take full advantage of Rust's
@@ -691,7 +693,7 @@ where
     T: ToError + ?Sized,
 {
     /// Creates a new State type
-    pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
+    pub fn new<CE: ChainedError<T>>(e: Box<error::Error + Send>) -> State<T> {
         let backtrace = CE::extract_backtrace(&*e).unwrap_or_else(InternalBacktrace::new);
         State {
             next_error: Some(e),
