@@ -318,6 +318,11 @@ macro_rules! impl_error_chain_processed {
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name>;
+            /// Converts a convertible error via `From::from` to
+            /// the result error. Useful to turn e.g. `std::io::Error`
+            /// into our own Error type.
+            fn from_err(self) -> ::std::result::Result<T, $error_name>
+                where $error_name: ::std::convert::From<E>;
         }
 
         impl<T, E> $result_ext_name<T> for ::std::result::Result<T, E> where E: ::std::error::Error + Send + 'static {
@@ -329,6 +334,10 @@ macro_rules! impl_error_chain_processed {
                     $crate::ChainedError::new(callback().into(), state)
                 })
             }
+            fn from_err(self) -> ::std::result::Result<T, $error_name>
+                where $error_name: ::std::convert::From<E> {
+                    return self.map_err(From::from);
+                }
         }
 
         impl<T> $result_ext_name<T> for ::std::option::Option<T> {
