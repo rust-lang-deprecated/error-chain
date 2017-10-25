@@ -9,7 +9,7 @@ macro_rules! impl_error_chain_processed {
     ) => {
         impl_error_chain_processed! {
             types {
-                Error, ErrorKind, ResultExt, Result;
+                Error, ErrorKind, ResultExt, Result, State, Trait;
             }
             $( $rest )*
         }
@@ -18,15 +18,16 @@ macro_rules! impl_error_chain_processed {
     (
         types {
             $error_name:ident, $error_kind_name:ident,
-            $result_ext_name:ident, $result_name:ident;
+            $result_ext_name:ident, $result_name:ident,
+            $state_name:ident, $trait_name:ident;
         }
         $( $rest: tt )*
     ) => {
-        log_syntax!(rest: $($rest)*);
         impl_error_chain_processed! {
             types {
                 $error_name, $error_kind_name,
-                $result_ext_name;
+                $result_ext_name, $state_name,
+                $trait_name;
             }
             $( $rest )*
         }
@@ -38,12 +39,13 @@ macro_rules! impl_error_chain_processed {
     (
         types {
             $error_name:ident, $error_kind_name:ident,
-            $result_ext_name:ident;
+            $result_ext_name:ident, $state_name:ident,
+            $trait_name:ident;
         }
 
         links {
             $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path,
-                                     $link_trait_path:path )
+                                     $link_trait_path:path, $link_state_path:path )
                $( #[$meta_links:meta] )*; ) *
         }
 
@@ -60,7 +62,17 @@ macro_rules! impl_error_chain_processed {
             $($derive:ident, $bound:path);*
         }
     ) => {
-        create_super_trait!(Trait: ::std::fmt::Debug, ::std::error::Error, $crate::ToError , Send $(, $bound)*);
+        create_super_trait!($trait_name: ::std::fmt::Debug, ::std::error::Error, $crate::ToError, Send,
+                            Sync $(, $bound)*);
+
+        impl<'a> ::std::error::Error for &'a $trait_name {
+            fn cause(&self) -> Option<&::std::error::Error> {
+                (*self).cause()
+            }
+            fn description(&self) -> &str {
+                (*self).description()
+            }
+        }
 
         /// The Error type.
         ///
@@ -79,19 +91,51 @@ macro_rules! impl_error_chain_processed {
             pub $error_kind_name,
             /// Contains the error chain and the backtrace.
             #[doc(hidden)]
-            pub $crate::State<Trait>,
+            pub $crate::InternalState<$state_name>,
         );
 
-        impl $crate::ToError for $error_name {
-            fn to_error(&self) -> &(::std::error::Error + Send + 'static) {
-                self
+        #[derive(Debug, $($derive),*)]
+        pub struct $state_name {
+            next_error: Option<Box<$trait_name>>,
+        }
+
+        impl $state_name {
+            pub fn new(error: Box<$trait_name>) -> Self {
+                Self {
+                    next_error: Some(error),
+                }
             }
         }
 
-        impl $crate::ChainedError<Trait> for $error_name {
+        impl Default for $state_name {
+            fn default() -> Self {
+                Self {
+                    next_error: None,
+                }
+            }
+        }
+        impl $crate::State for $state_name {
+            type Error = $trait_name;
+
+            fn new(error: Box<Self::Error>) -> Self {
+                Self {
+                    next_error: Some(error),
+                }
+            }
+
+            fn next_error(&self) -> &Option<Box<Self::Error>> {
+                &self.next_error
+            }
+
+            fn into_next_error(self) -> Option<Box<Self::Error>> {
+                self.next_error
+            }
+        }
+
+        impl $crate::ChainedError<$state_name> for $error_name {
             type ErrorKind = $error_kind_name;
 
-            fn new(kind: $error_kind_name, state: $crate::State<Trait>) -> $error_name {
+            fn new(kind: $error_kind_name, state: $crate::InternalState<$state_name>) -> $error_name {
                 $error_name(kind, state)
             }
 
@@ -101,7 +145,7 @@ macro_rules! impl_error_chain_processed {
 
             fn with_chain<E, K>(error: E, kind: K)
                 -> Self
-                where E: $crate::ToError + ::std::error::Error + Send + 'static,
+                where E: $crate::ToError + ::std::error::Error + Send + Sync + 'static,
                       K: Into<Self::ErrorKind>
             {
                 Self::with_chain(error, kind)
@@ -136,27 +180,27 @@ macro_rules! impl_error_chain_processed {
             pub fn from_kind(kind: $error_kind_name) -> $error_name {
                 $error_name(
                     kind,
-                    $crate::State::default(),
+                    $crate::InternalState::default(),
                 )
             }
 
             /// Constructs a chained error from another error and a kind, and generates a backtrace.
             pub fn with_chain<E, K>(error: E, kind: K)
                 -> $error_name
-                where E: Trait + 'static,
+                where E: $trait_name + 'static,
                       K: Into<$error_kind_name>
             {
                 $error_name::with_boxed_chain(Box::new(error), kind)
             }
 
             /// Construct a chained error from another boxed error and a kind, and generates a backtrace
-            pub fn with_boxed_chain<K>(error: Box<Trait>, kind: K)
+            pub fn with_boxed_chain<K>(error: Box<$trait_name>, kind: K)
                 -> $error_name
                 where K: Into<$error_kind_name>
             {
                 $error_name(
                     kind.into(),
-                    $crate::State::new::<$error_name>(error, ),
+                    $crate::InternalState::new::<$error_name>(error),
                 )
             }
 
@@ -172,7 +216,7 @@ macro_rules! impl_error_chain_processed {
 
             /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
-                self.1.backtrace()
+                self.1.backtrace.as_backtrace()
             }
 
             /// Extends the error chain with a new entry.
@@ -195,20 +239,26 @@ macro_rules! impl_error_chain_processed {
 
             #[allow(unknown_lints, unused_doc_comment)]
             fn cause(&self) -> Option<&::std::error::Error> {
-                match self.1.next_error {
-                    Some(ref c) => Some(c.to_error()),
+                let state = &self.1;
+                let error;
+                let next_error = state.next_error();
+
+                match *next_error {
+                    Some(ref c) => error = Some(&*c.to_error()),
                     None => {
                         match self.0 {
                             $(
                                 $(#[$meta_foreign_links])*
                                 $error_kind_name::$foreign_link_variant(ref foreign_err) => {
-                                    foreign_err.cause()
+                                    error = foreign_err.cause()
                                 }
                             ) *
-                            _ => None
+                            _ => error = None
                         }
                     }
                 }
+
+                error
             }
         }
 
@@ -220,11 +270,22 @@ macro_rules! impl_error_chain_processed {
 
         $(
             $(#[$meta_links])*
+            impl From<$link_state_path> for $state_name {
+                fn from(e: $link_state_path) -> Self {
+                    Self {
+                        next_error: $crate::State::into_next_error(e).map(|e| unsafe {
+                            Box::new(e) as Box<$trait_name>
+                        })
+                    }
+                }
+            }
+
+            $(#[$meta_links])*
             impl From<$link_error_path> for $error_name {
                 fn from(e: $link_error_path) -> Self {
                     $error_name(
                         $error_kind_name::$link_variant(e.0),
-                        ::State { next_error: e.1.next_error.map(|e| $crate::ConvertErrorTrait::convert(e)), backtrace: e.1.backtrace },
+                        ::InternalState { inner: e.1.inner.into(), backtrace: e.1.backtrace },
                     )
                 }
             }
@@ -335,13 +396,14 @@ macro_rules! impl_error_chain_processed {
         }
 
         impl<T, E> $result_ext_name<T> for ::std::result::Result<T, E>
-            where E: Trait + 'static
+            where E: $trait_name + Sync + 'static,
+                  $state_name: $crate::State<Error = E>,
         {
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name> {
                 self.map_err(move |e| {
-                    let state = $crate::State::new::<$error_name>(Box::new(e));
+                    let state = $crate::InternalState::new::<$error_name>(Box::new(e));
                     $crate::ChainedError::new(callback().into(), state)
                 })
             }
@@ -441,19 +503,7 @@ macro_rules! error_chain {
 macro_rules! create_super_trait {
     ($name:ident: $bound_1:path, $($rest:path),*) => {
         pub trait $name: $bound_1 $(+ $rest)* {}
-        impl<T: $bound_1 $(+ $rest)*> $name for T {}
-
-        pub trait ConvertErrorTrait {
-            type Target: ?Sized;
-            fn convert(self: Box<Self>) -> Box<Self::Target>;
-        }
-    
-        impl<T: ?Sized + $bound_1 $(+ $rest)*> ConvertErrorTrait for T {
-            type Target = Trait + 'static;
-            fn convert(self: Box<Self>) -> Box<Self::Target> {
-                Box::new(self) as Box<Trait>
-            }
-        }
+        impl<T: ?Sized + $bound_1 $(+ $rest)*> $name for T {}
 };
 }
 

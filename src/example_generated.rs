@@ -31,7 +31,7 @@ pub mod inner {
 
 error_chain! {
     links {
-        Inner(inner::Error, inner::ErrorKind, inner::Trait) #[doc = "Link to another `ErrorChain`."];
+        Inner(inner::Error, inner::ErrorKind, inner::Trait, inner::State) #[doc = "Link to another `ErrorChain`."];
     }
     foreign_links {
         //Io(::std::io::Error) #[doc = "Link to a `std::error::Error` type."];
