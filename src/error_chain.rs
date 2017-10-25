@@ -2,14 +2,14 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! impl_error_chain_processed {
-    // Default values for `types`.
+    // Default values for `types` and `derive`.
     (
         types {}
         $( $rest: tt )*
     ) => {
         impl_error_chain_processed! {
             types {
-                Error, ErrorKind, ResultExt, Result;
+                Error, ErrorKind, ResultExt, Result, State, Trait;
             }
             $( $rest )*
         }
@@ -18,14 +18,16 @@ macro_rules! impl_error_chain_processed {
     (
         types {
             $error_name:ident, $error_kind_name:ident,
-            $result_ext_name:ident, $result_name:ident;
+            $result_ext_name:ident, $result_name:ident,
+            $state_name:ident, $trait_name:ident;
         }
         $( $rest: tt )*
     ) => {
         impl_error_chain_processed! {
             types {
                 $error_name, $error_kind_name,
-                $result_ext_name;
+                $result_ext_name, $state_name,
+                $trait_name;
             }
             $( $rest )*
         }
@@ -37,11 +39,13 @@ macro_rules! impl_error_chain_processed {
     (
         types {
             $error_name:ident, $error_kind_name:ident,
-            $result_ext_name:ident;
+            $result_ext_name:ident, $state_name:ident,
+            $trait_name:ident;
         }
 
         links {
-            $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path )
+            $( $link_variant:ident ( $link_error_path:path, $link_kind_path:path,
+                                     $link_trait_path:path, $link_state_path:path )
                $( #[$meta_links:meta] )*; ) *
         }
 
@@ -54,7 +58,22 @@ macro_rules! impl_error_chain_processed {
             $( $error_chunks:tt ) *
         }
 
+        derive {
+            $($derive:ident, $bound:path);*
+        }
     ) => {
+        create_super_trait!($trait_name: ::std::fmt::Debug, ::std::error::Error, $crate::ToError, Send,
+                            Sync $(, $bound)*);
+
+        impl<'a> ::std::error::Error for &'a $trait_name {
+            fn cause(&self) -> Option<&::std::error::Error> {
+                (*self).cause()
+            }
+            fn description(&self) -> &str {
+                (*self).description()
+            }
+        }
+
         /// The Error type.
         ///
         /// This tuple struct is made of two elements:
@@ -64,6 +83,7 @@ macro_rules! impl_error_chain_processed {
         ///   internals, containing:
         ///   - a backtrace, generated when the error is created.
         ///   - an error chain, used for the implementation of `Error::cause()`.
+        //#[derive(Debug, $($derive),*)]
         #[derive(Debug)]
         pub struct $error_name(
             // The members must be `pub` for `links`.
@@ -71,13 +91,51 @@ macro_rules! impl_error_chain_processed {
             pub $error_kind_name,
             /// Contains the error chain and the backtrace.
             #[doc(hidden)]
-            pub $crate::State,
+            pub $crate::InternalState<$state_name>,
         );
 
-        impl $crate::ChainedError for $error_name {
+        #[derive(Debug, $($derive),*)]
+        pub struct $state_name {
+            next_error: Option<Box<$trait_name>>,
+        }
+
+        impl $state_name {
+            pub fn new(error: Box<$trait_name>) -> Self {
+                Self {
+                    next_error: Some(error),
+                }
+            }
+        }
+
+        impl Default for $state_name {
+            fn default() -> Self {
+                Self {
+                    next_error: None,
+                }
+            }
+        }
+        impl $crate::State for $state_name {
+            type Error = $trait_name;
+
+            fn new(error: Box<Self::Error>) -> Self {
+                Self {
+                    next_error: Some(error),
+                }
+            }
+
+            fn next_error(&self) -> &Option<Box<Self::Error>> {
+                &self.next_error
+            }
+
+            fn into_next_error(self) -> Option<Box<Self::Error>> {
+                self.next_error
+            }
+        }
+
+        impl $crate::ChainedError<$state_name> for $error_name {
             type ErrorKind = $error_kind_name;
 
-            fn new(kind: $error_kind_name, state: $crate::State) -> $error_name {
+            fn new(kind: $error_kind_name, state: $crate::InternalState<$state_name>) -> $error_name {
                 $error_name(kind, state)
             }
 
@@ -87,7 +145,7 @@ macro_rules! impl_error_chain_processed {
 
             fn with_chain<E, K>(error: E, kind: K)
                 -> Self
-                where E: ::std::error::Error + Send + 'static,
+                where E: $crate::ToError + ::std::error::Error + Send + Sync + 'static,
                       K: Into<Self::ErrorKind>
             {
                 Self::with_chain(error, kind)
@@ -122,27 +180,27 @@ macro_rules! impl_error_chain_processed {
             pub fn from_kind(kind: $error_kind_name) -> $error_name {
                 $error_name(
                     kind,
-                    $crate::State::default(),
+                    $crate::InternalState::default(),
                 )
             }
 
             /// Constructs a chained error from another error and a kind, and generates a backtrace.
             pub fn with_chain<E, K>(error: E, kind: K)
                 -> $error_name
-                where E: ::std::error::Error + Send + 'static,
+                where E: $trait_name + 'static,
                       K: Into<$error_kind_name>
             {
                 $error_name::with_boxed_chain(Box::new(error), kind)
             }
 
             /// Construct a chained error from another boxed error and a kind, and generates a backtrace
-            pub fn with_boxed_chain<K>(error: Box<::std::error::Error + Send>, kind: K)
+            pub fn with_boxed_chain<K>(error: Box<$trait_name>, kind: K)
                 -> $error_name
                 where K: Into<$error_kind_name>
             {
                 $error_name(
                     kind.into(),
-                    $crate::State::new::<$error_name>(error, ),
+                    $crate::InternalState::new::<$error_name>(error),
                 )
             }
 
@@ -158,7 +216,7 @@ macro_rules! impl_error_chain_processed {
 
             /// Returns the backtrace associated with this error.
             pub fn backtrace(&self) -> Option<&$crate::Backtrace> {
-                self.1.backtrace()
+                self.1.backtrace.as_backtrace()
             }
 
             /// Extends the error chain with a new entry.
@@ -181,20 +239,26 @@ macro_rules! impl_error_chain_processed {
 
             #[allow(unknown_lints, unused_doc_comment)]
             fn cause(&self) -> Option<&::std::error::Error> {
-                match self.1.next_error {
-                    Some(ref c) => Some(&**c),
+                let state = &self.1;
+                let error;
+                let next_error = state.next_error();
+
+                match *next_error {
+                    Some(ref c) => error = Some(&*c.to_error()),
                     None => {
                         match self.0 {
                             $(
                                 $(#[$meta_foreign_links])*
                                 $error_kind_name::$foreign_link_variant(ref foreign_err) => {
-                                    foreign_err.cause()
+                                    error = foreign_err.cause()
                                 }
                             ) *
-                            _ => None
+                            _ => error = None
                         }
                     }
                 }
+
+                error
             }
         }
 
@@ -206,11 +270,22 @@ macro_rules! impl_error_chain_processed {
 
         $(
             $(#[$meta_links])*
+            impl From<$link_state_path> for $state_name {
+                fn from(e: $link_state_path) -> Self {
+                    Self {
+                        next_error: $crate::State::into_next_error(e).map(|e| unsafe {
+                            Box::new(e) as Box<$trait_name>
+                        })
+                    }
+                }
+            }
+
+            $(#[$meta_links])*
             impl From<$link_error_path> for $error_name {
                 fn from(e: $link_error_path) -> Self {
                     $error_name(
                         $error_kind_name::$link_variant(e.0),
-                        e.1,
+                        ::InternalState { inner: e.1.inner.into(), backtrace: e.1.backtrace },
                     )
                 }
             }
@@ -251,7 +326,7 @@ macro_rules! impl_error_chain_processed {
 
         impl_error_chain_kind! {
             /// The kind of an error.
-            #[derive(Debug)]
+            #[derive(Debug, $($derive),*)]
             pub enum $error_kind_name {
 
                 /// A convenient variant for String.
@@ -320,12 +395,15 @@ macro_rules! impl_error_chain_processed {
                       EK: Into<$error_kind_name>;
         }
 
-        impl<T, E> $result_ext_name<T> for ::std::result::Result<T, E> where E: ::std::error::Error + Send + 'static {
+        impl<T, E> $result_ext_name<T> for ::std::result::Result<T, E>
+            where E: $trait_name + Sync + 'static,
+                  $state_name: $crate::State<Error = E>,
+        {
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name> {
                 self.map_err(move |e| {
-                    let state = $crate::State::new::<$error_name>(Box::new(e), );
+                    let state = $crate::InternalState::new::<$error_name>(Box::new(e));
                     $crate::ChainedError::new(callback().into(), state)
                 })
             }
@@ -340,8 +418,6 @@ macro_rules! impl_error_chain_processed {
                 })
             }
         }
-
-
     };
 }
 
@@ -350,51 +426,62 @@ macro_rules! impl_error_chain_processed {
 #[macro_export]
 macro_rules! error_chain_processing {
     (
-        ({}, $b:tt, $c:tt, $d:tt)
+        ({}, $b:tt, $c:tt, $d:tt, $e:tt)
         types $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($content, $b, $c, $d)
+            ($content, $b, $c, $d, $e)
             $($tail)*
         }
     };
     (
-        ($a:tt, {}, $c:tt, $d:tt)
+        ($a:tt, {}, $c:tt, $d:tt, $e:tt)
         links $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($a, $content, $c, $d)
+            ($a, $content, $c, $d, $e)
             $($tail)*
         }
     };
     (
-        ($a:tt, $b:tt, {}, $d:tt)
+        ($a:tt, $b:tt, {}, $d:tt, $e:tt)
         foreign_links $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($a, $b, $content, $d)
+            ($a, $b, $content, $d, $e)
             $($tail)*
         }
     };
     (
-        ($a:tt, $b:tt, $c:tt, {})
+        ($a:tt, $b:tt, $c:tt, {}, $e:tt)
         errors $content:tt
         $( $tail:tt )*
     ) => {
         error_chain_processing! {
-            ($a, $b, $c, $content)
+            ($a, $b, $c, $content, $e)
             $($tail)*
         }
     };
-    ( ($a:tt, $b:tt, $c:tt, $d:tt) ) => {
+    (
+        ($a:tt, $b:tt, $c:tt, $d:tt, {})
+        derive $content:tt
+        $( $tail:tt )*
+    ) => {
+        error_chain_processing! {
+            ($a, $b, $c, $d, $content)
+            $($tail)*
+        }
+    };
+    ( ($a:tt, $b:tt, $c:tt, $d:tt, $e:tt) ) => {
         impl_error_chain_processed! {
             types $a
             links $b
             foreign_links $c
             errors $d
+            derive $e
         }
     };
 }
@@ -404,10 +491,20 @@ macro_rules! error_chain_processing {
 macro_rules! error_chain {
     ( $( $block_name:ident { $( $block_content:tt )* } )* ) => {
         error_chain_processing! {
-            ({}, {}, {}, {})
+            ({}, {}, {}, {}, {})
             $($block_name { $( $block_content )* })*
         }
     };
+}
+
+/// Macro used to generate traits with `Self` bounds
+#[macro_export]
+#[doc(hidden)]
+macro_rules! create_super_trait {
+    ($name:ident: $bound_1:path, $($rest:path),*) => {
+        pub trait $name: $bound_1 $(+ $rest)* {}
+        impl<T: ?Sized + $bound_1 $(+ $rest)*> $name for T {}
+};
 }
 
 /// Macro used to manage the `backtrace` feature.
