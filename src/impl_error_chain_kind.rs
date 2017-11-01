@@ -177,7 +177,7 @@ macro_rules! impl_error_chain_kind {
             )*
 
             #[doc(hidden)]
-            __Nonexhaustive {}
+            __Nonexhaustive($crate::Void),
         }
     };
     // Unit variant

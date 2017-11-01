@@ -24,3 +24,4 @@ example_generated = []
 
 [dependencies]
 backtrace = { version = "0.3.3", optional = true }
+void = "1.0"
