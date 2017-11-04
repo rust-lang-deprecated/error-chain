@@ -1,6 +1,9 @@
 //! Demonstrates usage of `Error::caused` method. This method enables chaining errors
 //! like `ResultExt::chain_err` but doesn't require the presence of a `Result` wrapper.
 
+#[cfg(feature = "log")]
+#[macro_use]
+extern crate log;
 #[macro_use]
 extern crate error_chain;
 

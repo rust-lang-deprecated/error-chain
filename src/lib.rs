@@ -101,6 +101,8 @@
 //! define an `errors` module and inside it call [`error_chain!`]:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! mod other_error {
 //!     error_chain! {}
@@ -182,6 +184,8 @@
 //! Introducing new error chains, with a string message:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! # error_chain! {}
@@ -193,6 +197,8 @@
 //! Introducing new error chains, with an [`ErrorKind`]:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! error_chain! {
@@ -216,6 +222,8 @@
 //! So the below is equivalent to the previous:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! # error_chain! { errors { FooError } }
@@ -237,6 +245,8 @@
 //! With [`bail!`] the previous examples look like:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! # error_chain! { errors { FooError } }
@@ -264,6 +274,8 @@
 //! To extend the error chain:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! # error_chain! {}
@@ -290,6 +302,8 @@
 //! To chain an error directly, use [`with_chain`]:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! # error_chain! {}
@@ -306,6 +320,8 @@
 //! To convert an error from another error chain to this error chain:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {}
 //! # mod other { error_chain! {} }
@@ -334,6 +350,8 @@
 //! making dispatching on error kinds relatively compact:
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! # fn main() {
 //! error_chain! {
@@ -356,6 +374,8 @@
 //! Chained errors are also matched with (relatively) compact syntax
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! mod utils {
 //!     error_chain! {
@@ -390,6 +410,8 @@
 //! of causing errors. For reporting purposes, this information can be accessed as follows.
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use] extern crate error_chain;
 //! use error_chain::ChainedError;  // for e.display_chain()
 //!
@@ -466,6 +488,8 @@
 //! within your own project.
 //!
 //! ```
+//! # #[cfg(feature = "log")]
+//! # #[macro_use] extern crate log;
 //! # #[macro_use]
 //! # extern crate error_chain;
 //! # mod errors {
@@ -539,6 +563,13 @@
 use std::error;
 use std::iter::Iterator;
 use std::fmt;
+
+#[cfg(feature = "log")]
+#[macro_use]
+extern crate log;
+
+#[macro_use]
+mod log_ext;
 
 #[macro_use]
 mod impl_error_chain_kind;
@@ -692,6 +723,8 @@ impl State {
 /// `bail!(expr)` is equivalent to writing.
 ///
 /// ```
+/// # #[cfg(feature = "log")]
+/// # #[macro_use] extern crate log;
 /// # #[macro_use] extern crate error_chain;
 /// # error_chain! { }
 /// # fn main() { }
@@ -704,6 +737,8 @@ impl State {
 /// And as shorthand it takes a formatting string a la `println!`:
 ///
 /// ```
+/// # #[cfg(feature = "log")]
+/// # #[macro_use] extern crate log;
 /// # #[macro_use] extern crate error_chain;
 /// # error_chain! { }
 /// # fn main() { }
@@ -718,6 +753,8 @@ impl State {
 /// Bailing on a custom error:
 ///
 /// ```
+/// # #[cfg(feature = "log")]
+/// # #[macro_use] extern crate log;
 /// # #[macro_use] extern crate error_chain;
 /// # fn main() {}
 /// error_chain! {
@@ -738,6 +775,8 @@ impl State {
 /// Bailing on a formatted string:
 ///
 /// ```
+/// # #[cfg(feature = "log")]
+/// # #[macro_use] extern crate log;
 /// # #[macro_use] extern crate error_chain;
 /// # fn main() {}
 /// error_chain! { }
@@ -770,6 +809,8 @@ macro_rules! bail {
 /// As an example, `ensure!(condition, "error code: {}", errcode)` is equivalent to
 ///
 /// ```
+/// # #[cfg(feature = "log")]
+/// # #[macro_use] extern crate log;
 /// # #[macro_use] extern crate error_chain;
 /// # error_chain! { }
 /// # fn main() { }

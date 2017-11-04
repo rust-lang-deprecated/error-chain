@@ -38,6 +38,10 @@
 ///     Err("error".into())
 /// }
 /// ```
+#[cfg(features = "log")]
+#[macro_use]
+extern crate log;
+
 #[macro_export]
 macro_rules! quick_main {
     ($main:expr) => {

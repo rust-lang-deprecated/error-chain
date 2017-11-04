@@ -10,11 +10,50 @@ macro_rules! impl_error_chain_processed {
         impl_error_chain_processed! {
             types {
                 Error, ErrorKind, ResultExt, Result;
+                result_log_ext = ResultLogExt;
             }
             $( $rest )*
         }
     };
-    // With `Result` wrapper.
+    // with result wrapper and logext
+    (
+        types {
+            $error_name:ident, $error_kind_name:ident,
+            $result_ext_name:ident, $result_name:ident;
+            result_log_ext = $result_log_ext_name:ident;
+        }
+        $( $rest: tt )*
+    ) => {
+        impl_error_chain_processed! {
+            types {
+                $error_name, $error_kind_name,
+                $result_ext_name;
+                result_log_ext = $result_log_ext_name;
+            }
+            $( $rest )*
+        }
+        /// Convenient wrapper around `std::Result`.
+        #[allow(unused)]
+        pub type $result_name<T> = ::std::result::Result<T, $error_name>;
+    };
+    // without result wrapper and no logext
+    (
+        types {
+            $error_name:ident, $error_kind_name:ident,
+            $result_ext_name:ident;
+        }
+        $( $rest: tt )*
+    ) => {
+        impl_error_chain_processed! {
+            types {
+                $error_name, $error_kind_name,
+                $result_ext_name;
+                result_log_ext = ResultLogExt3;
+            }
+            $( $rest )*
+        }
+    };
+    // With `Result` wrapper no log ext
     (
         types {
             $error_name:ident, $error_kind_name:ident,
@@ -26,6 +65,7 @@ macro_rules! impl_error_chain_processed {
             types {
                 $error_name, $error_kind_name,
                 $result_ext_name;
+                result_log_ext = ResultLogExti2;
             }
             $( $rest )*
         }
@@ -38,6 +78,7 @@ macro_rules! impl_error_chain_processed {
         types {
             $error_name:ident, $error_kind_name:ident,
             $result_ext_name:ident;
+            result_log_ext = $result_log_ext_name:ident;
         }
 
         links {
@@ -342,6 +383,9 @@ macro_rules! impl_error_chain_processed {
         }
 
 
+        #[cfg(feature = "log")]
+        impl_result_log_ext!{ $result_log_ext_name , $error_name }
+        
     };
 }
 
