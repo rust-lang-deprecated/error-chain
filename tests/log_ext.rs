@@ -32,7 +32,7 @@ mod log_ext_tests {
         let msg3 = "My test info"; 
         let msg4 = "My test debug"; 
         let msg5 = "My test trace";
-        let base = || Error::from(ErrorKind::Test);
+        fn base() -> Error { Error::from(ErrorKind::Test) }
         let erre = base().chain_err(|| msg1).loge();
         let errw = base().chain_err(|| msg2).logw();
         let erri = base().chain_err(|| msg3).logi();
@@ -63,7 +63,7 @@ mod log_ext_tests {
                 
         }
 
-        let base: fn() -> Result<()>  = || Err( Error::from(ErrorKind::Test) );
+        fn base() -> Result<()>  { Err( Error::from(ErrorKind::Test) ) }
 
         let rese = base().chain_err(|| "My test error").loge();
         let resw = base().chain_err(|| "My test warn").logw();
