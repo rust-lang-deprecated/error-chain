@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-#[cfg(feature = "logging")]
+#[cfg(feature = "log")]
 #[macro_use]
 extern crate log;
 

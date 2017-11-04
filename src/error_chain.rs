@@ -383,7 +383,7 @@ macro_rules! impl_error_chain_processed {
         }
 
 
-        #[cfg(feature = "logging")]
+        #[cfg(feature = "log")]
         impl_result_log_ext!{ $result_log_ext_name , $error_name }
         
     };

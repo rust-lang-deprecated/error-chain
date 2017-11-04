@@ -38,7 +38,7 @@
 ///     Err("error".into())
 /// }
 /// ```
-#[cfg(features = "logging")]
+#[cfg(features = "log")]
 #[macro_use]
 extern crate log;
 

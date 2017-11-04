@@ -2,7 +2,7 @@
 
 //! This module is used to check that all generated items are documented.
 
-#[cfg(feature = "logging")]
+#[cfg(feature = "log")]
 #[macro_use]
 extern crate log;
 #[macro_use]

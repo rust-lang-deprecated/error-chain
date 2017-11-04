@@ -1,14 +1,14 @@
 #![allow(dead_code)]
 
-#[cfg(feature = "logging")]
+#[cfg(feature = "log")]
 #[macro_use]
 extern crate log;
 
-#[cfg(feature = "logging")]
+#[cfg(feature = "log")]
 #[macro_use]
 extern crate error_chain;
 
-#[cfg(feature = "logging")]
+#[cfg(feature = "log")]
 #[cfg(test)]
 mod log_ext_tests {
 
