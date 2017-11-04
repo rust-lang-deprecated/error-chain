@@ -37,10 +37,13 @@ env:
   - TRAVIS_CARGO_NIGHTLY_FEATURE=""
   - RUSTFLAGS="-D warnings"
   matrix:
-  - FEATURES=--features=backtrace,log
+  - FEATURES=--features=backtrace
+  - FEATURES=--features=log
   - FEATURES=--no-default-features
 
 matrix:
   exclude:
-  - env: FEATURES=--features=backtrace,log
+  - env: FEATURES=--features=backtrace
+    rust: 1.10.0
+  - env: FEATURES=--features=log
     rust: 1.10.0
