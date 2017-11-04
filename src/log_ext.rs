@@ -1,4 +1,4 @@
-#[cfg(feature = "log")]
+#[cfg(feature = "logging")]
 #[macro_use]
 mod impl_log_ext {
 #[macro_export]
@@ -45,7 +45,7 @@ macro_rules! impl_result_log_ext {
 /// For example:
 ///
 /// `log_causes!(err,info)`
-// #[cfg(feature = "log")]
+// #[cfg(feature = "logging")]
 #[macro_export]
 macro_rules! impl_log_causes {
     ($e:expr, $level:ident) => (
@@ -71,7 +71,7 @@ macro_rules! impl_log_causes {
 /// For example:
 ///
 /// `log_error!(err,info,Info)`
-#[cfg(feature = "log")]
+#[cfg(feature = "logging")]
 #[macro_export]
 macro_rules! impl_make_log_fn_for_result {
     ($name:ident, $level:ident, $lvlchk:ident) => (
@@ -89,7 +89,7 @@ macro_rules! impl_make_log_fn_for_result {
 }
 
 /// Internal implementation macro for logging the chained error type
-#[cfg(feature = "log")]
+#[cfg(feature = "logging")]
 #[macro_export]
 macro_rules! impl_make_log_fn_for_chained_error {
     ($name:ident, $level:ident, $lvlchk:ident) => (

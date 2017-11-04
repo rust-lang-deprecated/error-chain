@@ -1,4 +1,4 @@
-#[cfg(feature = "log")]
+#[cfg(feature = "logging")]
 #[macro_use]
 extern crate log;
 #[macro_use]
