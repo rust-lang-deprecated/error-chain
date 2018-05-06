@@ -1,5 +1,6 @@
 # Unreleased
 
+- [Remove ChainedError trait](https://github.com/rust-lang-nursery/error-chain/issues/181)
 - [Remove `impl Deref<Kind> for Error`](https://github.com/rust-lang-nursery/error-chain/pull/192)
 
 # 0.11.0

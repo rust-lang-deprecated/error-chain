@@ -52,7 +52,6 @@ fn main() {
 fn alternative_main() {
     if let Err(ref e) = run() {
         use std::io::Write;
-        use error_chain::ChainedError; // trait which holds `display_chain`
         let stderr = &mut ::std::io::stderr();
         let errmsg = "Error writing to stderr";
 
