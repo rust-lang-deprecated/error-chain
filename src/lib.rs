@@ -589,8 +589,8 @@ impl<'a> DisplayChain<'a> {
     #[doc(hidden)]
     pub fn new(error: &'a error::Error, backtrace: Option<&'a Backtrace>) -> DisplayChain<'a> {
         DisplayChain {
-            error,
-            backtrace,
+            error: error,
+            backtrace: backtrace,
         }
     }
 }
