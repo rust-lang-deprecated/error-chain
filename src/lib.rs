@@ -344,9 +344,9 @@
 //!     }
 //! }
 //!
-//! match Error::from("error!") {
-//!     Error(ErrorKind::InvalidToolchainName(_), _) => { }
-//!     Error(ErrorKind::Msg(_), _) => { }
+//! match *Error::from("error!").kind() {
+//!     ErrorKind::InvalidToolchainName(_) => { }
+//!     ErrorKind::Msg(_) => { }
 //!     _ => { }
 //! }
 //! # }
@@ -376,8 +376,8 @@
 //!
 //!
 //! # fn main() {
-//! match app::Error::from("error!") {
-//!     app::Error(app::ErrorKind::Utils(utils::ErrorKind::BadStuff), _) => { }
+//! match *app::Error::from("error!").kind() {
+//!     app::ErrorKind::Utils(utils::ErrorKind::BadStuff) => { }
 //!     _ => { }
 //! }
 //! # }

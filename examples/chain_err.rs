@@ -53,11 +53,11 @@ fn load_config(rel_path: &str) -> Result<()> {
 
 /// Launch the service.
 fn launch(rel_path: &str) -> Result<()> {
-    load_config(rel_path).map_err(|e| match e {
-                                      e @ Error(ErrorKind::ConfigLoad(_), _) => {
+    load_config(rel_path).map_err(|e| match *e.kind() {
+                                      ErrorKind::ConfigLoad(_) => {
                                           e.chain_err(|| LaunchStage::ConfigLoad)
                                       }
-                                      e => e.chain_err(|| "Unknown failure"),
+                                      _ => e.chain_err(|| "Unknown failure"),
                                   })
 }
 
