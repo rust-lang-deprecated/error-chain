@@ -1,6 +1,6 @@
 [package]
 name = "error-chain"
-version = "0.11.0" # remember to update html_root_url
+version = "0.12.0" # remember to update html_root_url
 authors = [ "Brian Anderson <banderson@mozilla.com>",
             "Paul Colomiets <paul@colomiets.name>",
             "Colin Kiegel <kiegel@gmx.de>",
