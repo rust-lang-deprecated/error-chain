@@ -1,5 +1,9 @@
 #![allow(dead_code)]
 
+#[cfg(feature = "log")]
+#[macro_use]
+extern crate log;
+
 #[macro_use]
 extern crate error_chain;
 

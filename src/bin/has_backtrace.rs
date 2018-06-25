@@ -2,8 +2,13 @@
 //! Used by tests to make sure backtraces are available when they should be. Should not be used
 //! outside of the tests.
 
+#[cfg(feature = "log")]
+#[macro_use]
+extern crate log;
 #[macro_use]
 extern crate error_chain;
+
+
 
 error_chain! {
     errors {

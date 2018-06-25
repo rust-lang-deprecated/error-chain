@@ -6,6 +6,9 @@
 
 // Import the macro. Don't forget to add `error-chain` in your
 // `Cargo.toml`!
+#[cfg(feature = "log")]
+#[macro_use]
+extern crate log;
 #[macro_use]
 extern crate error_chain;
 
