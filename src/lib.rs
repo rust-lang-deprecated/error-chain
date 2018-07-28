@@ -535,6 +535,8 @@
 //! [`map_err`]: https://doc.rust-lang.org/std/result/enum.Result.html#method.map_err
 //! [`BacktraceFrame`]: https://docs.rs/backtrace/0.3.2/backtrace/struct.BacktraceFrame.html
 
+extern crate void;
+
 use std::error;
 use std::iter::Iterator;
 use std::fmt;
@@ -648,6 +650,13 @@ impl<'a, T> fmt::Display for DisplayChain<'a, T>
         Ok(())
     }
 }
+
+/// Wrapper over void::Void, provided for 2 reasons:
+/// * Users shouldn't need to specify a void dependency in Cargo.toml to use error-chain
+/// * We can reuse whatever trait impls defined for void::Void
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[doc(hidden)]
+pub struct Void(::void::Void);
 
 /// Common state between errors.
 #[derive(Debug)]
