@@ -1,6 +1,6 @@
 /// Prefer to use `error_chain` instead of this macro.
 #[doc(hidden)]
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! impl_error_chain_processed {
     // Default values for `types`.
     (
@@ -347,7 +347,7 @@ macro_rules! impl_error_chain_processed {
 
 /// Internal macro used for reordering of the fields.
 #[doc(hidden)]
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! error_chain_processing {
     (
         ({}, $b:tt, $c:tt, $d:tt)
@@ -400,7 +400,7 @@ macro_rules! error_chain_processing {
 }
 
 /// Macro for generating error types and traits. See crate level documentation for details.
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! error_chain {
     ( $( $block_name:ident { $( $block_content:tt )* } )* ) => {
         error_chain_processing! {

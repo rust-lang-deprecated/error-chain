@@ -783,7 +783,7 @@ macro_rules! bail {
 /// ```
 ///
 /// See documentation for `bail!` macro for further details.
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! ensure {
     ($cond:expr, $e:expr) => {
         if !($cond) {
