@@ -342,10 +342,18 @@ mod foreign_link_test {
     }
 
     #[test]
+    #[cfg(not(has_error_source))]
     fn finds_cause() {
         let chained_error = try_foreign_error().err().unwrap();
         assert_eq!(format!("{}", ForeignErrorCause {}),
                    format!("{}", ::std::error::Error::cause(&chained_error).unwrap()));
+    }
+
+    #[test]
+    #[cfg(has_error_source)]
+    fn finds_source() {
+        let chained_error = try_foreign_error().err().unwrap();
+        assert!(::std::error::Error::source(&chained_error).is_none());
     }
 
     #[test]
@@ -355,8 +363,13 @@ mod foreign_link_test {
         assert!(!format!("{:?}", error_iter).is_empty());
         assert_eq!(format!("{}", ForeignError { cause: ForeignErrorCause {} }),
                    format!("{}", error_iter.next().unwrap()));
-        assert_eq!(format!("{}", ForeignErrorCause {}),
-                   format!("{}", error_iter.next().unwrap()));
+        match () {
+            #[cfg(not(has_error_source))]
+            () => assert_eq!(format!("{}", ForeignErrorCause {}),
+                             format!("{}", error_iter.next().unwrap())),
+            #[cfg(has_error_source)]
+            () => assert!(error_iter.next().is_none()),
+        };
         assert_eq!(format!("{:?}", None as Option<&::std::error::Error>),
                    format!("{:?}", error_iter.next()));
     }
