@@ -7,7 +7,7 @@ mod imp {
     use std::cell::UnsafeCell;
     use std::env;
     use std::fmt;
-    use std::sync::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
+    use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::{Arc, Mutex};
 
     /// Internal representation of a backtrace
@@ -33,7 +33,7 @@ mod imp {
         /// in the generated error implementations.
         #[doc(hidden)]
         pub fn new() -> InternalBacktrace {
-            static ENABLED: AtomicUsize = ATOMIC_USIZE_INIT;
+            static ENABLED: AtomicUsize = AtomicUsize::new(0);
 
             match ENABLED.load(Ordering::SeqCst) {
                 0 => {
