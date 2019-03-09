@@ -570,11 +570,15 @@ impl<'a> Iterator for Iter<'a> {
     fn next<'b>(&'b mut self) -> Option<&'a error::Error> {
         match self.0.take() {
             Some(e) => {
-                self.0 = match () {
+                self.0 = {
                     #[cfg(not(has_error_source))]
-                    () => e.cause(),
+                    {
+                        e.cause()
+                    }
                     #[cfg(has_error_source)]
-                    () => e.source(),
+                    {
+                        e.source()
+                    }
                 };
                 Some(e)
             }
