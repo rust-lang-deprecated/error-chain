@@ -188,13 +188,11 @@ macro_rules! impl_error_chain_processed {
                             $(
                                 $(#[$meta_foreign_links])*
                                 $error_kind_name::$foreign_link_variant(ref foreign_err) => {
-                                    #[cfg(not(has_error_source))]
-                                    {
-                                        foreign_err.cause()
-                                    }
-                                    #[cfg(has_error_source)]
-                                    {
-                                        foreign_err.source()
+                                    match () {
+                                        #[cfg(not(has_error_source))]
+                                        () => foreign_err.cause(),
+                                        #[cfg(has_error_source)]
+                                        () => foreign_err.source(),
                                     }
                                 }
                             ) *
