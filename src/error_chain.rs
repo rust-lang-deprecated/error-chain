@@ -200,7 +200,7 @@ macro_rules! impl_error_chain_processed {
 
             #[cfg(has_error_source)]
             #[allow(unknown_lints, renamed_and_removed_lints, unused_doc_comment, unused_doc_comments)]
-            fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            fn source(&self) -> Option<&(std::error::Error + 'static)> {
                 match self.1.next_error {
                     Some(ref c) => Some(&**c),
                     None => {
