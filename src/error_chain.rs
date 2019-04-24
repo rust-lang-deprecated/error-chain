@@ -1,48 +1,51 @@
 #[doc(hidden)]
 #[macro_export]
 #[cfg(not(has_error_source))]
-macro_rules! impl_error_chain_source {
+macro_rules! impl_error_chain_cause_or_source {
     (
-     types {
+        types {
             $error_kind_name:ident
-    }
-    foreign_links {
-        $( $foreign_link_variant:ident ( $foreign_link_error_path:path )
-            $( #[$meta_foreign_links:meta] )*; )*
-    }) => {
+        }
 
-    #[allow(unknown_lints, renamed_and_removed_lints, unused_doc_comment, unused_doc_comments)]
-    fn cause(&self) -> Option<&::std::error::Error> {
-        match self.1.next_error {
-            Some(ref c) => Some(&**c),
-            None => {
-                match self.0 {
-                    $(
-                        $(#[$meta_foreign_links])*
-                        $error_kind_name::$foreign_link_variant(ref foreign_err) => {
-                        foreign_err.cause()
-                        }
-                    ) *
-                _ => None
+        foreign_links {
+            $( $foreign_link_variant:ident ( $foreign_link_error_path:path )
+               $( #[$meta_foreign_links:meta] )*; )*
+        }
+    ) => {
+        #[allow(unknown_lints, renamed_and_removed_lints, unused_doc_comment, unused_doc_comments)]
+        fn cause(&self) -> Option<&::std::error::Error> {
+            match self.1.next_error {
+                Some(ref c) => Some(&**c),
+                None => {
+                    match self.0 {
+                        $(
+                            $(#[$meta_foreign_links])*
+                            $error_kind_name::$foreign_link_variant(ref foreign_err) => {
+                                foreign_err.cause()
+                            }
+                        ) *
+                        _ => None
+                    }
                 }
             }
         }
-    }
     };
 }
 
 #[cfg(has_error_source)]
 #[doc(hidden)]
 #[macro_export]
-macro_rules! impl_error_chain_source {
+macro_rules! impl_error_chain_cause_or_source {
     (
-     types {
-            $error_kind_name:ident
-    }
-    foreign_links {
-        $( $foreign_link_variant:ident ( $foreign_link_error_path:path )
-            $( #[$meta_foreign_links:meta] )*; )*
-    }) => {
+        types {
+             $error_kind_name:ident
+        }
+
+        foreign_links {
+            $( $foreign_link_variant:ident ( $foreign_link_error_path:path )
+               $( #[$meta_foreign_links:meta] )*; )*
+        }
+    ) => {
 
             #[allow(unknown_lints, renamed_and_removed_lints, unused_doc_comment, unused_doc_comments)]
             fn source(&self) -> Option<&(std::error::Error + 'static)> {
@@ -245,7 +248,7 @@ macro_rules! impl_error_chain_processed {
                 self.description()
             }
 
-            $crate::impl_error_chain_source!{
+            $crate::impl_error_chain_cause_or_source!{
                 types {
                     $error_kind_name
                 }
