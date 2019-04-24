@@ -248,7 +248,7 @@ macro_rules! impl_error_chain_processed {
                 self.description()
             }
 
-            $crate::impl_error_chain_cause_or_source!{
+            impl_error_chain_cause_or_source!{
                 types {
                     $error_kind_name
                 }
