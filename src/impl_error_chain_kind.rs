@@ -3,7 +3,20 @@
 //   - replace `impl Error` by `impl Item::description`
 //   - $imeta
 
+// Because of the `#[macro_export(local_inner_macros)]` usage on `impl_error_chain_kind` that macro
+// will only look inside this crate for macros to invoke. So using `stringify` or `write` from
+// the standard library will fail. Thus we here create simple wrappers for them that are not
+// exported as `local_inner_macros`, and thus they can in turn use the standard library macros.
 #[macro_export]
+macro_rules! stringify_internal {
+    ($($t:tt)*) => { stringify!($($t)*) }
+}
+#[macro_export]
+macro_rules! write_internal {
+    ($dst:expr, $($arg:tt)*) => (write!($dst, $($arg)*))
+}
+
+#[macro_export(local_inner_macros)]
 #[doc(hidden)]
 macro_rules! impl_error_chain_kind {
     (   $(#[$meta:meta])*
@@ -272,18 +285,18 @@ macro_rules! impl_error_chain_kind {
         { display($self_:tt) -> ($( $exprs:tt )*) $( $tail:tt )*}
     ) => {
         |impl_error_chain_kind!(IDENT $self_): &$name, f: &mut ::std::fmt::Formatter| {
-            write!(f, $( $exprs )*)
+            write_internal!(f, $( $exprs )*)
         }
     };
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { display($pattern:expr) $( $tail:tt )*}
     ) => {
-        |_, f: &mut ::std::fmt::Formatter| { write!(f, $pattern) }
+        |_, f: &mut ::std::fmt::Formatter| { write_internal!(f, $pattern) }
     };
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { display($pattern:expr, $( $exprs:tt )*) $( $tail:tt )*}
     ) => {
-        |_, f: &mut ::std::fmt::Formatter| { write!(f, $pattern, $( $exprs )*) }
+        |_, f: &mut ::std::fmt::Formatter| { write_internal!(f, $pattern, $( $exprs )*) }
     };
     (FIND_DISPLAY_IMPL $name:ident $item:ident: $imode:tt
         { $t:tt $( $tail:tt )*}
@@ -296,7 +309,7 @@ macro_rules! impl_error_chain_kind {
         { }
     ) => {
         |self_: &$name, f: &mut ::std::fmt::Formatter| {
-            write!(f, "{}", self_.description())
+            write_internal!(f, "{}", self_.description())
         }
     };
     (FIND_DESCRIPTION_IMPL $item:ident: $imode:tt $me:ident $fmt:ident
@@ -317,7 +330,7 @@ macro_rules! impl_error_chain_kind {
         [$( $var:ident ),*]
         { }
     ) => {
-        stringify!($item)
+        stringify_internal!($item)
     };
     (ITEM_BODY $(#[$imeta:meta])* $item:ident: UNIT
     ) => { };
