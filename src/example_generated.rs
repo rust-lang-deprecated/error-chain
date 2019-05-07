@@ -36,3 +36,20 @@ error_chain! {
         Custom
     }
 }
+
+#[cfg(test)]
+mod test {
+    
+    use super::Error;
+
+    #[test]
+    fn generated_error_meets_bounds() {
+        fn is_sync<T: Sync>() { }
+        fn is_send<T: Send>() { }
+        fn is_static<T: 'static>() { }
+        is_sync::<Error>();
+        is_send::<Error>();
+        is_static::<Error>();
+        assert!(true);
+    }
+}
