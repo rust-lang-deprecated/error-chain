@@ -1,16 +1,18 @@
-// From https://github.com/tailhook/quick-error
-// Changes:
-//   - replace `impl Error` by `impl Item::description`
-//   - $imeta
+/// From https://github.com/tailhook/quick-error
+/// Changes:
+///   - replace `impl Error` by `impl Item::description`
+///   - $imeta
 
-// Because of the `#[macro_export(local_inner_macros)]` usage on `impl_error_chain_kind` that macro
-// will only look inside this crate for macros to invoke. So using `stringify` or `write` from
-// the standard library will fail. Thus we here create simple wrappers for them that are not
-// exported as `local_inner_macros`, and thus they can in turn use the standard library macros.
+/// Because of the `#[macro_export(local_inner_macros)]` usage on `impl_error_chain_kind` that macro
+/// will only look inside this crate for macros to invoke. So using `stringify` or `write` from
+/// the standard library will fail. Thus we here create simple wrappers for them that are not
+/// exported as `local_inner_macros`, and thus they can in turn use the standard library macros.
 #[macro_export]
 macro_rules! stringify_internal {
     ($($t:tt)*) => { stringify!($($t)*) }
 }
+
+/// Macro used interally for output expanding an expression 
 #[macro_export]
 macro_rules! write_internal {
     ($dst:expr, $($arg:tt)*) => (write!($dst, $($arg)*))
