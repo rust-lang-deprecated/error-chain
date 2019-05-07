@@ -5,7 +5,8 @@ rust:
 - nightly
 # Oldest supported version for all features.
 # Use of https://github.com/rust-lang/rfcs/pull/16
-- 1.14.0
+# and Backtrace needs 1.25 (see https://github.com/alexcrichton/backtrace-rs/pull/137)
+- 1.25.0
 # Oldest supported version as dependency, with no features, tests, or examples.
 - 1.10.0
 

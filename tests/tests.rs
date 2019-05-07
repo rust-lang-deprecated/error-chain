@@ -292,7 +292,13 @@ mod foreign_link_test {
             "Foreign error description"
         }
 
+        #[cfg(not(has_error_source))]
         fn cause(&self) -> Option<&::std::error::Error> {
+            Some(&self.cause)
+        }
+
+        #[cfg(has_error_source)]
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
             Some(&self.cause)
         }
     }
@@ -311,7 +317,13 @@ mod foreign_link_test {
             "Foreign error cause description"
         }
 
+        #[cfg(not(has_error_source))]
         fn cause(&self) -> Option<&::std::error::Error> {
+            None
+        }
+
+        #[cfg(has_error_source)]
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
             None
         }
     }
@@ -342,10 +354,19 @@ mod foreign_link_test {
     }
 
     #[test]
+    #[cfg(not(has_error_source))]
     fn finds_cause() {
         let chained_error = try_foreign_error().err().unwrap();
         assert_eq!(format!("{}", ForeignErrorCause {}),
                    format!("{}", ::std::error::Error::cause(&chained_error).unwrap()));
+    }
+
+    #[test]
+    #[cfg(has_error_source)]
+    fn finds_source() {
+        let chained_error = try_foreign_error().err().unwrap();
+        assert_eq!(format!("{}", ForeignErrorCause {}),
+                   format!("{}", ::std::error::Error::source(&chained_error).unwrap()));
     }
 
     #[test]

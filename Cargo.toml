@@ -24,3 +24,6 @@ example_generated = []
 
 [dependencies]
 backtrace = { version = "0.3.3", optional = true }
+
+[build-dependencies]
+version_check = "0.1.5"
