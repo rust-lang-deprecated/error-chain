@@ -1,5 +1,10 @@
 # Unreleased
 
+# 0.12.1
+
+- [`std::error::Error::cause` deprecation update](https://github.com/rust-lang-nursery/error-chain/pull/255)
+- [Macro invocations use 2018 style](https://github.com/rust-lang-nursery/error-chain/pull/253)
+
 # 0.12.0
 
 - [Remove `impl Deref<Kind> for Error`](https://github.com/rust-lang-nursery/error-chain/pull/192)

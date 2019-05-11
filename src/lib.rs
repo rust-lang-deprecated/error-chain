@@ -1,5 +1,5 @@
 #![deny(missing_docs)]
-#![doc(html_root_url = "https://docs.rs/error-chain/0.12.0")]
+#![doc(html_root_url = "https://docs.rs/error-chain/0.12.1")]
 
 //! A library for consistent and reliable error handling
 //!
@@ -570,7 +570,12 @@ impl<'a> Iterator for Iter<'a> {
     fn next<'b>(&'b mut self) -> Option<&'a error::Error> {
         match self.0.take() {
             Some(e) => {
-                self.0 = e.cause();
+                self.0 = match () {
+                    #[cfg(not(has_error_source))]
+                    () => e.cause(),
+                    #[cfg(has_error_source)]
+                    () => e.source(),
+                };
                 Some(e)
             }
             None => None,
@@ -783,7 +788,7 @@ macro_rules! bail {
 /// ```
 ///
 /// See documentation for `bail!` macro for further details.
-#[macro_export]
+#[macro_export(local_inner_macros)]
 macro_rules! ensure {
     ($cond:expr, $e:expr) => {
         if !($cond) {
