@@ -662,3 +662,24 @@ fn trailing_comma_in_errors_impl() {
         }
     };
 }
+
+#[test]
+fn skipping_msg_variant() {
+    error_chain! {
+        skip_msg_variant
+
+        errors {
+            MyMsg(s: String) {
+                description(&s)
+                display("{}", s)
+            }
+        }
+    }
+
+    let x = Error::from_kind(ErrorKind::MyMsg("some string".into()));
+    // This would fail to compile if we generate a `Msg` variant
+    match *x.kind() {
+        ErrorKind::MyMsg(_) => {}
+        ErrorKind::__Nonexhaustive {} => {}
+    }
+}

@@ -163,6 +163,10 @@
 //!             display("unknown toolchain version: '{}'", v), // trailing comma is allowed
 //!         }
 //!     }
+//!
+//!     // If this annotation is left off, a variant `Msg(s: String)` will be added, and `From`
+//!     // impls will be provided for `String` and `&str`
+//!     skip_msg_variant
 //! }
 //!
 //! # fn main() {}
