@@ -12,7 +12,7 @@ macro_rules! stringify_internal {
     ($($t:tt)*) => { stringify!($($t)*) }
 }
 
-/// Macro used interally for output expanding an expression 
+/// Macro used interally for output expanding an expression
 #[macro_export]
 macro_rules! write_internal {
     ($dst:expr, $($arg:tt)*) => (write!($dst, $($arg)*))
@@ -239,7 +239,8 @@ macro_rules! impl_error_chain_kind {
             $item:ident: $imode:tt [$(#[$imeta:meta])*] [$( $var:ident: $typ:ty ),*] {$( $funcs:tt )*}
         )*}
     ) => {
-        #[allow(unknown_lints, unused, renamed_and_removed_lints, unused_doc_comment, unused_doc_comments)]
+        #[allow(unknown_lints, unused, renamed_and_removed_lints)]
+        #[allow(unused_doc_comment, unused_doc_comments)]
         impl ::std::fmt::Display for $name {
             fn fmt(&self, fmt: &mut ::std::fmt::Formatter)
                 -> ::std::fmt::Result
@@ -262,7 +263,8 @@ macro_rules! impl_error_chain_kind {
                 }
             }
         }
-        #[allow(unknown_lints, unused, renamed_and_removed_lints, unused_doc_comment, unused_doc_comments)]
+        #[allow(unknown_lints, unused, renamed_and_removed_lints)]
+        #[allow(unused_doc_comment, unused_doc_comments)]
         impl $name {
             /// A string describing the error kind.
             pub fn description(&self) -> &str {
