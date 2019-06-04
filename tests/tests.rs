@@ -378,7 +378,7 @@ mod foreign_link_test {
                    format!("{}", error_iter.next().unwrap()));
         assert_eq!(format!("{}", ForeignErrorCause {}),
                    format!("{}", error_iter.next().unwrap()));
-        assert_eq!(format!("{:?}", None as Option<&::std::error::Error>),
+        assert_eq!(format!("{:?}", None as Option<&dyn (::std::error::Error)>),
                    format!("{:?}", error_iter.next()));
     }
 
