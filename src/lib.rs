@@ -558,16 +558,19 @@ pub use backtrace::Backtrace;
 pub use backtrace::InternalBacktrace;
 
 #[derive(Debug)]
+#[allow(unknown_lints, bare_trait_objects)]
 /// Iterator over the error chain using the `Error::cause()` method.
 pub struct Iter<'a>(Option<&'a error::Error>);
 
 impl<'a> Iter<'a> {
     /// Returns a new iterator over the error chain using `Error::cause()`.
+    #[allow(unknown_lints, bare_trait_objects)]
     pub fn new(err: Option<&'a error::Error>) -> Iter<'a> {
         Iter(err)
     }
 }
 
+#[allow(unknown_lints, bare_trait_objects)]
 impl<'a> Iterator for Iter<'a> {
     type Item = &'a error::Error;
 
@@ -631,6 +634,7 @@ pub trait ChainedError: error::Error + Send + 'static {
     /// Returns the first known backtrace, either from its State or from one
     /// of the errors from `foreign_links`.
     #[doc(hidden)]
+    #[allow(unknown_lints, bare_trait_objects)]
     fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<InternalBacktrace>
         where Self: Sized;
 }
@@ -661,6 +665,7 @@ impl<'a, T> fmt::Display for DisplayChain<'a, T>
 /// Common state between errors.
 #[derive(Debug)]
 #[doc(hidden)]
+#[allow(unknown_lints, bare_trait_objects)]
 pub struct State {
     /// Next error in the error chain.
     pub next_error: Option<Box<error::Error + Send>>,
@@ -679,6 +684,7 @@ impl Default for State {
 
 impl State {
     /// Creates a new State type
+    #[allow(unknown_lints, bare_trait_objects)]
     pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
         let backtrace = CE::extract_backtrace(&*e)
             .unwrap_or_else(InternalBacktrace::new);

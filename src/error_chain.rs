@@ -47,7 +47,7 @@ macro_rules! impl_error_chain_cause_or_source {
                $( #[$meta_foreign_links:meta] )*; )*
         }
     ) => {
-            #[allow(unknown_lints, renamed_and_removed_lints)]
+            #[allow(unknown_lints, renamed_and_removed_lints, bare_trait_objects)]
             #[allow(unused_doc_comment, unused_doc_comments)]
             fn source(&self) -> Option<&(std::error::Error + 'static)> {
                 match self.1.next_error {
@@ -261,6 +261,7 @@ macro_rules! impl_error_chain_processed {
             }
 
             /// Construct a chained error from another boxed error and a kind, and generates a backtrace
+            #[allow(unknown_lints, bare_trait_objects)]
             pub fn with_boxed_chain<K>(error: Box<::std::error::Error + Send>, kind: K)
                 -> $error_name
                 where K: Into<$error_kind_name>
@@ -522,7 +523,7 @@ macro_rules! impl_extract_backtrace {
     ($error_name: ident
      $error_kind_name: ident
      $([$link_error_path: path, $(#[$meta_links: meta])*])*) => {
-        #[allow(unknown_lints, renamed_and_removed_lints)]
+        #[allow(unknown_lints, renamed_and_removed_lints, bare_trait_objects)]
         #[allow(unused_doc_comment, unused_doc_comments)]
         fn extract_backtrace(e: &(::std::error::Error + Send + 'static))
             -> Option<$crate::InternalBacktrace> {
