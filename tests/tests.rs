@@ -370,6 +370,7 @@ mod foreign_link_test {
     }
 
     #[test]
+    #[allow(unknown_lints, bare_trait_objects)]
     fn iterates() {
         let chained_error = try_foreign_error().err().unwrap();
         let mut error_iter = chained_error.iter();
