@@ -5,8 +5,8 @@ rust:
 - nightly
 # Oldest supported version for all features.
 # Use of https://github.com/rust-lang/rfcs/pull/16
-# and Backtrace needs 1.30 (see https://github.com/rust-lang/backtrace-rs/issues/200)
-- 1.30.0
+# rustc-demangle uses feature `rename-dependency`
+- 1.31.0
 # Oldest supported version as dependency, with no features, tests, or examples.
 - 1.10.0
 
