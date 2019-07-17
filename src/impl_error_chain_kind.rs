@@ -85,8 +85,7 @@ macro_rules! impl_error_chain_kind {
         queue [ #[$qmeta:meta] $( $tail:tt )*]
     ) => {
         impl_error_chain_kind!(SORT [$( $def )*]
-            enum [$( $(#[$emeta])* => $eitem $(( $($etyp),* ))* )*
-                     $(#[$bmeta])* => $bitem: $bmode $(( $($btyp),* ))*]
+            enum [$(#[$bmeta])* => $bitem: $bmode $(( $($btyp),* ))*]
             items [$($( #[$imeta:meta] )*
                       => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*
                      $bitem: $bmode [$( $bvar:$btyp ),*] {} ]
@@ -103,7 +102,7 @@ macro_rules! impl_error_chain_kind {
     ) => {
         impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
-            buf [$( #[$bmeta] )* => $bitem: TUPLE [$( $qvar:$qtyp ),*] ]
+            buf [$( #[$bmeta] )* => $bitem: TUPLE [$( $qvar:$qtyp ),+] ]
             queue [$( $tail )*]
         );
     };
@@ -117,7 +116,7 @@ macro_rules! impl_error_chain_kind {
     ) => {
         impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
-            buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),*] ]
+            buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),+] ]
             queue [$( $tail )*]);
     };
     // Add struct enum-variant, with excess comma - e.g. { descr: &'static str, }
@@ -130,7 +129,7 @@ macro_rules! impl_error_chain_kind {
     ) => {
         impl_error_chain_kind!(SORT [$( $def )*]
             items [$( $(#[$imeta])* => $iitem: $imode [$( $ivar:$ityp ),*] {$( $ifuncs )*} )*]
-            buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),*] ]
+            buf [$( #[$bmeta] )* => $bitem: STRUCT [$( $qvar:$qtyp ),+] ]
             queue [$( $tail )*]);
     };
     // Add braces and flush always on braces
@@ -188,7 +187,7 @@ macro_rules! impl_error_chain_kind {
         pub enum $name {
             $(
                 $(#[$imeta])*
-                $iitem $(($( $ttyp ),*))* $({$( $svar: $styp ),*})*,
+                $iitem $(($( $ttyp ),+))* $({$( $svar: $styp ),*})*,
             )*
 
             #[doc(hidden)]
@@ -217,7 +216,7 @@ macro_rules! impl_error_chain_kind {
     ) => {
         impl_error_chain_kind!(ENUM_DEFINITION [ $($def)* ]
             body [$($( #[$imeta] )* => $iitem ($(($( $ttyp ),+))*) {$({$( $svar: $styp ),*})*} )*
-                    $( #[$qmeta] )* => $qitem (($( $qtyp ),*)) {} ]
+                    $( #[$qmeta] )* => $qitem (($( $qtyp ),+)) {} ]
             queue [ $($queue)* ]
         );
     };
