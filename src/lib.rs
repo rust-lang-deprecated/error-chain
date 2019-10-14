@@ -648,14 +648,14 @@ impl<'a, T> fmt::Display for DisplayChain<'a, T>
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         // Keep `try!` for 1.10 support
-        writeln!(fmt, "Error: {}", self.0)?;
+        try!(writeln!(fmt, "Error: {}", self.0));
 
         for e in self.0.iter().skip(1) {
-            writeln!(fmt, "Caused by: {}", e)?;
+            try!(writeln!(fmt, "Caused by: {}", e));
         }
 
         if let Some(backtrace) = ChainedError::backtrace(self.0) {
-            writeln!(fmt, "{:?}", backtrace)?;
+            try!(writeln!(fmt, "{:?}", backtrace));
         }
 
         Ok(())
