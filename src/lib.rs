@@ -557,6 +557,9 @@ pub use backtrace::Backtrace;
 #[doc(hidden)]
 pub use backtrace::InternalBacktrace;
 
+#[macro_use]
+extern crate try;
+
 #[derive(Debug)]
 #[allow(unknown_lints, bare_trait_objects)]
 /// Iterator over the error chain using the `Error::cause()` method.

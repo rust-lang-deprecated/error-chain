@@ -23,6 +23,8 @@ example_generated = []
 # https://github.com/rust-lang/backtrace-rs/commit/17db3f34b1e674b2a653f4a4399750e25f657eea in backtrace-rs 0.3.36
 # breaks 1.31.0 because of issues with "mod print"
 backtrace = { version = "0.3.3,<0.3.36", optional = true }
+# For later rust try! compatibility
+try = "1.0"
 
 [build-dependencies]
 version_check = "0.9"
