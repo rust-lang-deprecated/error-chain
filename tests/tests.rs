@@ -204,9 +204,9 @@ fn has_backtrace_depending_on_env() {
     use std::path::Path;
 
     let cmd_path = if cfg!(windows) {
-        Path::new("./target/debug/has_backtrace.exe")
+        Path::new("./target/debug/examples/has_backtrace.exe")
     } else {
-        Path::new("./target/debug/has_backtrace")
+        Path::new("./target/debug/examples/has_backtrace")
     };
     let mut cmd = Command::new(cmd_path);
 
