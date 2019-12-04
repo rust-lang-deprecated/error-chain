@@ -6,9 +6,9 @@ rust:
 # Oldest supported version for all features.
 # Use of https://github.com/rust-lang/rfcs/pull/16
 # rustc-demangle uses feature `rename-dependency`
-- 1.31.0
+- 1.32.0
 # Oldest supported version as dependency, with no features, tests, or examples.
-- 1.10.0
+- 1.13.0
 
 sudo: false
 cache: cargo
@@ -26,7 +26,7 @@ before_script:
 
 script:
 - travis-cargo build -- $FEATURES
-- travis-cargo --skip 1.10.0 test -- $FEATURES
+- travis-cargo --skip 1.13.0 test -- $FEATURES
 
 after_success:
 - travis-cargo --only stable doc
@@ -44,4 +44,4 @@ env:
 matrix:
   exclude:
   - env: FEATURES=--features=backtrace
-    rust: 1.10.0
+    rust: 1.13.0

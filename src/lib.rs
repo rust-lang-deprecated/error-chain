@@ -540,8 +540,8 @@
 //! [`BacktraceFrame`]: https://docs.rs/backtrace/0.3.2/backtrace/struct.BacktraceFrame.html
 
 use std::error;
-use std::iter::Iterator;
 use std::fmt;
+use std::iter::Iterator;
 
 #[macro_use]
 mod impl_error_chain_kind;
@@ -550,9 +550,9 @@ mod error_chain;
 #[macro_use]
 mod quick_main;
 pub use quick_main::ExitCode;
+mod backtrace;
 #[cfg(feature = "example_generated")]
 pub mod example_generated;
-mod backtrace;
 pub use backtrace::Backtrace;
 #[doc(hidden)]
 pub use backtrace::InternalBacktrace;
@@ -597,13 +597,16 @@ pub trait ChainedError: error::Error + Send + 'static {
     type ErrorKind;
 
     /// Constructs an error from a kind, and generates a backtrace.
-    fn from_kind(kind: Self::ErrorKind) -> Self where Self: Sized;
+    fn from_kind(kind: Self::ErrorKind) -> Self
+    where
+        Self: Sized;
 
     /// Constructs a chained error from another error and a kind, and generates a backtrace.
     fn with_chain<E, K>(error: E, kind: K) -> Self
-        where Self: Sized,
-              E: ::std::error::Error + Send + 'static,
-              K: Into<Self::ErrorKind>;
+    where
+        Self: Sized,
+        E: ::std::error::Error + Send + 'static,
+        K: Into<Self::ErrorKind>;
 
     /// Returns the kind of the error.
     fn kind(&self) -> &Self::ErrorKind;
@@ -624,19 +627,23 @@ pub trait ChainedError: error::Error + Send + 'static {
 
     /// Extends the error chain with a new entry.
     fn chain_err<F, EK>(self, error: F) -> Self
-        where F: FnOnce() -> EK,
-              EK: Into<Self::ErrorKind>;
+    where
+        F: FnOnce() -> EK,
+        EK: Into<Self::ErrorKind>;
 
     /// Creates an error from its parts.
     #[doc(hidden)]
-    fn new(kind: Self::ErrorKind, state: State) -> Self where Self: Sized;
+    fn new(kind: Self::ErrorKind, state: State) -> Self
+    where
+        Self: Sized;
 
     /// Returns the first known backtrace, either from its State or from one
     /// of the errors from `foreign_links`.
     #[doc(hidden)]
     #[allow(unknown_lints, bare_trait_objects)]
     fn extract_backtrace(e: &(error::Error + Send + 'static)) -> Option<InternalBacktrace>
-        where Self: Sized;
+    where
+        Self: Sized;
 }
 
 /// A struct which formats an error for output.
@@ -644,17 +651,17 @@ pub trait ChainedError: error::Error + Send + 'static {
 pub struct DisplayChain<'a, T: 'a + ?Sized>(&'a T);
 
 impl<'a, T> fmt::Display for DisplayChain<'a, T>
-    where T: ChainedError
+where
+    T: ChainedError,
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        // Keep `try!` for 1.10 support
         writeln!(fmt, "Error: {}", self.0)?;
 
         for e in self.0.iter().skip(1) {
             writeln!(fmt, "Caused by: {}", e)?;
         }
 
-        if let Some(backtrace) = self.0.backtrace() {
+        if let Some(backtrace) = ChainedError::backtrace(self.0) {
             writeln!(fmt, "{:?}", backtrace)?;
         }
 
@@ -686,8 +693,7 @@ impl State {
     /// Creates a new State type
     #[allow(unknown_lints, bare_trait_objects)]
     pub fn new<CE: ChainedError>(e: Box<error::Error + Send>) -> State {
-        let backtrace = CE::extract_backtrace(&*e)
-            .unwrap_or_else(InternalBacktrace::new);
+        let backtrace = CE::extract_backtrace(&*e).unwrap_or_else(InternalBacktrace::new);
         State {
             next_error: Some(e),
             backtrace: backtrace,
@@ -814,5 +820,5 @@ macro_rules! ensure {
 
 #[doc(hidden)]
 pub mod mock {
-    error_chain!{}
+    error_chain! {}
 }

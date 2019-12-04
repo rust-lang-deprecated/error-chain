@@ -43,7 +43,7 @@ mod imp {
                     };
                     ENABLED.store(enabled as usize + 1, Ordering::SeqCst);
                     if !enabled {
-                        return InternalBacktrace { backtrace: None }
+                        return InternalBacktrace { backtrace: None };
                     }
                 }
                 1 => return InternalBacktrace { backtrace: None },
