@@ -199,13 +199,21 @@ fn empty() {
 #[test]
 #[cfg(feature = "backtrace")]
 fn has_backtrace_depending_on_env() {
-    use std::path::Path;
+    use std::path::PathBuf;
     use std::process::Command;
 
-    let cmd_path = if cfg!(windows) {
-        Path::new("./target/debug/has_backtrace.exe")
+    let cmd_folder = if cfg!(build="debug") {
+        "debug"
+    } else if cfg!(build="release") {
+        "release"
     } else {
-        Path::new("./target/debug/has_backtrace")
+        panic!("Unknown build config");
+    };
+
+    let cmd_path = if cfg!(windows) {
+        PathBuf::from(format!("./target/{}/examples/has_backtrace.exe", cmd_folder))
+    } else {
+        PathBuf::from(format!("./target/{}/examples/has_backtrace", cmd_folder))
     };
     let mut cmd = Command::new(cmd_path);
 
