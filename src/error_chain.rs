@@ -301,10 +301,6 @@ macro_rules! impl_error_chain_processed {
         }
 
         impl ::std::error::Error for $error_name {
-            fn description(&self) -> &str {
-                self.description()
-            }
-
             impl_error_chain_cause_or_source!{
                 types {
                     $error_kind_name
@@ -369,7 +365,7 @@ macro_rules! impl_error_chain_processed {
                 $(
                     $(#[$meta_foreign_links])*
                     $foreign_link_variant(err: $foreign_link_error_path) {
-                        description(::std::error::Error::description(err))
+                        description("")
                         display("{}", err)
                     }
                 ) *
