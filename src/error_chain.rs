@@ -301,6 +301,7 @@ macro_rules! impl_error_chain_processed {
         }
 
         impl ::std::error::Error for $error_name {
+            #[allow(deprecated)]
             fn description(&self) -> &str {
                 self.description()
             }
@@ -356,6 +357,7 @@ macro_rules! impl_error_chain_processed {
 
         impl_error_chain_kind! {
             /// The kind of an error.
+            #[allow(deprecated)]
             #[derive(Debug)]
             pub enum $error_kind_name {
                 $(
@@ -369,6 +371,7 @@ macro_rules! impl_error_chain_processed {
                 $(
                     $(#[$meta_foreign_links])*
                     $foreign_link_variant(err: $foreign_link_error_path) {
+			#[allow(deprecated)]
                         description(::std::error::Error::description(err))
                         display("{}", err)
                     }
