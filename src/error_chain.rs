@@ -68,6 +68,21 @@ macro_rules! impl_error_chain_cause_or_source {
         };
 }
 
+/// Conditional usage of deprecated Error::description
+#[doc(hidden)]
+#[cfg(has_error_description_deprecated)]
+#[macro_export(local_inner_macros)]
+macro_rules! call_to_deprecated_description {
+    ($e:ident) => { "" };
+}
+
+#[doc(hidden)]
+#[cfg(not(has_error_description_deprecated))]
+#[macro_export(local_inner_macros)]
+macro_rules! call_to_deprecated_description {
+    ($e:ident) => { ::std::error::Error::description($e) };
+}
+
 /// Prefer to use `error_chain` instead of this macro.
 #[doc(hidden)]
 #[macro_export(local_inner_macros)]
@@ -301,6 +316,7 @@ macro_rules! impl_error_chain_processed {
         }
 
         impl ::std::error::Error for $error_name {
+            #[cfg(not(has_error_description_deprecated))]
             fn description(&self) -> &str {
                 self.description()
             }
@@ -369,7 +385,7 @@ macro_rules! impl_error_chain_processed {
                 $(
                     $(#[$meta_foreign_links])*
                     $foreign_link_variant(err: $foreign_link_error_path) {
-                        description(::std::error::Error::description(err))
+                        description(call_to_deprecated_description!(err))
                         display("{}", err)
                     }
                 ) *
