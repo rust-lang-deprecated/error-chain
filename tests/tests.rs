@@ -202,16 +202,19 @@ fn has_backtrace_depending_on_env() {
     use std::path::PathBuf;
     use std::process::Command;
 
-    let cmd_folder = if cfg!(build="debug") {
+    let cmd_folder = if cfg!(build = "debug") {
         "debug"
-    } else if cfg!(build="release") {
+    } else if cfg!(build = "release") {
         "release"
     } else {
         panic!("Unknown build config");
     };
 
     let cmd_path = if cfg!(windows) {
-        PathBuf::from(format!("./target/{}/examples/has_backtrace.exe", cmd_folder))
+        PathBuf::from(format!(
+            "./target/{}/examples/has_backtrace.exe",
+            cmd_folder
+        ))
     } else {
         PathBuf::from(format!("./target/{}/examples/has_backtrace", cmd_folder))
     };

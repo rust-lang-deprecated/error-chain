@@ -23,10 +23,12 @@ before_script:
 - |
   pip install 'travis-cargo<0.2' --user &&
   export PATH=$HOME/.local/bin:$PATH
+  if [ "$CHECK" = "true" ]; then rustup component add rustfmt ; fi
 
 script:
-- travis-cargo build -- $FEATURES
-- travis-cargo --skip 1.13.0 test -- $FEATURES
+- if [ "$CHECK" = "true" ]; then travis-cargo fmt -- -- --check ; fi
+- if [ "$CHECK" = "" ]; then travis-cargo build -- $FEATURES ; fi
+- if [ "$CHECK" = "" ]; then travis-cargo --skip 1.13.0 test -- $FEATURES ; fi
 
 after_success:
 - travis-cargo --only stable doc
@@ -42,6 +44,9 @@ env:
   - FEATURES=--no-default-features
 
 matrix:
+  include:
+  - env: CHECK=true
+    rust: stable
   exclude:
   - env: FEATURES=--features=backtrace
     rust: 1.13.0
