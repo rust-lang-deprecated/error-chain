@@ -73,14 +73,18 @@ macro_rules! impl_error_chain_cause_or_source {
 #[cfg(has_error_description_deprecated)]
 #[macro_export(local_inner_macros)]
 macro_rules! call_to_deprecated_description {
-    ($e:ident) => { "" };
+    ($e:ident) => {
+        ""
+    };
 }
 
 #[doc(hidden)]
 #[cfg(not(has_error_description_deprecated))]
 #[macro_export(local_inner_macros)]
 macro_rules! call_to_deprecated_description {
-    ($e:ident) => { ::std::error::Error::description($e) };
+    ($e:ident) => {
+        ::std::error::Error::description($e)
+    };
 }
 
 /// Prefer to use `error_chain` instead of this macro.

@@ -1,10 +1,11 @@
 [package]
 name = "error-chain"
-version = "0.12.1" # remember to update html_root_url
+version = "0.12.2" # remember to update html_root_url
 authors = [ "Brian Anderson <banderson@mozilla.com>",
             "Paul Colomiets <paul@colomiets.name>",
             "Colin Kiegel <kiegel@gmx.de>",
-            "Yamakaky <yamakaky@yamaworld.fr>"]
+            "Yamakaky <yamakaky@yamaworld.fr>",
+            "Andrew Gauger <andygauge@gmail.com>"]
 description = "Yet another error boilerplate library."
 keywords = ["error"]
 categories = ["rust-patterns"]
