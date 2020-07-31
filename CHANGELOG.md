@@ -1,3 +1,6 @@
+# 0.12.3
+- [executable bits to support build platform linters](https://github.com/rust-lang-nursery/error-chain/pull/289)
+
 # 0.12.2
 - [allow `Error::description` to be used for rust below 1.42](https://github.com/rust-lang-nursery/error-chain/pull/285)
 - [Improvements to has_backtrace_depending_on_env](https://github.com/rust-lang-nursery/error-chain/pull/277)
