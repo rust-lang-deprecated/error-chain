@@ -1,4 +1,4 @@
-# 0.12.3
+# 0.12.4
 - [executable bits to support build platform linters](https://github.com/rust-lang-nursery/error-chain/pull/289)
 
 # 0.12.2
