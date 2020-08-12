@@ -418,7 +418,7 @@
 //! assert_eq!(e.to_string(), "invalid toolchain name: 'xyzzy'");
 //!
 //! // Get the full cause and backtrace:
-//! println!("{}", e.display_chain().to_string());
+//! println!("{}", e.display_chain());
 //! //     Error: invalid toolchain name: 'xyzzy'
 //! //     Caused by: invalid digit found in string
 //! //     stack backtrace:
