@@ -231,7 +231,7 @@ macro_rules! impl_error_chain_processed {
 
             fn with_chain<E, K>(error: E, kind: K)
                 -> Self
-                where E: ::std::error::Error + Send + 'static,
+                where E: ::std::error::Error + Send + Sync + 'static,
                       K: Into<Self::ErrorKind>
             {
                 Self::with_chain(error, kind)
@@ -273,7 +273,7 @@ macro_rules! impl_error_chain_processed {
             /// Constructs a chained error from another error and a kind, and generates a backtrace.
             pub fn with_chain<E, K>(error: E, kind: K)
                 -> $error_name
-                where E: ::std::error::Error + Send + 'static,
+                where E: ::std::error::Error + Send + Sync + 'static,
                       K: Into<$error_kind_name>
             {
                 $error_name::with_boxed_chain(Box::new(error), kind)
@@ -281,7 +281,7 @@ macro_rules! impl_error_chain_processed {
 
             /// Construct a chained error from another boxed error and a kind, and generates a backtrace
             #[allow(unknown_lints, bare_trait_objects)]
-            pub fn with_boxed_chain<K>(error: Box<::std::error::Error + Send>, kind: K)
+            pub fn with_boxed_chain<K>(error: Box<::std::error::Error + Send + Sync>, kind: K)
                 -> $error_name
                 where K: Into<$error_kind_name>
             {
@@ -426,7 +426,7 @@ macro_rules! impl_error_chain_processed {
                       EK: Into<$error_kind_name>;
         }
 
-        impl<T, E> $result_ext_name<T> for ::std::result::Result<T, E> where E: ::std::error::Error + Send + 'static {
+        impl<T, E> $result_ext_name<T> for ::std::result::Result<T, E> where E: ::std::error::Error + Send + Sync + 'static {
             fn chain_err<F, EK>(self, callback: F) -> ::std::result::Result<T, $error_name>
                 where F: FnOnce() -> EK,
                       EK: Into<$error_kind_name> {
