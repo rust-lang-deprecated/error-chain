@@ -1,3 +1,6 @@
+# 0.12.5
+- [Added the 'Sync' trait so that errors can propogate across threads (e.g. usage within tokio)](https://github.com/john-sharratt/error-chain)
+
 # 0.12.4
 - [executable bits to support build platform linters](https://github.com/rust-lang-nursery/error-chain/pull/289)
 
